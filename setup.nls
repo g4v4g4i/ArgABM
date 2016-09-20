@@ -1,0 +1,235 @@
+; TODO: description of this file
+
+; a landscape of arguments and a support relation on these arguments is defined
+to create-support-landscape
+  set-default-shape arguments "circle"
+  set-default-shape starts "circle"
+  repeat number-of-theories [ ; trees are created theory for theory
+    create-starts 1 [
+      set color lime
+      set current-start true
+      set mytheory self
+    ]
+    let i 0
+    while [i < theory-depth] [
+      create-arguments ( 4 ^ (theory-depth - i))[
+        set color gray
+        set current-argument true
+        set mytheory one-of starts with [current-start]
+      ]
+      set i i + 1
+    ]
+    ; create the tree
+    ; each node has 0 or 4 child-arguments
+    ; starting from the starts as root
+    ask starts with [count out-support-neighbors = 0 and current-start][
+      repeat 4 [
+        if any? arguments with [count in-support-neighbors = 0 and current-argument] [
+          create-support-to one-of arguments with [
+            count in-support-neighbors = 0 and current-argument]
+        ]
+      ]
+    ]
+    ; then adding all the normal arguments
+    while [any? arguments with [count in-support-neighbors = 0 and current-argument]][
+      ask arguments with [count in-support-neighbors = 1 and count out-support-neighbors < 4
+        and current-argument][
+      let curarg self
+      repeat (4 - count out-support-neighbors) [
+        if any? other arguments with [count in-support-neighbors = 0 and current-argument
+          and not out-support-neighbor? curarg][
+        create-support-to one-of other arguments with [count in-support-neighbors = 0
+          and current-argument]
+          ]
+      ]
+        ]
+    ]
+    ask starts [ ; to make sure that all theories are visible
+      create-starters-with other starts [set color black]
+      set current-start false
+    ]
+    ask arguments [set current-argument false]
+  ]
+  ; set the shape of the arguments of the best theory different from a circle
+  ask turtles with [(breed = starts or breed = arguments) and mytheory = start 0 ][
+    set shape "triangle"
+  ]
+end
+
+
+; on the created landscape an attack relation is defined
+; attacks occur only between theories
+; the probability that an argument attacks another argument
+; depends on the attack-probability in the interface
+; one theory, the objective best, defends all its arguments
+to define-attack-relation
+  ask turtles with [breed = starts or breed = arguments][
+    let askargu self
+    let curtheory mytheory
+    let attack-random random-float 1.00
+    let starts-list []
+    ask starts [
+      set starts-list lput who starts-list
+    ]
+    set starts-list sort starts-list
+    ; create attacks for theories that are not the objective best theory
+    ; each theory has its own attack probability,
+    ; corresponding to the settings in the interface
+    ; with this attack-probability probability the current argument is attacked
+    ifelse number-of-theories = 2[
+      if attack-random < attack-probability-2nd and curtheory != start 0 [
+        create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
+          and mytheory != curtheory and not (in-support-neighbor?
+            askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+            out-attack-neighbor? askargu)][
+      set color gray
+            ]
+      ]
+    ][
+    ifelse [who] of curtheory = max starts-list and attack-random < attack-probability-3rd [
+      create-attack-to one-of other turtles with [(breed = starts or breed = arguments)
+        and mytheory != curtheory and not (in-support-neighbor?
+          askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+          out-attack-neighbor? askargu)][
+      set color gray
+          ]
+    ][
+    if [who] of curtheory != max starts-list and curtheory != start 0 and
+    attack-random < attack-probability-2nd [
+      create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
+        and mytheory != curtheory and not (in-support-neighbor?
+          askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+          out-attack-neighbor? askargu)][
+      set color gray
+          ]
+    ]
+    ]
+    ]
+    ; attacks for the objective best theory are only created with half the attack-probability
+    ; this because it defends it self 100% and otherwise it would attack the other theories
+    ; too much
+    if attack-random < attack-probability-best and curtheory = start 0 [
+      create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
+        and mytheory != curtheory and not (in-support-neighbor?
+          askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+          out-attack-neighbor? askargu)][
+    set color gray
+          ]
+    ]
+  ]
+  ; after the random attacks are created, attacks coming from the best theory are added
+  ; such that it defends itself completely
+  ask turtles with [(breed = starts or breed = arguments) and mytheory = start 0][
+    let askargu self
+    if any? in-attack-neighbors [
+      ask in-attack-neighbors [
+        let askattack self
+        if not any? in-attack-neighbors with [mytheory = start 0][
+          create-attack-from one-of turtles with [(breed = starts or breed = arguments)
+            and mytheory = start 0 and not (in-support-neighbor? askattack or in-attack-neighbor? askattack or
+              out-support-neighbor? askattack or out-attack-neighbor? askattack) and not (self = askargu)
+          ][
+      set color gray
+          ]
+        ]
+      ]
+    ]
+  ]
+  ; creates the visible tree, centered around the best theory
+  layout-radial
+  turtles with [breed = arguments or breed = starts]
+  links with [breed = supports or breed = starters]
+  start 0
+end
+
+
+to distribute-agents
+  set-default-shape agents "person"
+  ; create agents and initialize their variables
+  create-agents scientists [
+    set color blue
+    move-to one-of starts
+    set collaborator-network []
+    set subjective-relations []
+    set subjective-arguments []
+    set times-jumped 0
+    let theories []
+    ask starts [
+      let start-add []
+      set start-add lput self start-add
+      set start-add lput 0 start-add
+      set theories lput start-add theories
+    ]
+    set current-theory-info theories
+  ]
+  ; create the network of collaborators
+  ; if in the interface "within-theory" is on, collaborative networks are created
+  ; among agents that start from the same theory
+  ; a network has at most 5 agents in it
+  ifelse within-theory [
+    ask starts [
+      let myx xcor
+      let myy ycor
+      let cur-col []
+      if any? agents with [xcor = myx and ycor = myy and empty? collaborator-network][
+        while [count agents with [xcor = myx and ycor = myy and empty? collaborator-network] > 5][
+          ask n-of 5 agents with [xcor = myx and ycor = myy and empty? collaborator-network] [
+            set cur-col lput self cur-col
+          ]
+          ask agents with [member? self cur-col][
+            set collaborator-network cur-col
+          ]
+          set cur-col []
+        ]
+        ask agents with [xcor = myx and ycor = myy and empty? collaborator-network] [
+          set cur-col lput self cur-col
+        ]
+        ask agents with [member? self cur-col][
+          set collaborator-network cur-col
+        ]
+      ]
+    ]
+  ][
+  ; if "within-theory" is off in the interface random collaborative networks
+  ; are created, all of size 5
+  while [any? agents with [empty? collaborator-network]][
+    let cur-col []
+    ask n-of 5 agents with [empty? collaborator-network][
+      set cur-col lput self cur-col
+    ]
+    ask agents with [member? self cur-col][
+      set collaborator-network cur-col
+    ]
+  ]
+  ]
+  ; create the memory of the agent
+  ; keep track of the theories and arguments that the agent has visited
+  ; an argument memory entry has two elements: the argument and its color
+  ask agents [
+    let myx xcor
+    let myy ycor
+    let cur-theory one-of starts with [xcor = myx and ycor = myy]
+    let add-cur []
+    set add-cur lput cur-theory add-cur
+    set add-cur lput [color] of cur-theory add-cur
+    set subjective-arguments lput add-cur subjective-arguments
+  ]
+end
+
+
+; computations for the Popularity plot
+; it computes for every theory the number of
+; agents working on it
+to compute-popularity
+  ask starts [ set myscientists 0 ]
+  ask agents [
+    let myx xcor
+    let myy ycor
+    let myargu one-of turtles with [(breed = starts or breed = arguments) and
+      xcor = myx and ycor = myy]
+    let mystart [mytheory] of myargu
+    ask mystart [
+      set myscientists myscientists + 1
+    ]
+  ]
+end

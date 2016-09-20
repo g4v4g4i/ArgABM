@@ -1,0 +1,167 @@
+; TODO describe this file
+
+; procedure that lets the agents act on the strategy that is chosen in the interface and the
+; best theory that they have computed based on their memory
+to act-on-strategy-agents
+  ask agents [
+    ; only when there is a current best theory
+    ; it makes sense for the agents to want to work on that theory
+    if not empty? cur-best-th and not member? nobody cur-best-th [
+      let myx xcor
+      let myy ycor
+      ; if the agent is not currently working on the best theory
+      ; it considers jumping
+      foreach subjective-arguments [
+        if [xcor] of item 0 ? = myx and [ycor] of item 0 ? = myy and
+        not member? [mytheory] of item 0 ? cur-best-th [
+          set theory-jump theory-jump + 1
+        ]
+      ]
+      ; if the agent has considered jumping jump-threshold times
+      ; it jumps to one of the theories it considers best, based
+      ; on its memory and the computations
+      if theory-jump >= jump-threshold [
+        let ch-best one-of cur-best-th
+        let subj-argus []
+        foreach subjective-arguments [
+          set subj-argus lput item 0 ? subj-argus
+        ]
+        ; if one of the arguments from the best theory is in its memory
+        ; the agent will jump there
+        ifelse any? turtles with [(breed = starts or breed = arguments) and member? self subj-argus and
+          mytheory = ch-best ][
+        move-to one-of turtles with [(breed = starts or breed = arguments) and
+          member? self subj-argus and mytheory = ch-best]
+          ][ ; otherwise the agent jumps to the root of the theory
+        move-to ch-best
+          ]
+        set times-jumped times-jumped + 1
+        set theory-jump 0
+      ]
+    ]
+  ]
+end
+
+
+; based on their memory agents compute lists of attacked arguments
+; with these lists the current best theory is computed
+to compute-strategies-agents
+  compute-subjective-attacked
+  ask agents [
+    set cur-best-th []
+    let list-admissible-arguments []
+    let unique-admissible-arguments false
+    let threshold-admissible-arguments []
+    foreach current-theory-info [
+      set list-admissible-arguments lput item 1 ? list-admissible-arguments
+    ]
+    set list-admissible-arguments sort list-admissible-arguments
+    ; a list of theories with values within the strategy threshold is constructed
+    set threshold-admissible-arguments filter [? >= ((max list-admissible-arguments) * strategy-threshold)]
+    list-admissible-arguments
+    set threshold-admissible-arguments sort threshold-admissible-arguments
+    ; computation of the current best theory
+    foreach current-theory-info [
+      if member? item 1 ? threshold-admissible-arguments [
+        set cur-best-th lput item 0 ? cur-best-th
+      ]
+    ]
+  ]
+end
+
+
+; procedure that computes for each agent which of the arguments in its memory
+; are admissible (and hence which are attacked)
+to compute-subjective-attacked
+  ask agents [
+    let new-info []
+    let new-cur-info []
+    let not-admissible []
+    let args-cur-arguments []
+    let attacked-by-me []
+    ; create a list of only the attacks
+    let attack-relations []
+    foreach subjective-relations [
+      if first ? = "a" [
+        set attack-relations lput ? attack-relations
+      ]
+    ]
+    ; create lists of attacked and attacking arguments
+    let cur-attacked []
+    let cur-attacker []
+    foreach attack-relations [
+      set cur-attacked lput last ? cur-attacked
+      set cur-attacker lput first but-first ? cur-attacker
+    ]
+    foreach subjective-arguments [
+      set args-cur-arguments lput first ? args-cur-arguments
+    ]
+    foreach current-theory-info [
+      set new-info lput replace-item 1 ? 0 new-info
+    ]
+    set current-theory-info new-info
+    let open-rec []
+    let i 0
+    foreach current-theory-info [
+      let cur-theory ?
+      let askstart item 0 cur-theory
+      while [ i < 1 or not empty? open-rec][
+        set not-admissible sentence not-admissible open-rec
+        set open-rec []
+        set attacked-by-me []
+        ; create a list of arguments that are attacked by the current theory
+        ; based on the memory of the current agent
+        if not empty? attack-relations [
+          ask turtles with [member? self args-cur-arguments and mytheory = askstart][
+	    ; edit: christian: second conjunct has been added
+            if member? self cur-attacker and not member? self not-admissible [
+              let cur-turtle self
+              let my-attacked []
+              foreach attack-relations [
+                if first but-first ? = cur-turtle [
+                  set my-attacked lput last ? my-attacked
+                ]
+              ]
+              set attacked-by-me sentence my-attacked attacked-by-me
+            ]
+          ]
+          ; arguments that are attacked by arguments from another theory that are
+          ; not attacked by non-attacked arguments from the current theory
+          ; are added to the open-rec list, the list of attacked-arguments
+          ask turtles with [member? self args-cur-arguments and mytheory = askstart and
+            not member? self not-admissible and member? self cur-attacked][
+          let cur-turtle self
+	  ; comment: christian: this variable is idle and can be removed (?)
+          let my-attacker []
+          foreach attack-relations [
+            if last ? = cur-turtle [
+              if not member? last but-last ? attacked-by-me [
+                set open-rec lput cur-turtle open-rec
+              ]
+            ]
+          ]
+            ]
+        ]
+        set i i + 1
+      ]
+      set i 0
+      ; for the update of the information in current-theory-info
+      set new-cur-info lput replace-item 1 cur-theory (count turtles with [member? self args-cur-arguments and
+        mytheory = askstart] - count turtles with [member? self not-admissible  and mytheory = askstart]) new-cur-info
+    ]
+    ; arguments that are part of the not-admissible list
+    ; are not part of the admissible subjective arguments and hence removed
+    set admissible-subj-argu subjective-arguments
+    foreach subjective-arguments [
+      let cur-argu ?
+      if member? first cur-argu not-admissible [
+        set admissible-subj-argu remove cur-argu admissible-subj-argu
+      ]
+    ]
+    ; update the current-theory-info
+    set current-theory-info new-cur-info
+  ]
+end
+
+
+
