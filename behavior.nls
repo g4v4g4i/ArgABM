@@ -371,21 +371,21 @@ to move-around
 
     ][
     ifelse any? turtles with [(breed = starts or breed = arguments) and
-      in-support-neighbor? myargu and color != gray and color != red and
+      in-support-neighbor? myargu and color != gray and color != turquoise and color != red and
       not (any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
         and member? self [collaborator-network] of curagent])] [
     let move-random random-float 1.0
     ; every time step with 1/5 of the move-probability the agent moves
     ifelse move-random < (0.2 * move-probability * (1 - (color / 200))) [
       move-to one-of turtles with [(breed = starts or breed = arguments) and
-        in-support-neighbor? myargu and color != gray and color != red and not (
+        in-support-neighbor? myargu and color != gray and color != turquoise and color != red and not (
           any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
             and member? self [collaborator-network] of curagent])]
     ][
-    ; every 5th time step the agent mover with the full move-probability, that depends a bit on the color
+    ; every 6th time step the agent mover with the full move-probability, that depends a bit on the color
     if ticks != 0 and ticks mod 5 = 1 and move-random < move-probability * (1 - (color / 200)) [
       move-to one-of turtles with [(breed = starts or breed = arguments) and
-        in-support-neighbor? myargu and color != gray and color != red and not (
+        in-support-neighbor? myargu and color != gray and color != turquoise and color != red and not (
           any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
             and member? self [collaborator-network] of curagent])]
     ]
