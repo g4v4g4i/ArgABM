@@ -50,8 +50,8 @@ to update-landscape
       ; once an argument is fully dresearched all its relations,
       ; attack and support, are discovered
       if color = red [
-        if any? out-support-neighbors with [color = gray][
-          ask out-support-neighbors with [color = gray][
+        if any? out-support-neighbors with [color = gray or color = turquoise][
+          ask out-support-neighbors with [color = gray or color = turquoise][
             set color lime
             ask my-in-supports [
               set color cyan
