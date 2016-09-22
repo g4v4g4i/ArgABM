@@ -11,7 +11,7 @@ to update-landscape
     if any? turtles with [breed = agents and xcor = myx and ycor = myy and not communicating][
       set researcher-ticks researcher-ticks + 1
       ; for arguments that have still undiscovered relations/neighbors and are not fully researched
-      if ticks mod 5 = 0 and color != red [ 		; this ticks mod 5 = 0 check is intentional in order to slow discovery down for agents who communicate.
+      if ticks mod 5 = 1 and color != red [
         let attack-random random-float 1.00
         ; depending on the color a new supported argument is discovered, until all
         ; supported arguments are discovered
