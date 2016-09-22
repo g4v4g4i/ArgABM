@@ -338,13 +338,13 @@ to move-around
     let myx xcor
     let myy ycor
     let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]
+      xcor = myx and ycor = myy] 	; set myargu the argument the current agent is on
     let curagent self
     let not-admissible []
     if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-      let info-not-admissible filter [not member? ? admissible-subj-argu] subjective-arguments
+      let info-not-admissible filter [not member? ? admissible-subj-argu] subjective-arguments 	; puts the non admissible arguments info of the current agent into "info-not-admissible". Format: list: [[(argument a) color][(argument b) color]...]
       foreach info-not-admissible [
-        set not-admissible lput item 0 ? not-admissible
+        set not-admissible lput item 0 ? not-admissible ;the "not-admissible" list only contains the not admissible arguments (and not the colors anymore): list: [(argument a) (argument b)...]
       ]
     ]
     ; an agent working on an attacked argument will try to find a defense for this attack,
@@ -353,34 +353,22 @@ to move-around
     ; already discovered)
     ifelse member? myargu not-admissible and [color] of myargu != red[
       let myattacks []
-      ask myargu [
-        ask my-in-attacks [
-          ask myargu [
-            ask other-end [
-              if not any? in-attack-neighbors with [mytheory = [mytheory] of myargu][
-                set myattacks lput self myattacks
-              ]
-            ]
+	  let moved false
+      ask myargu [ 	; the argument the current agent is on
+		ask my-in-attacks [ 	; the attacks going into the myargu argument
+          if not moved [ 	; check to prevent the agent from searching for further defender-childs when they already moved to one
+			ask end1 [ 	; ask the arguments where the attack to myargu is coming from...
+				let defender-child in-attack-neighbors with [in-support-neighbor? myargu and color != gray and color != turquoise] 	; search for defender childs of myargu which are discovered
+				if any? defender-child [ ; if a such defender child exist jump to one.
+					ask curagent [move-to one-of defender-child]
+					set moved true
+       
+				]
           ]
+		  ]
         ]
       ]
-      if not empty? myattacks [
-        ask turtles with [breed = arguments and in-support-neighbor? myargu and color != gray][
-          let nextargu self
-          let moved false
-          foreach myattacks [
-            let myattacker self
-            if in-attack-neighbor? nextargu [
-              ask curagent [
-                if not moved [
-                  move-to nextargu
-                  set moved true
-                ]
-              ]
-            ]
-          ]
-        ]
-      ]
+
     ][
     ifelse any? turtles with [(breed = starts or breed = arguments) and
       in-support-neighbor? myargu and color != gray and color != red and
