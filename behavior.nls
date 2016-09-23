@@ -11,7 +11,7 @@ to update-landscape
     if any? turtles with [breed = agents and xcor = myx and ycor = myy and not communicating][
       set researcher-ticks researcher-ticks + 1
       ; for arguments that have still undiscovered relations/neighbors and are not fully researched
-      if ticks mod 5 = 1 and color != red [
+      if ticks mod 5 = 4 and color != red [
         let attack-random random-float 1.00
         ; depending on the color a new supported argument is discovered, until all
         ; supported arguments are discovered
@@ -50,8 +50,8 @@ to update-landscape
       ; once an argument is fully dresearched all its relations,
       ; attack and support, are discovered
       if color = red [
-        if any? out-support-neighbors with [color = gray][
-          ask out-support-neighbors with [color = gray][
+        if any? out-support-neighbors with [color = gray or color = turquoise][
+          ask out-support-neighbors with [color = gray or color = turquoise][
             set color lime
             ask my-in-supports [
               set color cyan
@@ -85,6 +85,74 @@ to update-landscape
   ]
 end
 
+to update-memories-only 	; procedure to be performed before every movement by the respective agent so that she always remembers the arguments she saw
+    let myx xcor
+    let myy ycor
+    let cur-argum one-of turtles with [(breed = starts or breed = arguments)
+      and xcor = myx and ycor = myy]
+    let add-cur (sentence cur-argum [color] of cur-argum)
+    set subjective-arguments lput add-cur subjective-arguments
+    let to-add []
+    let to-add-argu []
+    let neighborargs []
+    set neighborargs lput cur-argum neighborargs
+    ; for the current argument
+    ; add the neighboring discovered arguments and relations (attacks and supports)
+    ; to a to-add list
+    ask cur-argum [
+      if any? in-support-neighbors with [color != gray][
+        ask in-support-neighbors with [color != gray][
+          set neighborargs lput self neighborargs
+          let add-argu []
+          set add-argu lput "s" add-argu
+          set add-argu lput self add-argu
+          set add-argu lput cur-argum add-argu
+          set to-add lput add-argu to-add
+          let add-other (sentence self color)
+          set to-add-argu lput add-other to-add-argu
+        ]
+      ]
+      if any? out-support-neighbors with [color != gray][
+        ask out-support-neighbors with [color != gray][
+          set neighborargs lput self neighborargs
+          let add-argu []
+          set add-argu lput "s" add-argu
+          set add-argu lput cur-argum add-argu
+          set add-argu lput self add-argu
+          set to-add lput add-argu to-add
+          let add-other (sentence self color)
+          set to-add-argu lput add-other to-add-argu
+        ]
+      ]
+      if any? my-in-attacks with [color != gray][
+        ask my-in-attacks with [color != gray][
+          set neighborargs lput other-end neighborargs
+          let add-argu []
+          set add-argu lput "a" add-argu
+          set add-argu lput other-end add-argu
+          set add-argu lput cur-argum add-argu
+          set to-add lput add-argu to-add
+          let add-other (sentence other-end [color] of other-end)
+          set to-add-argu lput add-other to-add-argu
+        ]
+      ]
+      if any? my-out-attacks with [color != gray][
+        ask my-out-attacks with [color != gray][
+          set neighborargs lput other-end neighborargs
+          let add-argu []
+          set add-argu lput "a" add-argu
+          set add-argu lput cur-argum add-argu
+          set add-argu lput other-end add-argu
+          set to-add lput add-argu to-add
+          let add-other (sentence other-end [color] of other-end)
+          set to-add-argu lput add-other to-add-argu
+        ]
+      ]
+    ]
+    ; remove duplicates from the list
+    set subjective-relations remove-duplicates sentence subjective-relations to-add
+    set subjective-arguments remove-duplicates sentence subjective-arguments to-add-argu
+end
 
 ; every round, the agents update their memory:
 ; arguments that have changed color/explanatory power, new arguments/links
@@ -334,17 +402,18 @@ end
 ; the probability of moving increases (a little) when the argument is further researched
 ; in one time step agents can either receive information or move, but not both
 to move-around
-  ask agents with [not communicating][
+  ask agents [
     let myx xcor
     let myy ycor
     let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]
+      xcor = myx and ycor = myy] 	; set myargu the argument the current agent is on
     let curagent self
     let not-admissible []
+	let moved false
     if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-      let info-not-admissible filter [not member? ? admissible-subj-argu] subjective-arguments
+      let info-not-admissible filter [not member? ? admissible-subj-argu] subjective-arguments 	; puts the non admissible arguments info of the current agent into "info-not-admissible". Format: list: [[(argument a) color][(argument b) color]...]
       foreach info-not-admissible [
-        set not-admissible lput item 0 ? not-admissible
+        set not-admissible lput item 0 ? not-admissible ;the "not-admissible" list only contains the not admissible arguments (and not the colors anymore): list: [(argument a) (argument b)...]
       ]
     ]
     ; an agent working on an attacked argument will try to find a defense for this attack,
@@ -352,61 +421,75 @@ to move-around
     ; that has a defense for the attack (it is not necessarily the case that this defense is
     ; already discovered)
     ifelse member? myargu not-admissible and [color] of myargu != red[
-      let myattacks []
-      ask myargu [
-        ask my-in-attacks [
-          ask myargu [
-            ask other-end [
-              if not any? in-attack-neighbors with [mytheory = [mytheory] of myargu][
-                set myattacks lput self myattacks
-              ]
-            ]
-          ]
-        ]
-      ]
-      if not empty? myattacks [
-        ask turtles with [breed = arguments and in-support-neighbor? myargu and color != gray][
-          let nextargu self
-          let moved false
-          foreach myattacks [
-            let myattacker self
-            if in-attack-neighbor? nextargu [
-              ask curagent [
-                if not moved [
-                  move-to nextargu
-                  set moved true
-                ]
-              ]
-            ]
-          ]
-        ]
-      ]
+	let myattacks []
+	ask myargu [ 	; the argument the current agent is on
+		ask my-in-attacks [ 	; the attacks going into the myargu argument
+			 if not moved [ 	; check to prevent the agent from searching for further defender-childs when they already moved to one
+				ask end1 [ 	; ask the arguments where the attack to myargu is coming from...
+					let defender-child in-attack-neighbors with [in-support-neighbor? myargu and color != gray and color != turquoise and not (any? agents with [xcor = [xcor] of myself and ycor = [ycor] of myself and member? self [collaborator-network] of curagent])] 	; search for defender childs of myargu which are discovered and don't have a agent from the curagent's group working on it.
+					if any? defender-child [ ; if a such defender child exist jump to one.
+						ask curagent [
+							update-memories-only 
+							move-to one-of defender-child
+						]
+						set moved true
+		   
+					]
+				]	
+			]
+		]
+	]
     ][
     ifelse any? turtles with [(breed = starts or breed = arguments) and
-      in-support-neighbor? myargu and color != gray and color != red and
+      in-support-neighbor? myargu and color != gray and color != turquoise and color != red and
       not (any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
         and member? self [collaborator-network] of curagent])] [
-    let move-random random-float 1.0
-    ; every time step with 1/5 of the move-probability the agent moves
-    ifelse move-random < (0.2 * move-probability * (1 - (color / 200))) [
-      move-to one-of turtles with [(breed = starts or breed = arguments) and
-        in-support-neighbor? myargu and color != gray and color != red and not (
-          any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
-            and member? self [collaborator-network] of curagent])]
-    ][
-    ; every 5th time step the agent mover with the full move-probability, that depends a bit on the color
-    if ticks != 0 and ticks mod 5 = 1 and move-random < move-probability * (1 - (color / 200)) [
-      move-to one-of turtles with [(breed = starts or breed = arguments) and
-        in-support-neighbor? myargu and color != gray and color != red and not (
-          any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
-            and member? self [collaborator-network] of curagent])]
-    ]
-    ]
-        ][
+		if member? myargu not-admissible [
+		let myattacks []
+			ask myargu [ 	; the argument the current agent is on
+				ask my-in-attacks [ 	; the attacks going into the myargu argument
+					 if not moved [ 	; check to prevent the agent from searching for further defender-childs when they already moved to one
+						ask end1 [ 	; ask the arguments where the attack to myargu is coming from...
+							let defender-child in-attack-neighbors with [in-support-neighbor? myargu and color != gray and color != turquoise and not (any? agents with [xcor = [xcor] of myself and ycor = [ycor] of myself and member? self [collaborator-network] of curagent])] 	; search for defender childs of myargu which are discovered and don't have a agent from the curagent's group working on it.
+							if any? defender-child [ ; if a such defender child exist jump to one.
+								ask curagent [
+									update-memories-only 
+									move-to one-of defender-child
+								]
+								set moved true
+				   
+							]
+						]	
+					]
+				]
+			]
+		]
+		if not moved [
+			let move-random random-float 1.0
+			; every time step with 1/5 of the move-probability the agent moves
+			ifelse move-random < (0.2 * move-probability * (1 - (color / 200))) [
+				update-memories-only
+				move-to one-of turtles with [(breed = starts or breed = arguments) and
+				in-support-neighbor? myargu and color != gray and color != turquoise and color != red and not (
+				  any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
+					and member? self [collaborator-network] of curagent])]
+			][
+			; every 5th time step (round 6, 11, 16, 21...) the agent moves with the full move-probability, that depends a bit on the color
+			if ticks != 0 and ticks mod 5 = 1 and move-random < move-probability * (1 - (color / 200)) [
+			  update-memories-only
+			  move-to one-of turtles with [(breed = starts or breed = arguments) and
+				in-support-neighbor? myargu and color != gray and color != turquoise and color != red and not (
+				  any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
+					and member? self [collaborator-network] of curagent])]
+			]
+			]
+        ]
+		][
     ; if there is no next argument and the current argument is fully research, the agent moves a step back
     ifelse [color] of myargu = red and any? turtles with [color != gray and out-support-neighbor? myargu
       and not any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself]][
-    move-to one-of turtles with [color != gray and out-support-neighbor? myargu and not any? turtles with
+    update-memories-only
+	move-to one-of turtles with [color != gray and out-support-neighbor? myargu and not any? turtles with
       [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
         and member? self [collaborator-network] of curagent]]
       ][
@@ -416,7 +499,8 @@ to move-around
       let askstart [mytheory] of myargu
       if any? turtles with [(breed = starts or breed = arguments) and color != gray and color != turquoise
         and color != red and mytheory = askstart][
-      move-to one-of turtles with [(breed = starts or breed = arguments) and color != turquoise and
+      update-memories-only
+	  move-to one-of turtles with [(breed = starts or breed = arguments) and color != turquoise and
         color != gray and color != red and mytheory = askstart]
         ]
     ]
