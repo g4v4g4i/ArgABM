@@ -358,7 +358,7 @@ to move-around
 		ask my-in-attacks [ 	; the attacks going into the myargu argument
           if not moved [ 	; check to prevent the agent from searching for further defender-childs when they already moved to one
 			ask end1 [ 	; ask the arguments where the attack to myargu is coming from...
-				let defender-child in-attack-neighbors with [in-support-neighbor? myargu and color != gray and color != turquoise] 	; search for defender childs of myargu which are discovered
+				let defender-child in-attack-neighbors with [in-support-neighbor? myargu and color != gray and color != turquoise and not (any? agents with [xcor = [xcor] of myself and ycor = [ycor] of myself and member? self [collaborator-network] of curagent])] 	; search for defender childs of myargu which are discovered and don't have a agent from the curagent's group working on it.
 				if any? defender-child [ ; if a such defender child exist jump to one.
 					ask curagent [move-to one-of defender-child]
 					set moved true
