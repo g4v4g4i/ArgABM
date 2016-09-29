@@ -32,7 +32,7 @@ arguments-own [mytheory current-argument researcher-ticks]
 ; the current best theory and if it received information at the current time
 agents-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
-  admissible-subj-argu th-args th-relations communicating]
+  admissible-subj-argu th-args th-relations communicating neighborargs]
 
 globals [attacked-arguments current-best-theory times-right
   number-of-theories-many theory-depth-many scientists-many
@@ -65,9 +65,9 @@ to go
   ask agents [
     set communicating false
   ]
+  update-memories
+  duplicate-remover
   if ticks mod 5 = 0 [
-    update-memories
-    duplicate-remover
     compute-strategies-agents
     act-on-strategy-agents
   ]
@@ -445,17 +445,6 @@ social-collaboration
 1
 NIL
 HORIZONTAL
-
-SWITCH
-100
-285
-190
-318
-col-networks
-col-networks
-1
-1
--1000
 
 CHOOSER
 10
