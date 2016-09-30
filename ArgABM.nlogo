@@ -67,7 +67,7 @@ to go
   ]
   update-memories
   duplicate-remover
-  if ticks mod 5 = 0 [
+  if ticks mod 5 = 4 [
     compute-strategies-agents
     act-on-strategy-agents
   ]
@@ -189,7 +189,7 @@ SLIDER
 83
 number-of-theories
 number-of-theories
-1
+2
 3
 2
 1

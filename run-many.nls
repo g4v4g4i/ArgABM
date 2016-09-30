@@ -261,74 +261,70 @@ to run-many
       file-print ""
       file-print ""
       file-print ""
+      set scientists-many 10
+      set theory-depth-many theory-depth-many + 1
     ]
-    let k 0
-     while [k < 5][
-       ifelse k mod 5 = 0 [
-         file-print "plot (x, time22, 'o:b', x, time23, 'x--r', x, time24, 'p:m', x, time32, 's-g', x, time33, '^-.k', x, time34, '*-c');"
-         file-print "legend ($th2, depth 2$, $th2, depth 3$, $th2, depth 4$, $th3, depth 2$, $th3, depth 3$, $th3, depth 4$);"
-         ;file-print "plot (x, time22, 'o:b', x, time23, 'x--r', x, time32, 's-g', x, time33, '^-.k');"
-         ;file-print "legend ($th2, depth 2$, $th2, depth 3$, $th3, depth 2$, $th3, depth 3$);"
-         file-print "ylabel ($Time-steps needed$);"
-         file-print "axis ([5, 105, 0, 1000]);"
-         file-write "title ($Time needed for: "
-       ][
-       ifelse k mod 5 = 1 [
-         file-print "plot (x, suc22, 'o:b', x, suc23, 'x--r', x, suc24, 'p:m', x, suc32, 's-g', x, suc33, '^-.k', x, suc34, '*-c');"
-         ;file-print "plot (x, suc22, 'o:b', x, suc23, 'x--r', x, suc32, 's-g', x, suc33, '^-.k');"
-         file-print "ylabel ($Number of successful runs$);"
-         file-print "axis ([5, 105, 0, 105]);"
-         file-write "title ($Success for: "
-       ][
-       ifelse k mod 5 = 2 [
-         file-print "plot (x, disc22, 'o:b', x, disc23, 'x--r', x, disc24, 'p:m', x, disc32, 's-g', x, disc33, '^-.k', x, disc34, '*-c');"
-         ;file-print "plot (x, disc22, 'o:b', x, disc23, 'x--r', x, disc32, 's-g', x, disc33, '^-.k');"
-         file-print "ylabel ($Percentage of discovered arguments$);"
-         file-print "axis ([5, 105, 0, 105]);"
-         file-write "title ($Percentage discovered arguments for: "
-       ][
-       ifelse k mod 5 = 3[
-         file-print "plot (x, discb22, 'o:b', x, discb23, 'x--r', x, discb24, 'p:m', x, discb32, 's-g', x, discb33, '^-.k', x, discb34, '*-c');"
-         ;file-print "plot (x, discb22, 'o:b', x, discb23, 'x--r', x, discb32, 's-g', x, discb33, '^-.k');"
-         file-print "ylabel ($Percentage of discovered arguments, best theory$);"
-         file-print "axis ([5, 105, 0, 105]);"
-         file-write "title ($Percentage discovered arguments, best theory, for: "
-       ][
-       file-print "plot (x, jumps22, 'o:b', x, jumps23, 'x--r', x, jumps24, 'p:m', x, jumps32, 's-g', x, jumps33, '^-.k', x, jumps34, '*-c');"
-       ;file-print "plot (x, jumps22, 'o:b', x, jumps23, 'x--r', x, jumps32, 's-g', x, jumps33, '^-.k');"
-       file-print "ylabel ($Average number of jumps per agent$);"
-       file-print "axis ([5, 105, 0, 2.5]);"
-         file-write "title ($Average number of jumps per agent for: "
-       ]
-       ]
-       ]
-       ]
-       file-write social-actions
-       file-write "agents, within th.: "
-       file-write within-theory
-       file-write ", with network: "
-       file-write col-networks
-       file-print "$);"
-       if k mod 5 != 0 [
-         file-print "legend ($th2, depth 2$, $th2, depth 3$, $th2, depth 4$, $th3, depth 2$, $th3, depth 3$, $th3, depth 4$, $location$, $southeast$);"
-         ;file-print "legend ($th2, depth 2$, $th2, depth 3$, $th3, depth 2$, $th3, depth 3$, $location$, $southeast$);"
-       ]
-       file-print "xlabel ($Number of scientists$);"
-       file-print ""
-       file-print ""
-       file-print ""
-       file-print ""
-       file-print ""
-       set k k + 1
-     ]
-     ;set number-of-theories-many 2
-     ;set i i + 1
-  ;]
+    set theory-depth-many 3
+    set number-of-theories-many number-of-theories-many + 1
+  ]
+  let k 0
+  while [k < 5][
+    ifelse k mod 5 = 0 [
+      ;file-print "plot x, time23, 'x--r', x, time24, 'p:m', x, time33, '^-.k', x, time34, '*-c');"
+      ;file-print "legend ($th2, depth 3$, $th2, depth 4$, $th3, depth 3$, $th3, depth 4$);"
+      file-print "plot (x, time23, 'x--r', x, time33, '^-.k');"
+      file-print "legend ($th2, depth 3$, $th3, depth 3$);"
+      file-print "ylabel ($Time-steps needed$);"
+      file-print "axis ([5, 105, 0, 1000]);"
+      file-write "title ($Time needed for: "
+    ][
+    ifelse k mod 5 = 1 [
+      ;file-print "plot (x, suc23, 'x--r', x, suc24, 'p:m', x, suc33, '^-.k', x, suc34, '*-c');"
+      file-print "plot (x, suc23, 'x--r', x, suc33, '^-.k');"
+      file-print "ylabel ($Number of successful runs$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Success for: "
+    ][
+    ifelse k mod 5 = 2 [
+      ;file-print "plot (x, disc23, 'x--r', x, disc24, 'p:m', x, disc33, '^-.k', x, disc34, '*-c');"
+      file-print "plot (x, disc23, 'x--r', x, disc33, '^-.k');"
+      file-print "ylabel ($Percentage of discovered arguments$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Percentage discovered arguments for: "
+    ][
+    ifelse k mod 5 = 3[
+      ;file-print "plot (x, discb23, 'x--r', x, discb24, 'p:m', x, discb33, '^-.k', x, discb34, '*-c');"
+      file-print "plot (x, discb23, 'x--r', x, discb33, '^-.k');"
+      file-print "ylabel ($Percentage of discovered arguments, best theory$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Percentage discovered arguments, best theory, for: "
+    ][
+    ;file-print "plot (x, jumps23, 'x--r', x, jumps24, 'p:m', x, jumps33, '^-.k', x, jumps34, '*-c');"
+    file-print "plot x, jumps23, 'x--r', x, jumps33, '^-.k');"
+    file-print "ylabel ($Average number of jumps per agent$);"
+    file-print "axis ([5, 105, 0, 2.5]);"
+    file-write "title ($Average number of jumps per agent for: "
     ]
+    ]
+    ]
+    ]
+    file-write social-actions
+    file-write "agents, within th.: "
+    file-write within-theory
+    file-print "$);"
+    if k mod 5 != 0 [
+      ;file-print "legend ($th2, depth 3$, $th2, depth 4$, $th3, depth 3$, $th3, depth 4$, $location$, $southeast$);"
+      file-print "legend ($th2, depth 3$, $th3, depth 3$, $location$, $southeast$);"
+    ]
+    file-print "xlabel ($Number of scientists$);"
     file-print ""
     file-print ""
     file-print ""
     file-print ""
+    file-print ""
+    set k k + 1
+  ]
+  file-flush
 end
 
 

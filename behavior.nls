@@ -106,7 +106,7 @@ to update-memories
   
   ; every 5 time-steps the collected information
   ; is shared with other agents
-  if ticks mod 5 = 0 [
+  if ticks mod 5 = 4 [
     share-with-others
   ] 
   
