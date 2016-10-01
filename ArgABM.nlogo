@@ -1,4 +1,13 @@
-; TODO general description of this file
+; this file contains:
+; 1. the definitions of the turtles, links
+;    and variables;
+; 2. it includes the other files; and
+; 3. the procedures that correspond to
+;    the buttons in the interface:
+;    setup, go and reset
+
+
+
 
 
 ; three different kinds of turtles
@@ -9,8 +18,8 @@ breed [starts start]
 breed [agents agent]
 
 ; two different kinds of relations on the arguments
-; a support relation and an attack relation
-directed-link-breed [supports support]
+; a discovery relation and an attack relation
+directed-link-breed [discoveries discovery]
 directed-link-breed [attacks attack]
 
 ; the trees have to be connected in order to be visible
@@ -32,28 +41,35 @@ arguments-own [mytheory current-argument researcher-ticks]
 ; the current best theory and if it received information at the current time
 agents-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
-  admissible-subj-argu th-args th-relations communicating]
+  admissible-subj-argu th-args th-relations communicating neighborargs]
 
-globals [attacked-arguments current-best-theory times-right
-  number-of-theories-many theory-depth-many scientists-many
-  setup-successful setup-time setup-discovered setup-discovered-best
-  setup-jumps success-list]
+; the global variables are all concerned with the
+; run-many procedure
+globals [times-right number-of-theories-many theory-depth-many
+  scientists-many setup-successful setup-time setup-discovered
+  setup-discovered-best setup-jumps]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
+
+
+
 ; the setup procedure:
-; it creates a landscape of arguments and a support relation
+; it creates a landscape of arguments and a discovery relation
 ; on this landscape; attacks are defined;
 ; the agents are distributed over the theories
 to setup
   clear-all
-  create-support-landscape
+  create-discovery-landscape
   define-attack-relation
   distribute-agents
   reset-ticks
 end
+
+
+
 
 
 ; procedure that lets the program run, after the landscape was setup
@@ -65,9 +81,9 @@ to go
   ask agents [
     set communicating false
   ]
-  if ticks mod 5 = 0 [
-    update-memories
-    duplicate-remover
+  update-memories
+  duplicate-remover
+  if ticks mod 5 = 4 [
     compute-strategies-agents
     act-on-strategy-agents
   ]
@@ -76,6 +92,9 @@ to go
   compute-popularity
   tick
 end
+
+
+
 
 
 ; reset the work the scientists have done, but not the landscape
@@ -97,12 +116,13 @@ to reset
     set th-relations []
     set communicating false
   ]
-  ask links with [breed = supports or breed = attacks][set color gray]
+  ask links with [breed = discoveries or breed = attacks][set color gray]
   reset-ticks
 end
 
 
-;
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -189,7 +209,7 @@ SLIDER
 83
 number-of-theories
 number-of-theories
-1
+2
 3
 2
 1
@@ -445,17 +465,6 @@ social-collaboration
 1
 NIL
 HORIZONTAL
-
-SWITCH
-100
-285
-190
-318
-col-networks
-col-networks
-1
-1
--1000
 
 CHOOSER
 10

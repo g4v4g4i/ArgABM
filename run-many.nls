@@ -1,94 +1,102 @@
-; TODO describe this file
+; the run-many procedure is used to obtain results
+; it lets the program run several times for a few 
+; setups at once
+; the results are put into a .txt file that can be
+; used for comparison and making plots for papers/slides
 
 
+
+
+
+; the procedure that lets the program run several times
 to run-many
   clear-all
-  let i 0
-  let try 0
-  let cycle 0
-  let max-cycle 10
-  let perc-disc-argu []
+  let try 0  ; the number of the run with the same setup
+  let cycle 0  ; the number of ticks
+  let max-cycle 0  ; time limit for one try/run
+  ; lists that collect for each setup the percentage of 
+  ; discovered arguments (of the best theory)
+  let perc-disc-argu []  
   let perc-disc-best-argu []
-  let find-good 0
-  let steps-needed []
-  let popularity []
-  let tot-arguments 0
-  set number-of-theories-many 2
-  set theory-depth-many 3
-  set scientists-many 10
-  let disc-arguments 0
-  let disc-best-arguments 0
-  let tot-best-arguments 0
-  let jumps 0
-  ; save the probability settings from the interface in the output
+  let find-good 0  ; number of successful runs
+  let steps-needed []  ; time steps needed for one run
+  let popularity []  ; list with the number of agents per theory
+  let tot-arguments 0  ; the total number of arguments
+  set number-of-theories-many 2  ; initial number of theories
+  set theory-depth-many 3  ; initial depth
+  set scientists-many 10  ; initial number of scientists
+  let disc-arguments 0  ; number of discovered arguments
+  let disc-best-arguments 0  ; number of discovered best arguments
+  let tot-best-arguments 0  ; total number of best arguments
+  let jumps 0  ; number of jumps
+  
+  ; different setups write results to different files
   ifelse social-collaboration = 0.00 [
-  ifelse social-actions = "biased" [
-  ifelse within-theory [
-    file-open "Social_networks_probeersel0b_within.txt"
-  ][
-  file-open "Social_networks_probeersel0b_off.txt"
-  ]
-  ][
- ; show "kind"
-  ifelse within-theory [
-    file-open "Social_networks_probeersel0k_within.txt"
-  ][
-  file-open "Social_networks_probeersel0k_off.txt"
-  ]
-  ]
+    ifelse social-actions = "biased" [
+      ifelse within-theory [
+        file-open "Results0b_within.txt"
+      ][
+      file-open "Results0b_off.txt"
+      ]
+    ][
+    ifelse within-theory [
+      file-open "Results0k_within.txt"
+    ][
+    file-open "Results0k_off.txt"
+    ]
+    ]
   ][
   ifelse social-collaboration = 0.30 [
     ifelse social-actions = "biased" [
-  ifelse within-theory [
-    file-open "Social_networks_probeersel3b_within.txt"
-  ][
-  file-open "Social_networks_probeersel3b_off.txt"
-  ]
-  ][
- ; show "kind"
-  ifelse within-theory [
-    file-open "Social_networks_probeersel3k_within.txt"
-  ][
-  file-open "Social_networks_probeersel3k_off.txt"
-  ]
-  ]
+      ifelse within-theory [
+        file-open "Results3b_within.txt"
+      ][
+      file-open "Results3b_off.txt"
+      ]
+    ][
+    ifelse within-theory [
+      file-open "Results3k_within.txt"
+    ][
+    file-open "Results3k_off.txt"
+    ]
+    ]
   ][
   ifelse social-collaboration = 0.50 [
     ifelse social-actions = "biased" [
-  ifelse within-theory [
-    file-open "Social_networks_probeersel5b_within.txt"
-  ][
-  file-open "Social_networks_probeersel5b_off.txt"
-  ]
-  ][
- ; show "kind"
-  ifelse within-theory [
-    file-open "Social_networks_probeersel5k_within.txt"
-  ][
-  file-open "Social_networks_probeersel5k_off.txt"
-  ]
-  ]
+      ifelse within-theory [
+        file-open "Results5b_within.txt"
+      ][
+      file-open "Results5b_off.txt"
+      ]
+    ][
+    ifelse within-theory [
+      file-open "Results5k_within.txt"
+    ][
+    file-open "Results5k_off.txt"
+    ]
+    ]
   ][
   if social-collaboration = 1.00 [
     ifelse social-actions = "biased" [
-  ifelse within-theory [
-    file-open "Social_networks_probeersel1b_within.txt"
-  ][
-  file-open "Social_networks_probeersel1b_off.txt"
-  ]
-  ][
- ; show "kind"
-  ifelse within-theory [
-    file-open "Social_networks_probeersel1k_within.txt"
-  ][
-  file-open "Social_networks_probeersel1k_off.txt"
-  ]
-  ]
-  ]
+      ifelse within-theory [
+        file-open "Results1b_within.txt"
+      ][
+      file-open "Results1b_off.txt"
+      ]
+    ][
+    ifelse within-theory [
+      file-open "Results1k_within.txt"
+    ][
+    file-open "Results1k_off.txt"
+    ]
+    ]
   ]
   ]
   ]
-  ;file-open "Social_networks_probeersel.txt"
+  ]
+  
+  ; the settings from the interface are 
+  ; written in the .txt files
   file-write "New run for results times "
   file-print date-and-time
   file-print ""
@@ -119,308 +127,288 @@ to run-many
   file-write "Probability of sharing information with other networks: "
   file-print social-collaboration
   file-print ""
-;  while [i < 2][
-;    ifelse i mod 2 = 0 [
-;      set social-actions "kind"
-;    ][
-;    set social-actions "biased"
-;    ]
-;    ifelse i mod 8 = 0 or i mod 8 = 1 [
-;      set within-theory true
-;      set col-networks true
-;    ][
-;    ifelse i mod 8 = 2 or i mod 8 = 3 [
-;      set within-theory true
-;      set col-networks false
-;    ][
-;    ifelse i mod 8 = 4 or i mod 8 = 5 [
-;      set within-theory false
-;      set col-networks true
-;    ][
-;    set within-theory false
-;    set col-networks false
-;    ]
-;    ]
-;    ]
-    file-print "actions, within theory, whole network: "
-    file-print social-actions
-    file-print within-theory
-    file-print col-networks
-    file-print ""
-    file-print ""
-    file-print ""
-    while [number-of-theories-many != 4][
-      while [theory-depth-many != 4][
-        set setup-time []
-        set success-list []
-        set setup-discovered []
-        set setup-successful []
-        set setup-discovered-best []
-         set setup-jumps []
-        create-support-landscape-many
-        set tot-arguments count turtles with [breed = arguments or breed = starts]
-        set max-cycle precision (15 * tot-arguments) -3
-        while [scientists-many <= 100][
-          while [try != 100][
-            write "#theories, depth, scientists, actions, within-theory, whole network, try: "
-             print ""
-             show number-of-theories-many
-             show theory-depth-many
-             show scientists-many
-             show social-actions
-             show within-theory
-             show col-networks
-             show try
-             setup-many
-             if try != 0 [
-               set times-right (find-good / try) * 100
-             ]
-             set cycle 1
-             go
-             while [cycle != max-cycle and any? arguments with [color != red and
-               [myscientists] of mytheory !=  0]][
-             go
-             set cycle cycle + 1
-               ]
-             set steps-needed lput cycle steps-needed
-             ; compute agent distribution over the theories
-             ask starts [
-               set popularity lput myscientists popularity
-             ]
-             ask start 0 [
-               ifelse max popularity = myscientists [
-                 set find-good find-good + 1
-                 ;set success-list lput 1 success-list
-               ][
-               ;set success-list lput 0 success-list
-               ]
-             ]
-             ask agents [
-               set jumps times-jumped + jumps
-             ]
-             ; for the computation of the output
-             set disc-arguments count turtles with [(breed = arguments or breed = starts) and
-               color != gray and color != turquoise]
-             set disc-best-arguments count turtles with [(breed = arguments or breed = starts) and
-               color != gray and color != turquoise and mytheory = start 0]
-             set tot-best-arguments count turtles with [(breed = arguments or breed = starts) and mytheory = start 0]
-             set perc-disc-argu lput ((disc-arguments / tot-arguments) * 100) perc-disc-argu
-             set perc-disc-best-argu lput ((disc-best-arguments / tot-best-arguments) * 100) perc-disc-best-argu
-             set popularity []
-             set try try + 1
+  file-write "Kind of information that is shared between networks: "
+  file-print sharing
+  file-print ""
+  file-print "actions, within theory: "
+  file-print social-actions
+  file-print within-theory
+  file-print ""
+  file-print ""
+  file-print ""
+  
+  while [number-of-theories-many != 4][
+    while [theory-depth-many != 4][
+      set setup-time []
+      set setup-discovered []
+      set setup-successful []
+      set setup-discovered-best []
+      set setup-jumps []
+      create-discovery-landscape-many
+      set tot-arguments count turtles with [breed = arguments or breed = starts]
+      set max-cycle precision (15 * tot-arguments) -3
+      
+      while [scientists-many <= 100][
+        while [try != 100][ 
+          
+          ; to keep track of the current setup of the run
+          write "#theories, depth, scientists, actions, sharing, within-theory, try: "
+          print ""
+          show number-of-theories-many
+          show theory-depth-many
+          show scientists-many
+          show social-actions
+          show sharing
+          show within-theory
+          show try
+          
+          setup-many
+          set cycle 1
+          go
+          ; the program is stopped once all agents are working 
+          ; on a fully discovered theory
+          while [cycle != max-cycle and any? arguments with [color != red and
+            [myscientists] of mytheory !=  0]][
+            go
+            set cycle cycle + 1
           ]
-          file-write "successlist"
-          file-type number-of-theories-many
-          file-type theory-depth-many
-          file-type scientists-many
-          file-print success-list
-          set success-list []
-          set setup-time lput mean steps-needed setup-time
-          set setup-successful lput ((find-good / try) * 100) setup-successful
-          set setup-discovered lput mean perc-disc-argu setup-discovered
-          set setup-discovered-best lput mean perc-disc-best-argu setup-discovered-best
-           set setup-jumps lput ((jumps / try) / scientists-many) setup-jumps
-          ; reset some of the variables
-          set try 0
-          set perc-disc-argu []
-          set perc-disc-best-argu []
-          set find-good 0
-          set steps-needed []
-          set times-right 0
-          ;set out-try 0
-          set disc-arguments 0
-          set disc-best-arguments 0
-          set tot-best-arguments 0
-          set jumps 0
-          ifelse scientists-many < 40[
-            set scientists-many scientists-many + 10
-          ][
-          set scientists-many scientists-many + 30
+          
+          set steps-needed lput cycle steps-needed
+          ; compute agent distribution over the theories
+          ask starts [
+            set popularity lput myscientists popularity
           ]
+          ask start 0 [
+            ifelse max popularity = myscientists [
+              set find-good find-good + 1
+            ][
+            ]
+          ]
+          ask agents [
+            set jumps times-jumped + jumps
+          ]
+          
+          ; for the computation of the output
+          set disc-arguments count turtles with [(breed = arguments or breed = starts) and
+            color != gray and color != turquoise]
+          set disc-best-arguments count turtles with [(breed = arguments or breed = starts) and
+            color != gray and color != turquoise and mytheory = start 0]
+          set tot-best-arguments count turtles with [(breed = arguments or breed = starts) and mytheory = start 0]
+          set perc-disc-argu lput ((disc-arguments / tot-arguments) * 100) perc-disc-argu
+          set perc-disc-best-argu lput ((disc-best-arguments / tot-best-arguments) * 100) perc-disc-best-argu
+          set popularity []
+          set try try + 1
         ]
-        file-write "Time, successful, discovered, discovered of best, jumps: "
-        file-print ""
-        file-write "time"
-        file-type number-of-theories-many
-        file-type theory-depth-many
-        file-type " = "
-        file-print setup-time
-        file-write "suc"
-        file-type number-of-theories-many
-        file-type theory-depth-many
-        file-type " = "
-        file-print setup-successful
-        file-write "disc"
-        file-type number-of-theories-many
-        file-type theory-depth-many
-        file-type " = "
-        file-print setup-discovered
-        file-write "discb"
-        file-type number-of-theories-many
-        file-type theory-depth-many
-        file-type " = "
-        file-print setup-discovered-best
-         file-write "jumps"
-         file-type number-of-theories-many
-         file-type theory-depth-many
-         file-write " = "
-         file-print setup-jumps
-        file-print ""
-        file-print ""
-        file-print ""
-        file-print ""
-        file-flush
-        set scientists-many 10
-        set theory-depth-many theory-depth-many + 1
+        
+        ; add the results from the current setup to the
+        ; list of already obtained results
+        set setup-time lput mean steps-needed setup-time
+        set setup-successful lput ((find-good / try) * 100) setup-successful
+        set setup-discovered lput mean perc-disc-argu setup-discovered
+        set setup-discovered-best lput mean perc-disc-best-argu setup-discovered-best
+        set setup-jumps lput ((jumps / try) / scientists-many) setup-jumps
+        
+        ; reset some of the variables
+        set try 0
+        set perc-disc-argu []
+        set perc-disc-best-argu []
+        set find-good 0
+        set steps-needed []
+        set disc-arguments 0
+        set disc-best-arguments 0
+        set tot-best-arguments 0
+        set jumps 0
+        ifelse scientists-many < 40[
+          set scientists-many scientists-many + 10
+        ][
+        set scientists-many scientists-many + 30
+        ]
       ]
-      set theory-depth-many 3
-      set number-of-theories-many number-of-theories-many + 1
+      
+      ; add the results to the file
+      file-write "Time, successful, discovered, discovered of best, jumps: "
+      file-print ""
+      file-write "time"
+      file-type number-of-theories-many
+      file-type theory-depth-many
+      file-type " = "
+      file-print setup-time
+      file-write "suc"
+      file-type number-of-theories-many
+      file-type theory-depth-many
+      file-type " = "
+      file-print setup-successful
+      file-write "disc"
+      file-type number-of-theories-many
+      file-type theory-depth-many
+      file-type " = "
+      file-print setup-discovered
+      file-write "discb"
+      file-type number-of-theories-many
+      file-type theory-depth-many
+      file-type " = "
+      file-print setup-discovered-best
+      file-write "jumps"
+      file-type number-of-theories-many
+      file-type theory-depth-many
+      file-write " = "
+      file-print setup-jumps
+      file-print ""
+      file-print ""
+      file-print ""
+      file-print ""
+      set scientists-many 10
+      set theory-depth-many theory-depth-many + 1
     ]
-    let k 0
-     while [k < 5][
-       ifelse k mod 5 = 0 [
-         file-print "plot (x, time22, 'o:b', x, time23, 'x--r', x, time24, 'p:m', x, time32, 's-g', x, time33, '^-.k', x, time34, '*-c');"
-         file-print "legend ($th2, depth 2$, $th2, depth 3$, $th2, depth 4$, $th3, depth 2$, $th3, depth 3$, $th3, depth 4$);"
-         ;file-print "plot (x, time22, 'o:b', x, time23, 'x--r', x, time32, 's-g', x, time33, '^-.k');"
-         ;file-print "legend ($th2, depth 2$, $th2, depth 3$, $th3, depth 2$, $th3, depth 3$);"
-         file-print "ylabel ($Time-steps needed$);"
-         file-print "axis ([5, 105, 0, 1000]);"
-         file-write "title ($Time needed for: "
-       ][
-       ifelse k mod 5 = 1 [
-         file-print "plot (x, suc22, 'o:b', x, suc23, 'x--r', x, suc24, 'p:m', x, suc32, 's-g', x, suc33, '^-.k', x, suc34, '*-c');"
-         ;file-print "plot (x, suc22, 'o:b', x, suc23, 'x--r', x, suc32, 's-g', x, suc33, '^-.k');"
-         file-print "ylabel ($Number of successful runs$);"
-         file-print "axis ([5, 105, 0, 105]);"
-         file-write "title ($Success for: "
-       ][
-       ifelse k mod 5 = 2 [
-         file-print "plot (x, disc22, 'o:b', x, disc23, 'x--r', x, disc24, 'p:m', x, disc32, 's-g', x, disc33, '^-.k', x, disc34, '*-c');"
-         ;file-print "plot (x, disc22, 'o:b', x, disc23, 'x--r', x, disc32, 's-g', x, disc33, '^-.k');"
-         file-print "ylabel ($Percentage of discovered arguments$);"
-         file-print "axis ([5, 105, 0, 105]);"
-         file-write "title ($Percentage discovered arguments for: "
-       ][
-       ifelse k mod 5 = 3[
-         file-print "plot (x, discb22, 'o:b', x, discb23, 'x--r', x, discb24, 'p:m', x, discb32, 's-g', x, discb33, '^-.k', x, discb34, '*-c');"
-         ;file-print "plot (x, discb22, 'o:b', x, discb23, 'x--r', x, discb32, 's-g', x, discb33, '^-.k');"
-         file-print "ylabel ($Percentage of discovered arguments, best theory$);"
-         file-print "axis ([5, 105, 0, 105]);"
-         file-write "title ($Percentage discovered arguments, best theory, for: "
-       ][
-       file-print "plot (x, jumps22, 'o:b', x, jumps23, 'x--r', x, jumps24, 'p:m', x, jumps32, 's-g', x, jumps33, '^-.k', x, jumps34, '*-c');"
-       ;file-print "plot (x, jumps22, 'o:b', x, jumps23, 'x--r', x, jumps32, 's-g', x, jumps33, '^-.k');"
-       file-print "ylabel ($Average number of jumps per agent$);"
-       file-print "axis ([5, 105, 0, 2.5]);"
-         file-write "title ($Average number of jumps per agent for: "
-       ]
-       ]
-       ]
-       ]
-       file-write social-actions
-       file-write "agents, within th.: "
-       file-write within-theory
-       file-write ", with network: "
-       file-write col-networks
-       file-print "$);"
-       if k mod 5 != 0 [
-         file-print "legend ($th2, depth 2$, $th2, depth 3$, $th2, depth 4$, $th3, depth 2$, $th3, depth 3$, $th3, depth 4$, $location$, $southeast$);"
-         ;file-print "legend ($th2, depth 2$, $th2, depth 3$, $th3, depth 2$, $th3, depth 3$, $location$, $southeast$);"
-       ]
-       file-print "xlabel ($Number of scientists$);"
-       file-print ""
-       file-print ""
-       file-print ""
-       file-print ""
-       file-print ""
-       set k k + 1
-     ]
-     ;set number-of-theories-many 2
-     ;set i i + 1
-  ;]
+    set theory-depth-many 3
+    set number-of-theories-many number-of-theories-many + 1
+  ]
+  let k 0
+  while [k < 5][
+    ifelse k mod 5 = 0 [
+      ;file-print "plot x, time23, 'x--r', x, time24, 'p:m', x, time33, '^-.k', x, time34, '*-c');"
+      ;file-print "legend ($th2, depth 3$, $th2, depth 4$, $th3, depth 3$, $th3, depth 4$);"
+      file-print "plot (x, time23, 'x--r', x, time33, '^-.k');"
+      file-print "legend ($th2, depth 3$, $th3, depth 3$);"
+      file-print "ylabel ($Time-steps needed$);"
+      file-print "axis ([5, 105, 0, 1000]);"
+      file-write "title ($Time needed for: "
+    ][
+    ifelse k mod 5 = 1 [
+      ;file-print "plot (x, suc23, 'x--r', x, suc24, 'p:m', x, suc33, '^-.k', x, suc34, '*-c');"
+      file-print "plot (x, suc23, 'x--r', x, suc33, '^-.k');"
+      file-print "ylabel ($Number of successful runs$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Success for: "
+    ][
+    ifelse k mod 5 = 2 [
+      ;file-print "plot (x, disc23, 'x--r', x, disc24, 'p:m', x, disc33, '^-.k', x, disc34, '*-c');"
+      file-print "plot (x, disc23, 'x--r', x, disc33, '^-.k');"
+      file-print "ylabel ($Percentage of discovered arguments$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Percentage discovered arguments for: "
+    ][
+    ifelse k mod 5 = 3[
+      ;file-print "plot (x, discb23, 'x--r', x, discb24, 'p:m', x, discb33, '^-.k', x, discb34, '*-c');"
+      file-print "plot (x, discb23, 'x--r', x, discb33, '^-.k');"
+      file-print "ylabel ($Percentage of discovered arguments, best theory$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Percentage discovered arguments, best theory, for: "
+    ][
+    ;file-print "plot (x, jumps23, 'x--r', x, jumps24, 'p:m', x, jumps33, '^-.k', x, jumps34, '*-c');"
+    file-print "plot x, jumps23, 'x--r', x, jumps33, '^-.k');"
+    file-print "ylabel ($Average number of jumps per agent$);"
+    file-print "axis ([5, 105, 0, 2.5]);"
+    file-write "title ($Average number of jumps per agent for: "
+    ]
+    ]
+    ]
+    ]
+    file-write social-actions
+    file-write "agents, within th.: "
+    file-write within-theory
+    file-print "$);"
+    if k mod 5 != 0 [
+      ;file-print "legend ($th2, depth 3$, $th2, depth 4$, $th3, depth 3$, $th3, depth 4$, $location$, $southeast$);"
+      file-print "legend ($th2, depth 3$, $th3, depth 3$, $location$, $southeast$);"
+    ]
+    file-print "xlabel ($Number of scientists$);"
+    file-print ""
+    file-print ""
+    file-print ""
+    file-print ""
+    file-print ""
+    set k k + 1
+  ]
+  file-flush
 end
 
 
 
 
-; procedure to create the landscape
-; it creates a landscape of arguments and a support relation
-; on this landscape attacks are defined
-; the expalantory power is distributed over the arguments
+
+; the setup procedure:
+; it creates a landscape of arguments and a discovery relation
+; on this landscape; attacks are defined;
 ; the agents are distributed over the theories
 to setup-many
   ; instead of clear-all, the globals should not be cleared
   clear-turtles clear-patches clear-drawing clear-all-plots clear-output
-  create-support-landscape-many
+  create-discovery-landscape-many
   define-attack-relation
   distribute-agents-many
   reset-ticks
 end
 
 
-; a landscape of arguments and a support relation on these arguments is defined
+; a landscape of arguments and a discovery relation on these arguments is defined
 ; what kind of arguments are used depends on whether this is a two-phase
 ; setup or a "normal" setup
-to create-support-landscape-many
+to create-discovery-landscape-many
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
+  
   repeat number-of-theories-many [ ; trees are created theory for theory
-   create-starts 1 [
-     set color lime
-     set current-start true
-     set mytheory self
-   ]
-   let i 0
-   while [i < theory-depth-many] [
-     create-arguments ( 4 ^ (theory-depth-many - i))[
-       set color gray
-       set current-argument true
-       set mytheory one-of starts with [current-start]
-     ]
-     set i i + 1
-   ]
-   ; create the tree
-   ; starting from the starts as root
-   ask starts with [count out-support-neighbors = 0 and current-start][
-     repeat 4 [
-       if any? arguments with [count in-support-neighbors = 0 and current-argument] [
-         create-support-to one-of arguments with [
-           count in-support-neighbors = 0 and current-argument]
-       ]
-     ]
-   ]
-   ; then adding all the normal arguments
-   while [any? arguments with [count in-support-neighbors = 0 and current-argument]][
-     ask arguments with [count in-support-neighbors = 1 and count out-support-neighbors < 4
-       and current-argument][
-       let curarg self
-       repeat (4 - count out-support-neighbors) [
-         if any? other arguments with [count in-support-neighbors = 0 and current-argument
-           and not out-support-neighbor? curarg][
-           create-support-to one-of other arguments with [count in-support-neighbors = 0
-             and current-argument]
-           ]
-       ]
-       ]
-   ]
-   ask starts [ ; to make sure that all theories are visible
-     create-starters-with other starts [set color black]
-     set current-start false
-   ]
-   ask arguments [set current-argument false]
+    create-starts 1 [
+      set color lime
+      set current-start true
+      set mytheory self
+    ]
+    let i 0
+    while [i < theory-depth-many] [
+      create-arguments ( 4 ^ (theory-depth-many - i))[
+        set color gray
+        set current-argument true
+        set mytheory one-of starts with [current-start]
+      ]
+      set i i + 1
+    ]
+    
+    create-discovery-trees
+    
+    ask starts [ ; to make sure that all theories are visible
+      create-starters-with other starts [set color black]
+      set current-start false
+    ]
+    ask arguments [set current-argument false]
   ]
   ; set the shape of the arguments of the best theory different from a circle
   ask turtles with [(breed = starts or breed = arguments) and mytheory = start 0 ][
-    ; set shape "cat"
     set shape "triangle"
   ]
 end
 
 
+
+
+
 ; agents are distributed randomly over the theories
 to distribute-agents-many
   set-default-shape agents "person"
-  ; create agents and initialize their variables
+  
+  agents-create-scientists-many
+  
+  ; create the network of collaborators
+  ; if in the interface "within-theory" is on, collaborative networks are created
+  ; among agents that start from the same theory
+  ; a network has at most 5 agents in it
+  ifelse within-theory [
+    distribute-agents-within-theory-on
+  ][
+  ; if "within-theory" is off in the interface random collaborative networks
+  ; are created, all of size 5
+  distribute-agents-within-theory-off    
+  ]
+  
+  agents-create-memory
+end
+
+
+
+
+
+; create agents and initialize their variables
+to agents-create-scientists-many
   create-agents scientists-many [
     set color blue
     move-to one-of starts
@@ -436,57 +424,5 @@ to distribute-agents-many
       set theories lput start-add theories
     ]
     set current-theory-info theories
-  ]
-  ; create the network of collaborators
-  ; if in the interface "within-theory" is on, collaborative networks are created
-  ; among agents that start from the same theory
-  ; a network has at most 5 agents in it
-  ifelse within-theory [
-    ask starts [
-      let myx xcor
-      let myy ycor
-      let cur-col []
-      if any? agents with [xcor = myx and ycor = myy and empty? collaborator-network][
-        while [count agents with [xcor = myx and ycor = myy and empty? collaborator-network] > 5][
-          ask n-of 5 agents with [xcor = myx and ycor = myy and empty? collaborator-network] [
-            set cur-col lput self cur-col
-          ]
-          ask agents with [member? self cur-col][
-            set collaborator-network cur-col
-          ]
-          set cur-col []
-        ]
-        ask agents with [xcor = myx and ycor = myy and empty? collaborator-network] [
-          set cur-col lput self cur-col
-          ]
-        ask agents with [member? self cur-col][
-          set collaborator-network cur-col
-        ]
-      ]
-    ]
-  ][
-  ; if "within-theory" is off in the interface random collaborative networks
-  ; are created, all of size 5
-  while [any? agents with [empty? collaborator-network]][
-    let cur-col []
-    ask n-of 5 agents with [empty? collaborator-network][
-      set cur-col lput self cur-col
-    ]
-    ask agents with [member? self cur-col][
-      set collaborator-network cur-col
-    ]
-  ]
-  ]
-  ; create the memory of the agent
-  ; keep track of the theories and arguments that the agent has visited
-  ; an argument memory entry has three elements: the argument and its color
-  ask agents [
-   let myx xcor
-   let myy ycor
-   let cur-theory one-of starts with [xcor = myx and ycor = myy]
-   let add-cur []
-   set add-cur lput cur-theory add-cur
-   set add-cur lput [color] of cur-theory add-cur
-   set subjective-arguments lput add-cur subjective-arguments
   ]
 end

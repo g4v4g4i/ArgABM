@@ -3,8 +3,8 @@
 ;    attacks and discovery relations
 ; 2. populate the landscape with agents
 
-; a landscape of arguments and a support relation on these arguments is defined
-to create-support-landscape
+; a landscape of arguments and a discovery relation on these arguments is defined
+to create-discovery-landscape
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
   
@@ -24,7 +24,7 @@ to create-support-landscape
       set i i + 1
     ]
 
-    create-support-trees
+    create-discovery-trees
 
     ask starts [ ; to make sure that all theories are visible
       create-starters-with other starts [set color black]
@@ -38,27 +38,27 @@ to create-support-landscape
   ]
 end
 
-; create the theory support/discovery trees
+; create the theory discovery trees
 ; each node has 0 or 4 child-arguments
 ; starting from the starts as root
-to create-support-trees
+to create-discovery-trees
   ; first level with starts as roots
-  ask starts with [count out-support-neighbors = 0 and current-start][
+  ask starts with [count out-discovery-neighbors = 0 and current-start][
     repeat 4 [
-      if any? arguments with [count in-support-neighbors = 0 and current-argument] [
-        create-support-to one-of arguments with [
-          count in-support-neighbors = 0 and current-argument]
+      if any? arguments with [count in-discovery-neighbors = 0 and current-argument] [
+        create-discovery-to one-of arguments with [
+          count in-discovery-neighbors = 0 and current-argument]
       ]
     ]
   ]
   ; then adding all the normal arguments
-  while [any? arguments with [count in-support-neighbors = 0 and current-argument]][
-    ask arguments with [count in-support-neighbors = 1 and count out-support-neighbors < 4 and current-argument][
+  while [any? arguments with [count in-discovery-neighbors = 0 and current-argument]][
+    ask arguments with [count in-discovery-neighbors = 1 and count out-discovery-neighbors < 4 and current-argument][
       let curarg self
-      repeat (4 - count out-support-neighbors) [
-        if any? other arguments with [count in-support-neighbors = 0 and current-argument
-          and not out-support-neighbor? curarg][
-          create-support-to one-of other arguments with [count in-support-neighbors = 0 and current-argument]
+      repeat (4 - count out-discovery-neighbors) [
+        if any? other arguments with [count in-discovery-neighbors = 0 and current-argument
+          and not out-discovery-neighbor? curarg][
+          create-discovery-to one-of other arguments with [count in-discovery-neighbors = 0 and current-argument]
         ]
       ]
     ]
@@ -90,8 +90,8 @@ to define-attack-relation-defend-best
         let askattack self
         if not any? in-attack-neighbors with [mytheory = start 0][
           create-attack-from one-of turtles with [(breed = starts or breed = arguments)
-            and mytheory = start 0 and not (in-support-neighbor? askattack or in-attack-neighbor? askattack or
-              out-support-neighbor? askattack or out-attack-neighbor? askattack) and not (self = askargu)
+            and mytheory = start 0 and not (in-discovery-neighbor? askattack or in-attack-neighbor? askattack or
+              out-discovery-neighbor? askattack or out-attack-neighbor? askattack) and not (self = askargu)
           ][
       set color gray
           ]
@@ -115,8 +115,8 @@ to define-attack-relation-create-attacks
   ifelse number-of-theories = 2[
     if attack-random < attack-probability-2nd and curtheory != start 0 [
       create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
-        and mytheory != curtheory and not (in-support-neighbor?
-          askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+        and mytheory != curtheory and not (in-discovery-neighbor?
+          askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
           out-attack-neighbor? askargu)][
       set color gray
       ]
@@ -124,8 +124,8 @@ to define-attack-relation-create-attacks
   ][
   ifelse [who] of curtheory = max starts-list and attack-random < attack-probability-3rd [
     create-attack-to one-of other turtles with [(breed = starts or breed = arguments)
-      and mytheory != curtheory and not (in-support-neighbor?
-        askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+      and mytheory != curtheory and not (in-discovery-neighbor?
+        askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
         out-attack-neighbor? askargu)][
     set color gray
     ]
@@ -133,8 +133,8 @@ to define-attack-relation-create-attacks
     if [who] of curtheory != max starts-list and curtheory != start 0 and
     attack-random < attack-probability-2nd [
       create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
-        and mytheory != curtheory and not (in-support-neighbor?
-          askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+        and mytheory != curtheory and not (in-discovery-neighbor?
+          askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
           out-attack-neighbor? askargu)][
         set color gray
         ]
@@ -146,8 +146,8 @@ to define-attack-relation-create-attacks
   ; too much
   if attack-random < attack-probability-best and curtheory = start 0 [
     create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
-      and mytheory != curtheory and not (in-support-neighbor?
-        askargu or in-attack-neighbor? askargu or out-support-neighbor? askargu or
+      and mytheory != curtheory and not (in-discovery-neighbor?
+        askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
         out-attack-neighbor? askargu)][
       set color gray
       ]
@@ -160,7 +160,7 @@ end
 to define-attack-relation-visualize
   layout-radial
   turtles with [breed = arguments or breed = starts]
-  links with [breed = supports or breed = starters]
+  links with [breed = discoveries or breed = starters]
   start 0
 end
 
