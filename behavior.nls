@@ -42,7 +42,7 @@ to update-memories
           ]
           ; construction of the to be added discovery relation
           let add-rel []
-          set add-rel lput "s" add-rel
+          set add-rel lput "d" add-rel
           set add-rel lput add-disc add-rel
           set add-rel lput cur-argum add-rel
           set to-add lput add-rel to-add
@@ -61,7 +61,7 @@ to update-memories
           ]
           ; construction of the to be added discovery relation
           let add-rel []
-          set add-rel lput "s" add-rel
+          set add-rel lput "d" add-rel
           set add-rel lput cur-argum add-rel
           set add-rel lput add-disc add-rel
           set to-add lput add-rel to-add
@@ -357,7 +357,11 @@ to move-around
   ; variable to make sure that the procedure find-defense
   ; is only run once
   let run-find-defense false 
-  ask agents with [not communicating][
+  ; at the beginning of the procedure no agent has moved yet
+  ask agents [
+    set moved false
+  ]
+  ask agents with [not communicating and not moved][
     let myx xcor
     let myy ycor
     ; variable for the argument the agent is currently working on and
@@ -407,6 +411,7 @@ to move-around
         in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and 
         not ( any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
           and member? self [collaborator-network] of curagent])]
+      set moved true
     ][
     
     ; every 5th time step the agent mover with the full move-probability, that depends a bit on the color
@@ -415,6 +420,7 @@ to move-around
         in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and 
         not ( any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
           and member? self [collaborator-network] of curagent])]
+      set moved true
     ]
     ]
         ][
@@ -425,6 +431,7 @@ to move-around
     move-to one-of turtles with [color != gray and out-discovery-neighbor? myargu and not any? turtles with
       [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
         and member? self [collaborator-network] of curagent]]
+    set moved true
       ][
     
     ; if moving back is not possible, it jumps to another argument in the same tree/theory that
@@ -435,6 +442,7 @@ to move-around
         and color != red and mytheory = askstart][
       move-to one-of turtles with [(breed = starts or breed = arguments) and color != turquoise and
         color != gray and color != red and mytheory = askstart]
+      set moved true
         ]
     ]
       ]
@@ -454,7 +462,7 @@ end
 ; once an argument is fully researched all its relations are discovered, then an agent
 ; can move on and can try to find a defense in another branch, further away
 to find-defense
-  ask agents with [not communicating][
+  ask agents with [not communicating and not moved][
     let myx xcor
     let myy ycor
     ; variables for the argument the agent is working on and
@@ -465,47 +473,32 @@ to find-defense
     
     ; lists of arguments that are not admissible
     let not-admissible []
-        if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
+    if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
       let info-not-admissible filter [not member? ? admissible-subj-argu] subjective-arguments
       foreach info-not-admissible [
         set not-admissible lput item 0 ? not-admissible
       ]
     ]
     
-    ; list of arguments from the current theory that attack the attacking argument
-    ; of the current theory
-    let myattacks []
+    ; if the current argument is not fully researched and not admissible
+    ; the agent tries to move prospectively to a child-argument of the current
+    ; that provides a defense for the current argument
     if member? myargu not-admissible and [color] of myargu != red[
-      ; first find all attacking arguments from the same theory that attack
-      ; the attacking argument of the currently researched argument
       ask myargu [
         ask my-in-attacks [
-          ask myargu [
-            ask other-end [
-              if not any? in-attack-neighbors with [mytheory = [mytheory] of myargu][
-                set myattacks lput self myattacks
-              ]
-            ]
-          ]
-        ]
-      ]
-      
-      ; if one of these arguments is connected by a discovery relation
-      ; from the current argument move to this argument
-      if not empty? myattacks [
-        ask turtles with [breed = arguments and in-discovery-neighbor? myargu and color != gray][
-          ; the argument that is considered as a next argument
-          let nextargu self
-          ; agents should move atmost to one next argument
-          let moved false
-          foreach myattacks [
-            let myattacker self
-            if in-attack-neighbor? nextargu [
+          ask end1 [
+            ; create a set of arguments that provide a defense for the current argument, these:
+            ; a) attack the attacker of the current argument; b) are a child-argument of the current;
+            ; c) are discovered; and d) no agent from the same network is working on it
+            let nextargu in-attack-neighbors with [in-discovery-neighbor? myargu and color != gray and
+              color != turquoise and not (any? agents with [xcor = myx and ycor = myy and member? self 
+                  [collaborator-network] of curagent])]
+            ; if such an argument exists the agent moves there
+            ; and cannot move anymore this time step
+            if any? nextargu [
               ask curagent [
-                if not moved [
-                  move-to nextargu
-                  set moved true
-                ]
+                move-to one-of nextargu
+                set moved true
               ]
             ]
           ]
@@ -568,6 +561,7 @@ to update-landscape
       ; is changed if an agent is working on that argument
       if researcher-ticks mod research-speed = 0 and color != red[
         set color color - 10
+        if color = red [set full-research true]
       ]
     ]
     
@@ -594,7 +588,7 @@ end
 ; procedure that makes sure that fully researched arguments have a fully 
 ; discovered neighborhood
 to full-discovery 
-  ask turtles with [breed = arguments or breed = starts and color = red][
+  ask turtles with [breed = arguments or breed = starts and full-research][
     let myx xcor
     let myy ycor
     if any? turtles with [breed = agents and xcor = myx and ycor = myy and not communicating][
@@ -626,6 +620,7 @@ to full-discovery
         ]
       ]
     ]
+    set full-research false
   ]
 end
 
