@@ -13,6 +13,7 @@ to create-discovery-landscape
       set color lime
       set current-start true
       set mytheory self
+      set full-research false
     ]
     let i 0
     while [i < theory-depth] [
@@ -20,6 +21,7 @@ to create-discovery-landscape
         set color gray
         set current-argument true
         set mytheory one-of starts with [current-start]
+        set full-research false
       ]
       set i i + 1
     ]
@@ -195,6 +197,7 @@ to agents-create-scientists
     set subjective-relations []
     set subjective-arguments []
     set times-jumped 0
+    set moved false
     let theories []
     ask starts [
       let start-add []
