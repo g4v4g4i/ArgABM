@@ -385,7 +385,7 @@ to move-around
     ; already discovered)
     ; the find-defense runs immediately for all agents working on a not fully researched
     ; not-admissible argument, hence it is only once executed
-    ifelse member? myargu not-admissible and [color] of myargu != red and not moved[
+    ifelse member? myargu not-admissible and not moved[
       
       if not run-find-defense [
         find-defense
