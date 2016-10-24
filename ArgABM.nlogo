@@ -94,34 +94,6 @@ to go
   compute-popularity
   tick
 end
-
-
-
-
-
-; reset the work the scientists have done, but not the landscape
-; the landscape is gray again, except for the roots
-; agents are randomly distributed over the theory
-to reset
-  ask turtles with [breed = arguments][set color gray]
-  ask turtles with [breed = starts][set color lime]
-  ask turtles with [breed = agents][
-    move-to one-of starts
-    set theory-jump 0
-    set times-jumped 0
-    set subjective-arguments []
-    set subjective-relations []
-    set current-theory-info []
-    set cur-best-th []
-    set admissible-subj-argu []
-    set th-args []
-    set th-relations []
-    set communicating false
-  ]
-  ask links with [breed = discoveries or breed = attacks][set color gray]
-  reset-ticks
-end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -422,23 +394,6 @@ Plots
 0.0
 1
 
-BUTTON
-70
-10
-125
-43
-NIL
-reset
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SWITCH
 10
 285
@@ -491,9 +446,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-130
+70
 10
-200
+125
 43
 NIL
 run-many\n
