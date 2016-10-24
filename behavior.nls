@@ -531,7 +531,7 @@ to update-landscape
         
         ; depending on the color a new child-argument is discovered, until all
         ; child-arguments are discovered
-        if color = yellow and count out-discovery-neighbors with [color = gray or color = turquoise] = 4 [
+        if color = yellow and count out-discovery-neighbors with [color = gray or color = turquoise] >= 4 [
           ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
             set color lime
             ask my-in-discoveries [
@@ -539,7 +539,7 @@ to update-landscape
             ]
           ]
         ]
-        if color = brown and count out-discovery-neighbors with [color = gray or color = turquoise] = 3 [
+        if color = brown and count out-discovery-neighbors with [color = gray or color = turquoise] >= 3 [
           ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
             set color lime
             ask my-in-discoveries [
@@ -547,7 +547,7 @@ to update-landscape
             ]
           ]
         ]
-        if color = orange and count out-discovery-neighbors with [color = gray or color = turquoise] = 2 [
+        if color = orange and count out-discovery-neighbors with [color = gray or color = turquoise] >= 2 [
          ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
             set color lime
             ask my-in-discoveries [
@@ -555,7 +555,7 @@ to update-landscape
             ]
           ]
         ]
-        if color = red and count out-discovery-neighbors with [color = gray or color = turquoise] = 1 [
+        if color = red and count out-discovery-neighbors with [color = gray or color = turquoise] >= 1 [
           ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
             set color lime
             ask my-in-discoveries [
