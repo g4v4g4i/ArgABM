@@ -40,9 +40,9 @@ to run-many
       ]
     ][
     ifelse within-theory [
-      file-open "Results0k_within.txt"
+      file-open "Results0r_within.txt"
     ][
-    file-open "Results0k_off.txt"
+    file-open "Results0r_off.txt"
     ]
     ]
   ][
@@ -55,9 +55,9 @@ to run-many
       ]
     ][
     ifelse within-theory [
-      file-open "Results3k_within.txt"
+      file-open "Results3r_within.txt"
     ][
-    file-open "Results3k_off.txt"
+    file-open "Results3r_off.txt"
     ]
     ]
   ][
@@ -70,9 +70,9 @@ to run-many
       ]
     ][
     ifelse within-theory [
-      file-open "Results5k_within.txt"
+      file-open "Results5r_within.txt"
     ][
-    file-open "Results5k_off.txt"
+    file-open "Results5r_off.txt"
     ]
     ]
   ][
@@ -85,9 +85,9 @@ to run-many
       ]
     ][
     ifelse within-theory [
-      file-open "Results1k_within.txt"
+      file-open "Results1r_within.txt"
     ][
-    file-open "Results1k_off.txt"
+    file-open "Results1r_off.txt"
     ]
     ]
   ]
@@ -144,6 +144,7 @@ to run-many
       set setup-successful []
       set setup-discovered-best []
       set setup-jumps []
+      clear-turtles
       create-discovery-landscape-many
       set tot-arguments count turtles with [breed = arguments or breed = starts]
       set max-cycle precision (15 * tot-arguments) -3
@@ -353,6 +354,7 @@ to create-discovery-landscape-many
       set color lime
       set current-start true
       set mytheory self
+      set full-research false
     ]
     let i 0
     while [i < theory-depth-many] [
@@ -360,6 +362,7 @@ to create-discovery-landscape-many
         set color gray
         set current-argument true
         set mytheory one-of starts with [current-start]
+        set full-research false
       ]
       set i i + 1
     ]
@@ -417,6 +420,7 @@ to agents-create-scientists-many
     set subjective-arguments []
     set times-jumped 0
     let theories []
+    set moved false
     ask starts [
       let start-add []
       set start-add lput self start-add
