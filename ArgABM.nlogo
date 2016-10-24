@@ -516,16 +516,6 @@ sharing
 "all" "neighborhood"
 1
 
-CHOOSER
-765
-15
-857
-60
-success-options
-success-options
-"monist" "pluralist"
-0
-
 @#$#@#$#@
 # Motivation
 
