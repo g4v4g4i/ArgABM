@@ -48,8 +48,8 @@ agents-own [theory-jump times-jumped collaborator-network
 ; the global variables are all concerned with the
 ; run-many procedure
 globals [times-right number-of-theories-many theory-depth-many
-  scientists-many setup-successful setup-time setup-discovered
-  setup-discovered-best setup-jumps]
+  scientists-many setup-successful-m setup-successful-p setup-time
+  setup-discovered setup-discovered-best setup-jumps]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
@@ -121,7 +121,6 @@ to reset
   ask links with [breed = discoveries or breed = attacks][set color gray]
   reset-ticks
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
