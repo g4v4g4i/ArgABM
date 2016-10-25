@@ -385,14 +385,14 @@ to move-around
     ; already discovered)
     ; the find-defense runs immediately for all agents working on a not fully researched
     ; not-admissible argument, hence it is only once executed
-    ifelse member? myargu not-admissible and not moved[
+    if member? myargu not-admissible and not moved[
       
       if not run-find-defense [
         find-defense
         set run-find-defense true
       ]
       
-    ][
+    ]
     
     if not moved [
       
@@ -449,7 +449,6 @@ to move-around
       ]
         ]
           ]
-    ]
     ]
   ]
 end
