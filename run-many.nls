@@ -18,7 +18,8 @@ to run-many
   ; discovered arguments (of the best theory)
   let perc-disc-argu []  
   let perc-disc-best-argu []
-  let find-good 0  ; number of successful runs
+  let find-good-m 0  ; number of successful runs, monist
+  let find-good-p 0  ; number of successful runs, pluralist
   let steps-needed []  ; time steps needed for one run
   let popularity []  ; list with the number of agents per theory
   let tot-arguments 0  ; the total number of arguments
@@ -141,7 +142,8 @@ to run-many
     while [theory-depth-many != 4][
       set setup-time []
       set setup-discovered []
-      set setup-successful []
+      set setup-successful-m []
+      set setup-successful-p []
       set setup-discovered-best []
       set setup-jumps []
       clear-turtles
@@ -180,9 +182,11 @@ to run-many
             set popularity lput myscientists popularity
           ]
           ask start 0 [
-            ifelse max popularity = myscientists [
-              set find-good find-good + 1
-            ][
+            if max popularity = myscientists and max popularity = scientists-many [
+              set find-good-m find-good-m + 1
+            ]
+            if max popularity = myscientists [
+              set find-good-p find-good-p + 1
             ]
           ]
           ask agents [
@@ -204,7 +208,8 @@ to run-many
         ; add the results from the current setup to the
         ; list of already obtained results
         set setup-time lput mean steps-needed setup-time
-        set setup-successful lput ((find-good / try) * 100) setup-successful
+        set setup-successful-m lput ((find-good-m / try) * 100) setup-successful-m
+        set setup-successful-p lput ((find-good-p / try) * 100) setup-successful-p
         set setup-discovered lput mean perc-disc-argu setup-discovered
         set setup-discovered-best lput mean perc-disc-best-argu setup-discovered-best
         set setup-jumps lput ((jumps / try) / scientists-many) setup-jumps
@@ -213,7 +218,8 @@ to run-many
         set try 0
         set perc-disc-argu []
         set perc-disc-best-argu []
-        set find-good 0
+        set find-good-m 0
+        set find-good-p 0
         set steps-needed []
         set disc-arguments 0
         set disc-best-arguments 0
@@ -234,11 +240,16 @@ to run-many
       file-type theory-depth-many
       file-type " = "
       file-print setup-time
-      file-write "suc"
+      file-write "suc-m"
       file-type number-of-theories-many
       file-type theory-depth-many
       file-type " = "
-      file-print setup-successful
+      file-print setup-successful-m
+      file-write "suc-p"
+      file-type number-of-theories-many
+      file-type theory-depth-many
+      file-type " = "
+      file-print setup-successful-p
       file-write "disc"
       file-type number-of-theories-many
       file-type theory-depth-many
@@ -265,8 +276,8 @@ to run-many
     set number-of-theories-many number-of-theories-many + 1
   ]
   let k 0
-  while [k < 5][
-    ifelse k mod 5 = 0 [
+  while [k < 6][
+    ifelse k mod 6 = 0 [
       ;file-print "plot x, time23, 'x--r', x, time24, 'p:m', x, time33, '^-.k', x, time34, '*-c');"
       ;file-print "legend ($th2, depth 3$, $th2, depth 4$, $th3, depth 3$, $th3, depth 4$);"
       file-print "plot (x, time23, 'x--r', x, time33, '^-.k');"
@@ -275,21 +286,28 @@ to run-many
       file-print "axis ([5, 105, 0, 1000]);"
       file-write "title ($Time needed for: "
     ][
-    ifelse k mod 5 = 1 [
+    ifelse k mod 6 = 1 [
       ;file-print "plot (x, suc23, 'x--r', x, suc24, 'p:m', x, suc33, '^-.k', x, suc34, '*-c');"
-      file-print "plot (x, suc23, 'x--r', x, suc33, '^-.k');"
+      file-print "plot (x, suc-m23, 'x--r', x, suc-m33, '^-.k');"
       file-print "ylabel ($Number of successful runs$);"
       file-print "axis ([5, 105, 0, 105]);"
-      file-write "title ($Success for: "
+      file-write "title ($Monist success for: "
     ][
-    ifelse k mod 5 = 2 [
+    ifelse k mod 6 = 2 [
+      ;file-print "plot (x, suc23, 'x--r', x, suc24, 'p:m', x, suc33, '^-.k', x, suc34, '*-c');"
+      file-print "plot (x, suc-p23, 'x--r', x, suc-p33, '^-.k');"
+      file-print "ylabel ($Number of successful runs$);"
+      file-print "axis ([5, 105, 0, 105]);"
+      file-write "title ($Pluralist success for: "
+    ][
+    ifelse k mod 6 = 3 [
       ;file-print "plot (x, disc23, 'x--r', x, disc24, 'p:m', x, disc33, '^-.k', x, disc34, '*-c');"
       file-print "plot (x, disc23, 'x--r', x, disc33, '^-.k');"
       file-print "ylabel ($Percentage of discovered arguments$);"
       file-print "axis ([5, 105, 0, 105]);"
       file-write "title ($Percentage discovered arguments for: "
     ][
-    ifelse k mod 5 = 3[
+    ifelse k mod 6 = 4[
       ;file-print "plot (x, discb23, 'x--r', x, discb24, 'p:m', x, discb33, '^-.k', x, discb34, '*-c');"
       file-print "plot (x, discb23, 'x--r', x, discb33, '^-.k');"
       file-print "ylabel ($Percentage of discovered arguments, best theory$);"
@@ -301,6 +319,7 @@ to run-many
     file-print "ylabel ($Average number of jumps per agent$);"
     file-print "axis ([5, 105, 0, 2.5]);"
     file-write "title ($Average number of jumps per agent for: "
+    ]
     ]
     ]
     ]
@@ -419,6 +438,7 @@ to agents-create-scientists-many
     set subjective-relations []
     set subjective-arguments []
     set times-jumped 0
+    set moved false 
     let theories []
     set moved false
     ask starts [
