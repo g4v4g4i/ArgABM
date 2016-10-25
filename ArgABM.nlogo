@@ -48,9 +48,9 @@ agents-own [theory-jump times-jumped collaborator-network
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables
 globals [times-right number-of-theories-many theory-depth-many
-  scientists-many setup-successful setup-time setup-discovered
-  setup-discovered-best setup-jumps undirected-communication
-  small-movement color-move]
+  scientists-many setup-successful-m setup-successful-p setup-time
+  setup-discovered setup-discovered-best setup-jumps
+  undirected-communication small-movement color-move]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
@@ -504,8 +504,6 @@ NIL
 Buttons
 
 * _setup_ creates the landscape, including attacks and distributes the scientists/agents over this landscape
-
-* _reset_ resets the work the agents have done, but not the landscape: the attack relation is still the same
 
 * _go_ lets the program run one time step
 
