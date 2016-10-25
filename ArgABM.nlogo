@@ -40,16 +40,18 @@ arguments-own [mytheory current-argument researcher-ticks full-research]
 ; that it should jump to another theory, how many times it jumped,
 ; the social network it belongs to, its current subjective landscape,
 ; the current best theory, if it received information at the current time
-; the information in its neighborhood and whether it moved
+; the information in its neighborhood, whether it moved, if it is the representative
+; agent of its network and the new arguments/relations that are to be added
 agents-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
-  admissible-subj-argu th-args th-relations communicating neighborargs moved]
+  admissible-subj-argu th-args th-relations communicating neighborargs moved
+  rep-agent to-add-mem-argu to-add-mem-rel]
 
-; the global variables are all concerned with the
-; run-many procedure
+; the global variables are concerned with the
+; run-many procedure and the communication networks
 globals [times-right number-of-theories-many theory-depth-many
   scientists-many setup-successful setup-time setup-discovered
-  setup-discovered-best setup-jumps]
+  setup-discovered-best setup-jumps colla-networks share-structure]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
@@ -80,9 +82,6 @@ end
 ; agents always move around and update the landscape (with the probabilities
 ; as set in the interface)
 to go
-  ask agents [
-    set communicating false
-  ]
   update-memories
   duplicate-remover
   if ticks mod 5 = 4 [
@@ -197,7 +196,7 @@ theory-depth
 theory-depth
 1
 5
-2
+3
 1
 1
 NIL
@@ -212,7 +211,7 @@ scientists
 scientists
 5
 50
-10
+15
 5
 1
 NIL
@@ -355,9 +354,9 @@ HORIZONTAL
 
 PLOT
 5
-495
+540
 205
-645
+690
 Popularity
 Time steps
 No. of agents
@@ -386,9 +385,9 @@ NIL
 
 TEXTBOX
 10
-470
+515
 160
-488
+533
 Plots
 13
 0.0
@@ -472,6 +471,16 @@ sharing
 "all" "neighborhood"
 1
 
+CHOOSER
+10
+465
+148
+510
+network-structure
+network-structure
+"cycle" "wheel" "complete"
+0
+
 @#$#@#$#@
 # Motivation
 
@@ -484,8 +493,6 @@ sharing
 Buttons
 
 * _setup_ creates the landscape, including attacks and distributes the scientists/agents over this landscape
-
-* _reset_ resets the work the agents have done, but not the landscape: the attack relation is still the same
 
 * _go_ lets the program run one time step
 
@@ -527,6 +534,8 @@ Agent settings
 
 * _sharing_ makes it possible to choose what the agents share with agents from other networks: either their whole memory ("all") or only the information in their direct "neighborhood"
 
+* _network-structure_ determines the structure in which the collaborator-networks are connected and with how many agents information is shared
+
 Plots
 
 * the _Popularity_ plot shows for every theory the number of agents working on it
@@ -553,6 +562,16 @@ On the created landscape an attack relation is added. Each argument has, with at
 
 Agents are randomly distributed over the available theories. Then they form "collaborator-networks". If the switch "within-theory" is on in the interface, such networks are created with agents that start on the same theory, if the switch is off networks are randomly created. Such networks have at most 5 agents. In case the networks are random all networks have exactly 5 agents, if the networks are created within theories there can be networks with less than 5 agents.
 
+A list of all collaborator-networks is saved in the global variable colla-networks:
+
+`[[(agents a1) ... (agent a5)] ... [(agent i1) ... (agent i5)] ... ]`
+
+The collaborator-networks are connected to each other, according to the choice in the interface: cycle (every network is connected to two other networs); wheel (every network is connected to two other networks and the royal network, which is connected to all other networks); or complete (every network is connected to every other network). These stuctures will be used when the representative agent from one network communicates with representative agents from other networks.
+
+The social structures are saved in the global variable share-structure, which for the cycle has the form:
+
+`[[[(agents aa1) ... (agent aa5)] ... [(agents ac1) ... (agent ac5)]] ... [[(agents ia1) ... (agent ia5)] ... [(agent ic1) ... (agent ic5)]] ... ]`
+
 Agents have a memory in which they keep track of the following:
 
 * _collaborator-network_: a list of at most four other agents and itself that form the network it communicates with
@@ -575,7 +594,15 @@ Agents have a memory in which they keep track of the following:
 
 * _th-args_ and th_relations_: lists of arguments and relations, that the agent is prepared to share with agents from other collaborative networks
 
+* _to-add-mem-argu_ and _to-add-mem-rel_: lists of arguments and relations that the agent has to add to its own memory as a result of communication
+
 * _admissibile-subj-args_: the list of arguments from the subjective-arguments that are admissible (not attacked or attacked and defended)
+
+* _neighborhood_: the neighboring arguments and relations of the argument it is currently working on
+
+* _moved_: true if the agent moved already in that time step
+
+* _rep-agent_ and _communicating_: if the agent is in that communication round the representative agent and how many time steps it takes this agent to process all the new information it has obtained
 
 ## Basic behavior of agents and the landscape
 
@@ -583,11 +610,13 @@ Agents have a memory in which they keep track of the following:
 
 Every time step the agents update their memory. The current argument is added to the list of subjective-arguments, then the relations are updated (including the subjective arguments that are discovered by these relations). The current argument, the relations to/from it and the arguments these relations connect belong to the neighborhood information of that argument and are saved in the memory of the agent as "neighborargs".
 
-Every five plus four time steps (4, 9, 14, ...), once the agents have an updated memory they create a list of arguments and a list of relations that they are prepared to share with agents from other networks. How this is done depends on the social behavior of the agents (reliable or biased) and whether they share all or just the information from their current neighborhood.
+Every five plus four time steps (4, 9, 14, ...), agents share their memory with other agents. First agents share what they know within their own collaborator-network. In this network they share all information with everyone: after this round of sharing the agents in the same network have the same memory.
 
-First agents share what they know within their own collaborator-network. In this network they share all information with everyone: after this round of sharing the agents in the same network have the same memory. Then, with probability social-collaboration from the interface, agents share information with agents from other networks. In 50% of the cases this is done directed: the agent only provides information, as by writing a paper, in the other cases agents share information, as in a discussion. The information that is shared depends on what the agent is willing to share.
+After this, from every network one random agent is chosen that will be the representative agent of that network in communicating with other networks. These representative agents create a list of arguments and a list of relations that they are prepared to share with other representative agents. How this is done depends on the social behavior of the agents (reliable or biased) and whether they share all or just the information from their current neighborhood.
 
-Agents that receive information from an agent in another network cannot do research in the same time step. This means that they do not move around or contribute towards the changing of the color of the argument. In general, the agents from the other network will not do research in this time step. Only if the exchange is undirected, the current agent will not do research. The sections "Agents move around" and " Update of the landscape" do not apply to these agents.
+Then the representative agents share the part of the memory they want to share with the agents from the networks that neighbor their own in the network structure. The agents collect all the new arguments and relations. At most 30 new entries are added to their memory and at most 10 entries per day.
+
+The time step that the agents share their information is already lost. Depending on how many new entries the value of the variable communicating is increased, with a maximum of three. For communicating time steps the agents cannot do research: they do not move around and the landscape is not affected by their presence. Every fifth round (0, 5, 10, ...) all agents do not communicate: every agent can move around and affects the landscape.
 
 After updating the memory and sharing information, the agent removes all duplicate arguments from its memory. This also includes entries with arguments that were part of the memory but for which a new entry with better research color is found.
 

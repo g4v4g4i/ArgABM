@@ -198,6 +198,8 @@ to run-many
           set perc-disc-argu lput ((disc-arguments / tot-arguments) * 100) perc-disc-argu
           set perc-disc-best-argu lput ((disc-best-arguments / tot-best-arguments) * 100) perc-disc-best-argu
           set popularity []
+          set colla-networks []
+          set share-structure []
           set try try + 1
         ]
         
@@ -403,7 +405,11 @@ to distribute-agents-many
   distribute-agents-within-theory-off    
   ]
   
+  ; the memory of the agents is created
   agents-create-memory
+  
+  ; the networks in which agents share with other groups is created
+  create-networks
 end
 
 
@@ -421,6 +427,9 @@ to agents-create-scientists-many
     set times-jumped 0
     let theories []
     set moved false
+    set communicating 0
+    set rep-agent false
+    
     ask starts [
       let start-add []
       set start-add lput self start-add

@@ -241,6 +241,9 @@ to distribute-agents
   
   ; the memory of the agents is created
   agents-create-memory
+  
+  ; the networks in which agents share with other groups is created
+  create-networks
 end
 
 
@@ -260,7 +263,9 @@ to agents-create-scientists
     set subjective-relations []
     set subjective-arguments []
     set times-jumped 0
+    set communicating 0
     set moved false
+    set rep-agent false
     
     ; an agent is always aware of all the theories
     ; the information the agent has about a theory
@@ -390,3 +395,143 @@ to compute-popularity
     ]
   ]
 end
+
+
+
+
+; the social network structures for collaborator networks
+; is created according to the choice made in the interface:
+; cycle, wheel or complete
+to create-networks
+  ; initialize variables for the collection of the networks
+  ; and the networks that will share with each other
+  set colla-networks []
+  ; an entry in share-structure starts with the network that
+  ; is the network that initializes the sharing
+  set share-structure []
+  
+  ; list of all sorted collaborator-networks
+  let networks []
+  ask agents [
+    set networks lput sort collaborator-network networks
+  ]
+  set colla-networks remove-duplicates networks
+  
+  ; in the case that the choice in the interface is cycle
+  ifelse network-structure = "cycle" [
+    let connect-networks colla-networks
+    
+    ; when there are only two collaborator-networks
+    ; they always share with each other
+    ifelse length colla-networks = 2 [
+      set share-structure lput colla-networks share-structure
+      set share-structure lput reverse colla-networks share-structure
+    ][ 
+    
+    ; in all other cases networks share with two neighboring networks
+    ; for three networks this is still a complete case
+    while [length connect-networks > 2] [
+      ; first the entries for the beginning and end of the list
+      ifelse empty? share-structure[
+        let to-add-structure1 []
+        let to-add-structure2 []
+        set to-add-structure1 lput first connect-networks to-add-structure1
+        set to-add-structure1 lput first but-first connect-networks to-add-structure1
+        set to-add-structure1 lput last connect-networks to-add-structure1
+        set to-add-structure2 lput last connect-networks to-add-structure2
+        set to-add-structure2 lput first connect-networks to-add-structure2
+        set to-add-structure2 lput last but-last connect-networks to-add-structure2
+        set share-structure lput to-add-structure1 share-structure
+        set share-structure lput to-add-structure2 share-structure
+      ][
+      ; then the networks in between
+      let to-add-structure []
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set to-add-structure lput first connect-networks to-add-structure
+      set connect-networks remove-item 0 connect-networks
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set share-structure lput to-add-structure share-structure 
+      ]
+    ]
+    ]
+  ][
+  
+  ; in the case that the choice in the interface is wheel
+  ifelse network-structure = "wheel" [
+    let connect-networks colla-networks
+    
+    ; when there are only two or three collaborator-networks
+    ; they always share with each other
+    ifelse length colla-networks < 4 [
+      set share-structure lput colla-networks share-structure
+      set share-structure lput reverse colla-networks share-structure
+      if length colla-networks = 3 [
+        let add-colla-networks []
+        set add-colla-networks lput first but-first colla-networks add-colla-networks
+        set add-colla-networks lput first colla-networks add-colla-networks
+        set add-colla-networks lput last colla-networks add-colla-networks
+        set share-structure lput add-colla-networks share-structure
+      ]
+    ][ 
+    
+    ; the first network is defined to be the royal family:
+    ; the network that shares with all other networks
+    let middle first connect-networks
+    set connect-networks remove-item 0 connect-networks
+    let add-middle []
+    set add-middle lput middle add-middle
+    foreach connect-networks [
+      if ? != middle [
+        set add-middle lput ? add-middle
+      ]
+    ]
+    ; the other networks are put in a cycle, with the
+    ; addition that every networks shares with middle (the royal family)
+    while [length connect-networks > 2] [
+      ifelse empty? share-structure[
+        let to-add-structure1 []
+        let to-add-structure2 []
+        set to-add-structure1 lput first connect-networks to-add-structure1
+        set to-add-structure1 lput first but-first connect-networks to-add-structure1
+        set to-add-structure1 lput last connect-networks to-add-structure1
+        set to-add-structure1 lput middle to-add-structure1
+        set to-add-structure2 lput last connect-networks to-add-structure2
+        set to-add-structure2 lput first connect-networks to-add-structure2
+        set to-add-structure2 lput last but-last connect-networks to-add-structure2
+        set to-add-structure2 lput middle to-add-structure2
+        set share-structure lput to-add-structure1 share-structure
+        set share-structure lput to-add-structure2 share-structure
+      ][
+      let to-add-structure []
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set to-add-structure lput first connect-networks to-add-structure
+      set connect-networks remove-item 0 connect-networks
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set to-add-structure lput middle to-add-structure
+      set share-structure lput to-add-structure share-structure
+      ]
+    ]
+    
+    ; the first entry of share-structure is the royal family entry
+    set share-structure fput add-middle share-structure
+    ]
+  ][
+  
+  ; the other cases: a completely connected graph
+  ; for each collaborator-network an entry is created with at the 
+  ; first position the network and then all others
+  foreach colla-networks [
+    let cur-network ? 
+    let to-add-structure []
+    set to-add-structure lput cur-network to-add-structure
+    foreach colla-networks [
+      if ? != cur-network [
+        set to-add-structure lput ? to-add-structure
+      ]
+    ]
+    set share-structure lput to-add-structure share-structure
+  ]
+  ]
+  ]
+end
+
