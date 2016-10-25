@@ -1,13 +1,34 @@
 ; the setup procedures for
-; 1. building the argumentative landscape with
+; 1. the hidden variables (not set in the interface)
+; 2. building the argumentative landscape with
 ;    attacks and discovery relations
-; 2. populate the landscape with agents
+; 3. populate the landscape with agents
 
 
 
 
 
-; a landscape of arguments and a discovery relation on these arguments is defined
+; procedure in which the variables that are not mentioned 
+; in the interface can be set
+to initialize-hidden-variables
+  ; probability that communication among agents from 
+  ; different networks is undirected
+  set undirected-communication 0.5
+  
+  ; the probability that agents move every round is
+  ; only small-movement * move-probability
+  set small-movement 0.2
+  
+  ; influence color on move probability
+  set color-move 200
+end
+
+
+
+
+
+; a landscape of arguments and a discovery relation
+; on these arguments is defined
 to create-discovery-landscape
   ; at the start arguments and starts are a circle
   set-default-shape arguments "circle"
@@ -46,7 +67,8 @@ to create-discovery-landscape
     ask arguments [set current-argument false]
   ]
   ; set the shape of the arguments of the best theory different from a circle
-  ask turtles with [(breed = starts or breed = arguments) and mytheory = start 0 ][
+  ask turtles with [(breed = starts or breed = arguments) and
+    mytheory = start 0 ][
     set shape "triangle"
   ]
 end
@@ -62,20 +84,24 @@ to create-discovery-trees
   ; first level with starts as roots
   ask starts with [count out-discovery-neighbors = 0 and current-start][
     repeat 4 [
-      if any? arguments with [count in-discovery-neighbors = 0 and current-argument] [
+      if any? arguments with [count in-discovery-neighbors = 0 and
+        current-argument] [
         create-discovery-to one-of arguments with [
           count in-discovery-neighbors = 0 and current-argument]
       ]
     ]
   ]
   ; then adding all the normal arguments
-  while [any? arguments with [count in-discovery-neighbors = 0 and current-argument]][
-    ask arguments with [count in-discovery-neighbors = 1 and count out-discovery-neighbors < 4 and current-argument][
+  while [any? arguments with [count in-discovery-neighbors = 0 and
+    current-argument]][
+    ask arguments with [count in-discovery-neighbors = 1 and
+      count out-discovery-neighbors < 4 and current-argument][
       let curarg self
       repeat (4 - count out-discovery-neighbors) [
-        if any? other arguments with [count in-discovery-neighbors = 0 and current-argument
-          and not out-discovery-neighbor? curarg][
-        create-discovery-to one-of other arguments with [count in-discovery-neighbors = 0 and current-argument]
+        if any? other arguments with [count in-discovery-neighbors = 0 and
+          current-argument and not out-discovery-neighbor? curarg][
+          create-discovery-to one-of other arguments with
+	        [count in-discovery-neighbors = 0 and current-argument]
           ]
       ]
     ]
@@ -125,33 +151,34 @@ to define-attack-relation-create-attacks
     ; the current argument is created
     ifelse number-of-theories = 2[
       if attack-random < attack-probability-2nd and curtheory != start 0 [
-        create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
-          and mytheory != curtheory and not (in-discovery-neighbor?
-            askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
-            out-attack-neighbor? askargu)][
+        create-attack-from one-of other turtles with [(breed = starts or
+	      breed = arguments)and mytheory != curtheory and not
+	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
             ]
       ]
     ][
     
-    ; when there are three theories both attack-probability-2nd and -3rd are considered
-    ; to create attacks, depending on the theory the current argument belongs to
-    ; first for the third theory
-    ifelse [who] of curtheory = max starts-list and attack-random < attack-probability-3rd [
-      create-attack-to one-of other turtles with [(breed = starts or breed = arguments)
-        and mytheory != curtheory and not (in-discovery-neighbor?
-          askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
-          out-attack-neighbor? askargu)][
+    ; when there are three theories both attack-probability-2nd and -3rd are
+    ; considered to create attacks, depending on the theory the current argument
+    ; belongs to first for the third theory
+    ifelse [who] of curtheory = max starts-list and attack-random <
+      attack-probability-3rd [
+      create-attack-to one-of other turtles with [(breed = starts or
+        breed = arguments) and mytheory != curtheory and not
+	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ][
     ; then attacks towards arguments of the 2nd theory are created
     if [who] of curtheory != max starts-list and curtheory != start 0 and
-    attack-random < attack-probability-2nd [
-      create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
-        and mytheory != curtheory and not (in-discovery-neighbor?
-          askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
-          out-attack-neighbor? askargu)][
+      attack-random < attack-probability-2nd [
+      create-attack-from one-of other turtles with [(breed = starts or
+      breed = arguments) and mytheory != curtheory and not
+      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ]
@@ -161,11 +188,11 @@ to define-attack-relation-create-attacks
     ; if the current argument belongs to the objective best theory
     ; an attack towards this argument is created with attack-probability-best
     if attack-random < attack-probability-best and curtheory = start 0 [
-      create-attack-from one-of other turtles with [(breed = starts or breed = arguments)
-        and mytheory != curtheory and not (in-discovery-neighbor?
-          askargu or in-attack-neighbor? askargu or out-discovery-neighbor? askargu or
-          out-attack-neighbor? askargu)][
-    set color gray
+      create-attack-from one-of other turtles with [(breed = starts or
+      breed = arguments) and mytheory != curtheory and not
+	    (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        set color gray
           ]
     ]
   ]
@@ -175,10 +202,11 @@ end
 
 
 
-; after the random attacks are created, attacks coming from the best theory are added
-; such that it defends itself completely
+; after the random attacks are created, attacks coming from the best theory
+; are added such that it defends itself completely
 to define-attack-relation-defend-best
-  ask turtles with [(breed = starts or breed = arguments) and mytheory = start 0][
+  ask turtles with [(breed = starts or breed = arguments) and
+    mytheory = start 0][
     ; variable for the current argument
     let askargu self
     
@@ -189,10 +217,12 @@ to define-attack-relation-defend-best
         ; a defending attack is only created if there is not yet an attack
         ; from an argument of the best theory towards the attacking argument
         if not any? in-attack-neighbors with [mytheory = start 0][
-          create-attack-from one-of turtles with [(breed = starts or breed = arguments)
-            and mytheory = start 0 and not (in-discovery-neighbor? askattack or in-attack-neighbor? askattack or
-              out-discovery-neighbor? askattack or out-attack-neighbor? askattack) and not (self = askargu)][
-          set color gray
+          create-attack-from one-of turtles with [(breed = starts or
+	        breed = arguments) and mytheory = start 0 and not
+	        (in-discovery-neighbor? askattack or in-attack-neighbor?
+	        askattack or out-discovery-neighbor? askattack or
+	        out-attack-neighbor? askattack) and not (self = askargu)][
+            set color gray
           ]
         ]
       ]
@@ -319,11 +349,14 @@ to distribute-agents-within-theory-on
     
     ; while there are more than five agents on the root without a network
     ; networks of exactly five agents are created
-    if any? agents with [xcor = myx and ycor = myy and empty? collaborator-network][
-      while [count agents with [xcor = myx and ycor = myy and empty? collaborator-network] > 5][
+    if any? agents with [xcor = myx and ycor = myy and
+      empty? collaborator-network][
+      while [count agents with [xcor = myx and ycor = myy and
+        empty? collaborator-network] > 5][
         ; five agents are added to the list cur-col
         ; which is then set as the collaborator-network of each of these agents
-        ask n-of 5 agents with [xcor = myx and ycor = myy and empty? collaborator-network] [
+        ask n-of 5 agents with [xcor = myx and ycor = myy and
+	        empty? collaborator-network] [
           set cur-col lput self cur-col
         ]
         ask agents with [member? self cur-col][
@@ -333,7 +366,8 @@ to distribute-agents-within-theory-on
       ]
       ; once there are five or less agents without a network
       ; they form a network together
-      ask agents with [xcor = myx and ycor = myy and empty? collaborator-network] [
+      ask agents with [xcor = myx and ycor = myy and
+        empty? collaborator-network] [
         set cur-col lput self cur-col
       ]
       ask agents with [member? self cur-col][

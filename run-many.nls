@@ -194,13 +194,17 @@ to run-many
           ]
           
           ; for the computation of the output
-          set disc-arguments count turtles with [(breed = arguments or breed = starts) and
-            color != gray and color != turquoise]
-          set disc-best-arguments count turtles with [(breed = arguments or breed = starts) and
-            color != gray and color != turquoise and mytheory = start 0]
-          set tot-best-arguments count turtles with [(breed = arguments or breed = starts) and mytheory = start 0]
-          set perc-disc-argu lput ((disc-arguments / tot-arguments) * 100) perc-disc-argu
-          set perc-disc-best-argu lput ((disc-best-arguments / tot-best-arguments) * 100) perc-disc-best-argu
+          set disc-arguments count turtles with [(breed = arguments or
+	    breed = starts) and color != gray and color != turquoise]
+          set disc-best-arguments count turtles with [(breed = arguments or
+	    breed = starts) and color != gray and color != turquoise and
+	    mytheory = start 0]
+          set tot-best-arguments count turtles with [(breed = arguments or
+	    breed = starts) and mytheory = start 0]
+          set perc-disc-argu lput ((disc-arguments / tot-arguments) * 100)
+	    perc-disc-argu
+          set perc-disc-best-argu lput ((disc-best-arguments /
+	    tot-best-arguments) * 100) perc-disc-best-argu
           set popularity []
           set try try + 1
         ]
@@ -208,11 +212,16 @@ to run-many
         ; add the results from the current setup to the
         ; list of already obtained results
         set setup-time lput mean steps-needed setup-time
-        set setup-successful-m lput ((find-good-m / try) * 100) setup-successful-m
-        set setup-successful-p lput ((find-good-p / try) * 100) setup-successful-p
-        set setup-discovered lput mean perc-disc-argu setup-discovered
-        set setup-discovered-best lput mean perc-disc-best-argu setup-discovered-best
-        set setup-jumps lput ((jumps / try) / scientists-many) setup-jumps
+        set setup-successful-m lput ((find-good-m / try) * 100)
+	  setup-successful-m
+        set setup-successful-p lput ((find-good-p / try) * 100)
+	  setup-successful-p
+        set setup-discovered lput mean perc-disc-argu
+	  setup-discovered
+        set setup-discovered-best lput mean perc-disc-best-argu
+	  setup-discovered-best
+        set setup-jumps lput ((jumps / try) / scientists-many)
+	  setup-jumps
         
         ; reset some of the variables
         set try 0
@@ -354,6 +363,7 @@ end
 to setup-many
   ; instead of clear-all, the globals should not be cleared
   clear-turtles clear-patches clear-drawing clear-all-plots clear-output
+  initialize-hidden-variables
   create-discovery-landscape-many
   define-attack-relation
   distribute-agents-many
@@ -395,7 +405,8 @@ to create-discovery-landscape-many
     ask arguments [set current-argument false]
   ]
   ; set the shape of the arguments of the best theory different from a circle
-  ask turtles with [(breed = starts or breed = arguments) and mytheory = start 0 ][
+  ask turtles with [(breed = starts or breed = arguments) and
+    mytheory = start 0 ][
     set shape "triangle"
   ]
 end
