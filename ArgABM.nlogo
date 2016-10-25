@@ -446,9 +446,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-70
+130
 10
-125
+185
 43
 NIL
 run-many\n
@@ -470,6 +470,23 @@ CHOOSER
 sharing
 sharing
 "all" "neighborhood"
+1
+
+BUTTON
+70
+10
+125
+43
+go-stop
+ setup\n go\n while [any? arguments with [color != red and\n            [myscientists] of mytheory !=  0]][\n            go\n          ]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 @#$#@#$#@
