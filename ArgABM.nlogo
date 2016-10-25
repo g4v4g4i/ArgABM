@@ -46,10 +46,11 @@ agents-own [theory-jump times-jumped collaborator-network
   admissible-subj-argu th-args th-relations communicating neighborargs moved]
 
 ; the global variables are all concerned with the
-; run-many procedure
+; run-many procedure, or the initialization of hidden variables
 globals [times-right number-of-theories-many theory-depth-many
   scientists-many setup-successful setup-time setup-discovered
-  setup-discovered-best setup-jumps]
+  setup-discovered-best setup-jumps undirected-communication
+  small-movement color-move]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
@@ -59,11 +60,13 @@ __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
 ; the setup procedure:
+; the hidden variables (not set in the interface)
 ; it creates a landscape of arguments and a discovery relation
 ; on this landscape; attacks are defined;
 ; the agents are distributed over the theories
 to setup
   clear-all
+  initialize-hidden-variables
   create-discovery-landscape
   define-attack-relation
   distribute-agents
