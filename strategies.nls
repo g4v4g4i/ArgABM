@@ -202,9 +202,9 @@ to act-on-strategy-agents
         ; if one of the arguments from the best theory is in its memory
         ; the agent will jump there
         ifelse any? turtles with [(breed = starts or breed = arguments) and member? self subj-argus and
-          mytheory = ch-best ][
+          mytheory = ch-best and color != turquoise][
         move-to one-of turtles with [(breed = starts or breed = arguments) and
-          member? self subj-argus and mytheory = ch-best]
+          member? self subj-argus and mytheory = ch-best and color != turquoise]
           ][ ; otherwise the agent jumps to the root of the theory
         move-to ch-best
           ]

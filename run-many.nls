@@ -440,6 +440,7 @@ to agents-create-scientists-many
     set times-jumped 0
     set moved false 
     let theories []
+    set moved false
     ask starts [
       let start-add []
       set start-add lput self start-add

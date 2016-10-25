@@ -446,9 +446,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-130
+70
 10
-185
+125
 43
 NIL
 run-many\n

@@ -361,7 +361,7 @@ to move-around
   ask agents [
     set moved false
   ]
-  ask agents with [not communicating and not moved][
+  ask agents with [not communicating][
     let myx xcor
     let myy ycor
     ; variable for the argument the agent is currently working on and
@@ -385,7 +385,7 @@ to move-around
     ; already discovered)
     ; the find-defense runs immediately for all agents working on a not fully researched
     ; not-admissible argument, hence it is only once executed
-    ifelse member? myargu not-admissible and [color] of myargu != red[
+    ifelse member? myargu not-admissible and not moved[
       
       if not run-find-defense [
         find-defense
@@ -394,59 +394,62 @@ to move-around
       
     ][
     
-    ; when an argument exists that:
-    ; a) is a child-argument of the current argument;
-    ; b) is not gray, red or turquoise; and
-    ; c) no agent from the same collaborator-network is working on it
-    ; the agent moves there, with certain probability
-    ifelse any? turtles with [(breed = starts or breed = arguments) and
-      in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and
-      not (any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
-        and member? self [collaborator-network] of curagent])] [
-    let move-random random-float 1.0
-    
-    ; every time step with 1/5 of the move-probability the agent moves
-    ifelse move-random < (0.2 * move-probability * (1 - (color / 200))) [
-      move-to one-of turtles with [(breed = starts or breed = arguments) and
-        in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and 
-        not ( any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
-          and member? self [collaborator-network] of curagent])]
-      set moved true
-    ][
-    
-    ; every 5th time step the agent mover with the full move-probability, that depends a bit on the color
-    if ticks != 0 and ticks mod 5 = 0 and move-random < move-probability * (1 - (color / 200)) [
-      move-to one-of turtles with [(breed = starts or breed = arguments) and
-        in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and 
-        not ( any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
-          and member? self [collaborator-network] of curagent])]
-      set moved true
-    ]
-    ]
-        ][
-    
-    ; if there is no next argument and the current argument is fully researched, the agent moves a step back
-    ifelse [color] of myargu = red and any? turtles with [color != gray and out-discovery-neighbor? myargu
-      and not any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself]][
-    move-to one-of turtles with [color != gray and out-discovery-neighbor? myargu and not any? turtles with
-      [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
-        and member? self [collaborator-network] of curagent]]
-    set moved true
+    if not moved [
+      
+      ; when an argument exists that:
+      ; a) is a child-argument of the current argument;
+      ; b) is not gray, red or turquoise; and
+      ; c) no agent from the same collaborator-network is working on it
+      ; the agent moves there, with certain probability
+      ifelse any? turtles with [(breed = starts or breed = arguments) and
+        in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and
+        not (any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
+          and member? self [collaborator-network] of curagent])] [
+      let move-random random-float 1.0
+      
+      ; every time step with 1/5 of the move-probability the agent moves
+      ifelse move-random < (0.2 * move-probability * (1 - (color / 200))) [
+        move-to one-of turtles with [(breed = starts or breed = arguments) and
+          in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and 
+          not ( any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
+            and member? self [collaborator-network] of curagent])]
+        set moved true
       ][
-    
-    ; if moving back is not possible, it jumps to another argument in the same tree/theory that
-    ; is discovered but not fully researched
-    if [color] of myargu = red [
-      let askstart [mytheory] of myargu
-      if any? turtles with [(breed = starts or breed = arguments) and color != gray and color != turquoise
-        and color != red and mytheory = askstart][
-      move-to one-of turtles with [(breed = starts or breed = arguments) and color != turquoise and
-        color != gray and color != red and mytheory = askstart]
+      
+      ; every 5th time step the agent mover with the full move-probability, that depends a bit on the color
+      if ticks != 0 and ticks mod 5 = 0 and move-random < move-probability * (1 - (color / 200)) [
+        move-to one-of turtles with [(breed = starts or breed = arguments) and
+          in-discovery-neighbor? myargu and color != gray and color != red and color != turquoise and 
+          not ( any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
+            and member? self [collaborator-network] of curagent])]
+        set moved true
+      ]
+      ]
+          ][
+      
+      ; if there is no next argument and the current argument is fully researched, the agent moves a step back
+      ifelse [color] of myargu = red and any? turtles with [color != gray and out-discovery-neighbor? myargu
+        and not any? turtles with [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself]][
+      move-to one-of turtles with [color != gray and out-discovery-neighbor? myargu and not any? turtles with
+        [breed = agents and xcor = [xcor] of myself and ycor = [ycor] of myself
+          and member? self [collaborator-network] of curagent]]
       set moved true
-        ]
-    ]
+        ][
+      
+      ; if moving back is not possible, it jumps to another argument in the same tree/theory that
+      ; is discovered but not fully researched
+      if [color] of myargu = red [
+        let askstart [mytheory] of myargu
+        if any? turtles with [(breed = starts or breed = arguments) and color != gray and color != turquoise
+          and color != red and mytheory = askstart][
+        move-to one-of turtles with [(breed = starts or breed = arguments) and color != turquoise and
+          color != gray and color != red and mytheory = askstart]
+        set moved true
+          ]
       ]
         ]
+          ]
+    ]
     ]
   ]
 end
@@ -481,18 +484,18 @@ to find-defense
     ]
     
     ; if the current argument is not fully researched and not admissible
-    ; the agent tries to move prospectively to a child-argument of the current
+    ; the agent tries to move prospectively to a child-argument of the current argument
     ; that provides a defense for the current argument
-    if member? myargu not-admissible and [color] of myargu != red[
+    if member? myargu not-admissible[
       ask myargu [
         ask my-in-attacks [
           ask end1 [
             ; create a set of arguments that provide a defense for the current argument, these:
-            ; a) attack the attacker of the current argument; b) are a child-argument of the current;
+            ; a) attack the attacker of the current argument; b) are a child-argument of the current argument;
             ; c) are discovered; and d) no agent from the same network is working on it
-            let nextargu in-attack-neighbors with [in-discovery-neighbor? myargu and color != gray and
-              color != turquoise and not (any? agents with [xcor = myx and ycor = myy and member? self 
-                  [collaborator-network] of curagent])]
+            let nextargu in-attack-neighbors with [in-discovery-neighbor? myargu and color != gray and 
+              color != turquoise and not (any? agents with [xcor = [xcor] of myself and ycor = [ycor] of myself 
+                  and member? self [collaborator-network] of curagent])]
             ; if such an argument exists the agent moves there
             ; and cannot move anymore this time step
             if any? nextargu [
@@ -528,13 +531,35 @@ to update-landscape
         
         ; depending on the color a new child-argument is discovered, until all
         ; child-arguments are discovered
-        if color = yellow or color = brown or color = orange or color = red [
-          if any? out-discovery-neighbors with [color = gray or color = turquoise][
-            ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
-              set color lime
-              ask my-in-discoveries [
-                set color cyan
-              ]
+        if color = yellow and count out-discovery-neighbors with [color = gray or color = turquoise] >= 4 [
+          ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
+            set color lime
+            ask my-in-discoveries [
+              set color cyan
+            ]
+          ]
+        ]
+        if color = brown and count out-discovery-neighbors with [color = gray or color = turquoise] >= 3 [
+          ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
+            set color lime
+            ask my-in-discoveries [
+              set color cyan
+            ]
+          ]
+        ]
+        if color = orange and count out-discovery-neighbors with [color = gray or color = turquoise] >= 2 [
+         ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
+            set color lime
+            ask my-in-discoveries [
+              set color cyan
+            ]
+          ]
+        ]
+        if color = red and count out-discovery-neighbors with [color = gray or color = turquoise] >= 1 [
+          ask one-of out-discovery-neighbors with [color = gray or color = turquoise][
+            set color lime
+            ask my-in-discoveries [
+              set color cyan
             ]
           ]
         ]
