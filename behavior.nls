@@ -412,7 +412,8 @@ to move-around
       
     ]
     
-    if not moved [
+    if not moved and not member? myargu not-admissible or 
+      (member? myargu not-admissible and [color] of myargu = red)[
       
       ; when an argument exists that:
       ; a) is a child-argument of the current argument;
