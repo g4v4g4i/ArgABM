@@ -569,54 +569,54 @@ to update-landscape
         set color color - 10
         if color = red [set full-research true]
       ]
+        
+      ; depending on the color a new child-argument is discovered, until all
+      ; child-arguments are discovered
+      if color = yellow and count out-discovery-neighbors with
+	[color = gray or color = turquoise] >= 4 [
+        ask one-of out-discovery-neighbors with
+	  [color = gray or color = turquoise][
+          set color lime
+          ask my-in-discoveries [
+            set color cyan
+          ]
+        ]
+      ]
+      if color = brown and count out-discovery-neighbors with
+	[color = gray or color = turquoise] >= 3 [
+        ask one-of out-discovery-neighbors with
+	  [color = gray or color = turquoise][
+          set color lime
+          ask my-in-discoveries [
+            set color cyan
+          ]
+        ]
+      ]
+      if color = orange and count out-discovery-neighbors with
+	[color = gray or color = turquoise] >= 2 [
+       ask one-of out-discovery-neighbors with
+         [color = gray or color = turquoise][
+          set color lime
+          ask my-in-discoveries [
+            set color cyan
+          ]
+        ]
+      ]
+      if color = red and count out-discovery-neighbors with
+	[color = gray or color = turquoise] >= 1 [
+        ask one-of out-discovery-neighbors with
+  	 [color = gray or color = turquoise][
+          set color lime
+          ask my-in-discoveries [
+            set color cyan
+          ]
+        ]
+      ]
 
       ; for arguments that have still undiscovered relations/neighbors and are
       ; not fully researched
       if ticks mod 5 = 0 and color != red [
         let attack-random random-float 1.00
-        
-        ; depending on the color a new child-argument is discovered, until all
-        ; child-arguments are discovered
-        if color = yellow and count out-discovery-neighbors with
-	  [color = gray or color = turquoise] >= 4 [
-          ask one-of out-discovery-neighbors with
-	    [color = gray or color = turquoise][
-            set color lime
-            ask my-in-discoveries [
-              set color cyan
-            ]
-          ]
-        ]
-        if color = brown and count out-discovery-neighbors with
-	  [color = gray or color = turquoise] >= 3 [
-          ask one-of out-discovery-neighbors with
-	    [color = gray or color = turquoise][
-            set color lime
-            ask my-in-discoveries [
-              set color cyan
-            ]
-          ]
-        ]
-        if color = orange and count out-discovery-neighbors with
-	  [color = gray or color = turquoise] >= 2 [
-         ask one-of out-discovery-neighbors with
-	   [color = gray or color = turquoise][
-            set color lime
-            ask my-in-discoveries [
-              set color cyan
-            ]
-          ]
-        ]
-        if color = red and count out-discovery-neighbors with
-	  [color = gray or color = turquoise] >= 1 [
-          ask one-of out-discovery-neighbors with
-	    [color = gray or color = turquoise][
-            set color lime
-            ask my-in-discoveries [
-              set color cyan
-            ]
-          ]
-        ]
         
         ; with visibility-probability a new attacked/attacking argument is
 	; discovered
