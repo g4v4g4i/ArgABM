@@ -562,6 +562,14 @@ to update-landscape
     if any? turtles with [breed = agents and xcor = myx and ycor = myy and not
       communicating][
       set researcher-ticks researcher-ticks + 1
+      
+      ; the color of an argument is changed if agents have been working
+      ; on that argument for research-speed time steps
+      if researcher-ticks mod research-speed = 0 and color != red[
+        set color color - 10
+        if color = red [set full-research true]
+      ]
+
       ; for arguments that have still undiscovered relations/neighbors and are
       ; not fully researched
       if ticks mod 5 = 0 and color != red [
@@ -628,13 +636,6 @@ to update-landscape
           ]
           ]
         ]
-      ]
-      
-      ; every research-speed time steps the color of an argument
-      ; is changed if an agent is working on that argument
-      if researcher-ticks mod research-speed = 0 and color != red[
-        set color color - 10
-        if color = red [set full-research true]
       ]
     ]
     
