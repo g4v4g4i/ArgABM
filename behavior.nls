@@ -348,12 +348,15 @@ to compute-time-costs
     ; 30 new arguments/relations (corresponding to three ticks of communication)
     ; these new arguments and relations are added to the memory of the agent
     ifelse length comb-new > 30 [
-      ask n-of 30 comb-new [
-        ifelse member? self new-memory-args [
-          set subjective-arguments lput self subjective-arguments
+      set comb-new shuffle comb-new
+      repeat 30 [
+        let cur-entr first comb-new
+        ifelse member? cur-entr new-memory-args [
+          set subjective-arguments lput cur-entr subjective-arguments
         ][
-        set subjective-relations lput self subjective-relations
+        set subjective-relations lput cur-entr subjective-relations
         ]
+        set comb-new remove-item 0 comb-new
       ]
     ][
     set subjective-arguments sentence subjective-arguments new-memory-args
