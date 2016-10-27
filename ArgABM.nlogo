@@ -492,7 +492,7 @@ BUTTON
 43
 go-stop
 setup\ngo\nwhile [any? arguments with \n  [color != red and \n    [myscientists] of mytheory !=  0]][\n  go\n]
-T
+NIL
 1
 T
 OBSERVER
@@ -518,6 +518,8 @@ Buttons
 * _go_ lets the program run one time step
 
 * _go (infinite, has a small circle)_ lets the program run infinitely many steps, or until the button is clicked again
+
+* _go-stop_ lets the program run until all agents are working on a fully researched theory
 
 Landscape settings
 
