@@ -485,6 +485,23 @@ network-structure
 "cycle" "wheel" "complete"
 0
 
+BUTTON
+70
+10
+125
+43
+go-stop
+setup\ngo\nwhile [any? arguments with \n  [color != red and \n    [myscientists] of mytheory !=  0]][\n  go\n]
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 # Motivation
 
