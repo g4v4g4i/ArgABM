@@ -619,21 +619,13 @@ to update-landscape
         let attack-random random-float 1.00
         
         ; with visibility-probability a new attacked/attacking argument is
-	; discovered
+        ; discovered
         if attack-random < visibility-probability [
-          ifelse any? my-in-attacks with [color = gray][
-            ask one-of my-in-attacks with [color = gray][
+          if any? my-links with [breed = attacks and color = gray][
+            ask one-of my-links with [breed = attacks and color = gray][
               set color red
               ask other-end [if color = gray [set color turquoise]]
             ]
-          ][
-          if any? my-out-attacks with [color = gray] and attack-random <
-	    visibility-probability [
-            ask one-of my-out-attacks with [color = gray][
-              set color red
-              ask other-end [if color = gray [set color turquoise]]
-            ]
-          ]
           ]
         ]
       ]
