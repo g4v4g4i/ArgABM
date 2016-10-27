@@ -20,7 +20,7 @@ to compute-strategies-agents
   ; memory are admissible and which are attacked
   compute-subjective-attacked
  
-  ask agents [
+  ask agents with [not rep-agent][
     set cur-best-th []
     ; variables for the list that contains the number admissible arguments 
     ; per theory and a sublist which contains only the numbers that are
@@ -59,7 +59,7 @@ end
 ; procedure that computes for each agent which of the arguments in its memory
 ; are admissible (and hence which are attacked)
 to compute-subjective-attacked
-  ask agents [
+  ask agents with [not rep-agent][
     ; variables for lists that contain:
     ; the current-theory-info with 0 admissible arguments; an updated number
     ; of admissible arguments during the recursive computation; the arguments
@@ -178,7 +178,7 @@ end
 ; procedure that lets the agents act on the just computed best theory
 ; based on their own memory
 to act-on-strategy-agents
-  ask agents [
+  ask agents with [not rep-agent][
     ; only when there is a current best theory
     ; it makes sense for the agents to want to work on that theory
     if not empty? cur-best-th and not member? nobody cur-best-th [
