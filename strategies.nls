@@ -36,8 +36,9 @@ to compute-strategies-agents
     set list-admissible-arguments sort list-admissible-arguments
     
     ; a list of theories with values within the strategy threshold is constructed
-    set threshold-admissible-arguments filter [? >= ((max list-admissible-arguments) * strategy-threshold)]
-    list-admissible-arguments
+    set threshold-admissible-arguments filter [? >=
+      ((max list-admissible-arguments) * strategy-threshold)]
+        list-admissible-arguments
     set threshold-admissible-arguments sort threshold-admissible-arguments
     
     ; computation of the current best theory
@@ -113,7 +114,8 @@ to compute-subjective-attacked
         ; create a list of arguments that are attacked by the current theory
         ; based on the memory of the current agent
         if not empty? attack-relations [
-          ask turtles with [member? self args-cur-arguments and mytheory = askstart][
+          ask turtles with [member? self args-cur-arguments and
+	        mytheory = askstart][
             if member? self cur-attacker and not member? self not-admissible [
               ; the argument considered and a list of arguments
               ; attacked by that argument
@@ -131,8 +133,9 @@ to compute-subjective-attacked
           ; arguments that are attacked by arguments from another theory that are
           ; not attacked by non-attacked arguments from the current theory
           ; are added to the open-rec list, the list of attacked-arguments
-          ask turtles with [member? self args-cur-arguments and mytheory = askstart and
-            not member? self not-admissible and member? self cur-attacked][
+          ask turtles with [member? self args-cur-arguments and
+	          mytheory = askstart and not member? self not-admissible and
+	          member? self cur-attacked][
           let cur-turtle self
           foreach attack-relations [
             if last ? = cur-turtle [
@@ -148,8 +151,10 @@ to compute-subjective-attacked
       set i 0
       
       ; for the update of the information in current-theory-info
-      set new-cur-info lput replace-item 1 cur-theory (count turtles with [member? self args-cur-arguments and
-        mytheory = askstart] - count turtles with [member? self not-admissible  and mytheory = askstart]) new-cur-info
+      set new-cur-info lput replace-item 1 cur-theory (count turtles with
+        [member? self args-cur-arguments and mytheory = askstart] -
+	      count turtles with [member? self not-admissible and mytheory = askstart])
+	        new-cur-info
     ]
     
     ; arguments that are part of the not-admissible list
@@ -201,12 +206,12 @@ to act-on-strategy-agents
         
         ; if one of the arguments from the best theory is in its memory
         ; the agent will jump there
-        ifelse any? turtles with [(breed = starts or breed = arguments) and member? self subj-argus and
-          mytheory = ch-best and color != turquoise][
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-          member? self subj-argus and mytheory = ch-best and color != turquoise]
+        ifelse any? turtles with [(breed = starts or breed = arguments) and
+	        member? self subj-argus and mytheory = ch-best and color != turquoise][
+            move-to one-of turtles with [(breed = starts or breed = arguments) and
+              member? self subj-argus and mytheory = ch-best and color != turquoise]
           ][ ; otherwise the agent jumps to the root of the theory
-        move-to ch-best
+          move-to ch-best
           ]
         
         set times-jumped times-jumped + 1

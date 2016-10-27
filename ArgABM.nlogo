@@ -47,11 +47,13 @@ agents-own [theory-jump times-jumped collaborator-network
   admissible-subj-argu th-args th-relations communicating neighborargs moved
   rep-agent to-add-mem-argu to-add-mem-rel]
 
-; the global variables are concerned with the
-; run-many procedure and the communication networks
+; the global variables are all concerned with the
+; run-many procedure, or the initialization of hidden variables
 globals [times-right number-of-theories-many theory-depth-many
-  scientists-many setup-successful setup-time setup-discovered
-  setup-discovered-best setup-jumps colla-networks share-structure]
+  scientists-many setup-successful-m setup-successful-p setup-time
+  setup-discovered setup-discovered-best setup-jumps
+  undirected-communication small-movement color-move colla-networks
+  share-structure]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
@@ -61,11 +63,13 @@ __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
 ; the setup procedure:
+; the hidden variables (not set in the interface)
 ; it creates a landscape of arguments and a discovery relation
 ; on this landscape; attacks are defined;
 ; the agents are distributed over the theories
 to setup
   clear-all
+  initialize-hidden-variables
   create-discovery-landscape
   define-attack-relation
   distribute-agents
@@ -445,9 +449,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-70
+130
 10
-125
+185
 43
 NIL
 run-many\n
@@ -472,10 +476,10 @@ sharing
 1
 
 CHOOSER
-10
-465
-148
-510
+9
+464
+147
+509
 network-structure
 network-structure
 "cycle" "wheel" "complete"
@@ -708,35 +712,6 @@ Polygon -16777216 true false 162 80 132 78 134 135 209 135 194 105 189 96 180 89
 Circle -7500403 true true 47 195 58
 Circle -7500403 true true 195 195 58
 
-cat
-false
-0
-Line -7500403 true 285 240 210 240
-Line -7500403 true 195 300 165 255
-Line -7500403 true 15 240 90 240
-Line -7500403 true 285 285 195 240
-Line -7500403 true 105 300 135 255
-Line -16777216 false 150 270 150 285
-Line -16777216 false 15 75 15 120
-Polygon -7500403 true true 300 15 285 30 255 30 225 75 195 60 255 15
-Polygon -7500403 true true 285 135 210 135 180 150 180 45 285 90
-Polygon -7500403 true true 120 45 120 210 180 210 180 45
-Polygon -7500403 true true 180 195 165 300 240 285 255 225 285 195
-Polygon -7500403 true true 180 225 195 285 165 300 150 300 150 255 165 225
-Polygon -7500403 true true 195 195 195 165 225 150 255 135 285 135 285 195
-Polygon -7500403 true true 15 135 90 135 120 150 120 45 15 90
-Polygon -7500403 true true 120 195 135 300 60 285 45 225 15 195
-Polygon -7500403 true true 120 225 105 285 135 300 150 300 150 255 135 225
-Polygon -7500403 true true 105 195 105 165 75 150 45 135 15 135 15 195
-Polygon -7500403 true true 285 120 270 90 285 15 300 15
-Line -7500403 true 15 285 105 240
-Polygon -7500403 true true 15 120 30 90 15 15 0 15
-Polygon -7500403 true true 0 15 15 30 45 30 75 75 105 60 45 15
-Line -16777216 false 164 262 209 262
-Line -16777216 false 223 231 208 261
-Line -16777216 false 136 262 91 262
-Line -16777216 false 77 231 92 261
-
 circle
 false
 0
@@ -764,12 +739,6 @@ dot
 false
 0
 Circle -7500403 true true 90 90 120
-
-exclamation
-false
-0
-Circle -7500403 true true 103 198 95
-Polygon -7500403 true true 135 180 165 180 210 30 180 0 120 0 90 30
 
 face happy
 false
@@ -997,26 +966,6 @@ NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
-    <go>run-many</go>
-    <timeLimit steps="1"/>
-    <enumeratedValueSet variable="within-theory">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;kind&quot;"/>
-      <value value="&quot;biased&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-collaboration">
-      <value value="0"/>
-      <value value="0.3"/>
-      <value value="0.5"/>
-      <value value="1"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
@@ -1031,5 +980,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-1
+0
 @#$#@#$#@
