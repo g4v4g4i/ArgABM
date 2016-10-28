@@ -456,11 +456,13 @@ to move-around
       ; if there is no next argument and the current argument is
       ; fully researched, the agent moves a step back
       ifelse [color] of myargu = red and any? turtles with [color != gray and
+        color != turquoise and out-discovery-neighbor? myargu and not any?
+	turtles with [breed = agents and xcor = [xcor] of myself and
+	ycor = [ycor] of myself and member? self [collaborator-network]
+	of curagent]][
+      move-to one-of turtles with [color != gray and color != turquoise and
         out-discovery-neighbor? myargu and not any? turtles with [breed = agents
-	and xcor = [xcor] of myself and ycor = [ycor] of myself]][
-      move-to one-of turtles with [color != gray and out-discovery-neighbor?
-        myargu and not any? turtles with [breed = agents and xcor = [xcor] of
-	myself and ycor = [ycor] of myself and member? self
+	and xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
 	[collaborator-network] of curagent]]
       set moved true
         ][
@@ -471,10 +473,12 @@ to move-around
         let askstart [mytheory] of myargu
         if any? turtles with [(breed = starts or breed = arguments) and
 	  color != gray and color != turquoise and color != red and
-	  mytheory = askstart][
+	  mytheory = askstart and member? self[collaborator-network]
+	  of curagent][
         move-to one-of turtles with [(breed = starts or breed = arguments) and
 	  color != turquoise and color != gray and color != red and
-	  mytheory = askstart]
+	  mytheory = askstart and member? self [collaborator-network]
+	  of curagent]
         set moved true
           ]
       ]
