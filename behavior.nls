@@ -219,42 +219,21 @@ to create-share-memory
     set th-args []
     set th-relations []
     
-    ; the case that agents share their whole network
-    ifelse sharing = "all" [
-      ; collect all the arguments that belong to the
-      ; current theory from the agent's memory
-      foreach subjective-arguments [
-        if [mytheory] of item 0 ? = cur-th [
-          set th-args lput ? th-args
-        ]
-      ]
-      ; collect all the relations that have one end
-      ; in the current theory from the agent's memory
-      foreach subjective-relations [
-        if [mytheory] of item 1 ? = cur-th or [mytheory] of item 2 ? = cur-th [
-          set th-relations lput ? th-relations
-        ]
-      ]
-    ][
-    
-    ; the case that agents share only information obtained
-    ; in the neighborhood they are currently working on
-    if sharing = "neighborhood" [
-      ; collect the arguments from the agent's memory
-      ; that belong also to the neighborargs
-      foreach subjective-arguments [
-        if member? item 0 ? [neighborargs] of cur-agent [
-          set th-args lput ? th-args
-        ]
-      ]
-      ; collect the relations from/to the current argument
-      ; from the agent's memory
-      foreach subjective-relations [
-        if item 1 ? = cur-argum or item 2 ? = cur-argum [
-          set th-relations lput ? th-relations
-        ]
+    ; agents share only information obtained in the neighborhood 
+    ; they are currently working on
+    ; collect the arguments from the agent's memory
+    ; that belong also to the neighborargs
+    foreach subjective-arguments [
+      if member? item 0 ? [neighborargs] of cur-agent [
+        set th-args lput ? th-args
       ]
     ]
+    ; collect the relations from/to the current argument
+    ; from the agent's memory
+    foreach subjective-relations [
+      if item 1 ? = cur-argum or item 2 ? = cur-argum [
+        set th-relations lput ? th-relations
+      ]
     ]
     
     ; if the agent behaves biased it does not share the attack relations that

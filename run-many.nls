@@ -128,9 +128,6 @@ to run-many
   file-write "Probability of sharing information with other networks: "
   file-print social-collaboration
   file-print ""
-  file-write "Kind of information that is shared between networks: "
-  file-print sharing
-  file-print ""
   file-print "actions, within theory: "
   file-print social-actions
   file-print within-theory
@@ -161,7 +158,6 @@ to run-many
           show theory-depth-many
           show scientists-many
           show social-actions
-          show sharing
           show within-theory
           show try
           

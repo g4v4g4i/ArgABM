@@ -358,9 +358,9 @@ HORIZONTAL
 
 PLOT
 5
-540
+490
 205
-690
+640
 Popularity
 Time steps
 No. of agents
@@ -389,9 +389,9 @@ NIL
 
 TEXTBOX
 10
-515
+465
 160
-533
+483
 Plots
 13
 0.0
@@ -466,20 +466,10 @@ NIL
 1
 
 CHOOSER
-10
-415
-148
-460
-sharing
-sharing
-"all" "neighborhood"
-1
-
-CHOOSER
 9
-464
+414
 147
-509
+459
 network-structure
 network-structure
 "cycle" "wheel" "complete"
@@ -554,8 +544,6 @@ Agent settings
 * _social-collaboration_ the probability that an agent communicates with an agent or network outside its own
 
 * _social-actions_ here the behavior of the agents that communicate with agents outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" agents do not share the attacks to their current theory
-
-* _sharing_ makes it possible to choose what the agents share with agents from other networks: either their whole memory ("all") or only the information in their direct "neighborhood"
 
 * _network-structure_ determines the structure in which the collaborator-networks are connected and with how many agents information is shared
 
@@ -635,7 +623,7 @@ Every time step the agents update their memory. The current argument is added to
 
 Every five plus four time steps (4, 9, 14, ...), agents share their memory with other agents. First agents share what they know within their own collaborator-network. In this network they share all information with everyone: after this round of sharing the agents in the same network have the same memory.
 
-After this, from every network one random agent is chosen that will be the representative agent of that network in communicating with other networks. These representative agents create a list of arguments and a list of relations that they are prepared to share with other representative agents. How this is done depends on the social behavior of the agents (reliable or biased) and whether they share all or just the information from their current neighborhood.
+After this, from every network one random agent is chosen that will be the representative agent of that network in communicating with other networks. These representative agents create a list of arguments and a list of relations that they are prepared to share with other representative agents. How this is done depends on the social behavior of the agents (reliable or biased).
 
 Then the representative agents share the part of the memory they want to share with the agents from the networks that neighbor their own in the network structure. The agents collect all the new arguments and relations. At most 30 new entries are added to their memory and at most 10 entries per day.
 
@@ -999,5 +987,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
