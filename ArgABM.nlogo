@@ -358,9 +358,9 @@ HORIZONTAL
 
 PLOT
 5
-490
+450
 205
-640
+600
 Popularity
 Time steps
 No. of agents
@@ -389,9 +389,9 @@ NIL
 
 TEXTBOX
 10
-465
+425
 160
-483
+443
 Plots
 13
 0.0
@@ -408,26 +408,11 @@ within-theory
 1
 -1000
 
-SLIDER
-10
-325
-182
-358
-social-collaboration
-social-collaboration
-0
-1
-0.3
-0.01
-1
-NIL
-HORIZONTAL
-
 CHOOSER
 10
-365
+325
 148
-410
+370
 social-actions
 social-actions
 "reliable" "biased"
@@ -467,9 +452,9 @@ NIL
 
 CHOOSER
 9
-414
+374
 147
-459
+419
 network-structure
 network-structure
 "cycle" "wheel" "complete"
@@ -540,8 +525,6 @@ Agent settings
 * _research-speed_ the time an agent has to work on an argument before it will change color
 
 * _within-theory_ here the kind of collaborative network is set to agents that start on the same theory (on) or randomly chosen agents (off)
-
-* _social-collaboration_ the probability that an agent communicates with an agent or network outside its own
 
 * _social-actions_ here the behavior of the agents that communicate with agents outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" agents do not share the attacks to their current theory
 
@@ -973,6 +956,25 @@ NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="Zollman-networks run" repetitions="1" runMetricsEveryStep="true">
+    <go>run-many</go>
+    <timeLimit steps="1"/>
+    <enumeratedValueSet variable="network-structure">
+      <value value="&quot;cycle&quot;"/>
+      <value value="&quot;wheel&quot;"/>
+      <value value="&quot;complete&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="social-actions">
+      <value value="&quot;reliable&quot;"/>
+      <value value="&quot;biased&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="within-theory">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default

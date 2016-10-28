@@ -32,66 +32,50 @@ to run-many
   let jumps 0  ; number of jumps
   
   ; different setups write results to different files
-  ifelse social-collaboration = 0.00 [
+  ifelse network-structure = "cycle" [
     ifelse social-actions = "biased" [
       ifelse within-theory [
-        file-open "Results0b_within.txt"
+        file-open "Resultscycb_within.txt"
       ][
-      file-open "Results0b_off.txt"
+      file-open "Resultscycb_off.txt"
       ]
     ][
     ifelse within-theory [
-      file-open "Results0r_within.txt"
+      file-open "Resultscycr_within.txt"
     ][
-    file-open "Results0r_off.txt"
+    file-open "Resultscycr_off.txt"
     ]
     ]
   ][
-  ifelse social-collaboration = 0.30 [
+  ifelse network-structure = "wheel" [
     ifelse social-actions = "biased" [
       ifelse within-theory [
-        file-open "Results3b_within.txt"
+        file-open "Resultswhb_within.txt"
       ][
-      file-open "Results3b_off.txt"
+      file-open "Resultswhb_off.txt"
       ]
     ][
     ifelse within-theory [
-      file-open "Results3r_within.txt"
+      file-open "Resultswhr_within.txt"
     ][
-    file-open "Results3r_off.txt"
+    file-open "Resultswhr_off.txt"
     ]
     ]
   ][
-  ifelse social-collaboration = 0.50 [
+  if network-structure = "complete" [
     ifelse social-actions = "biased" [
       ifelse within-theory [
-        file-open "Results5b_within.txt"
+        file-open "Resultscomb_within.txt"
       ][
-      file-open "Results5b_off.txt"
+      file-open "Resultscomb_off.txt"
       ]
     ][
     ifelse within-theory [
-      file-open "Results5r_within.txt"
+      file-open "Resultscomr_within.txt"
     ][
-    file-open "Results5r_off.txt"
+    file-open "Resultscomr_off.txt"
     ]
     ]
-  ][
-  if social-collaboration = 1.00 [
-    ifelse social-actions = "biased" [
-      ifelse within-theory [
-        file-open "Results1b_within.txt"
-      ][
-      file-open "Results1b_off.txt"
-      ]
-    ][
-    ifelse within-theory [
-      file-open "Results1r_within.txt"
-    ][
-    file-open "Results1r_off.txt"
-    ]
-    ]
-  ]
   ]
   ]
   ]
@@ -125,9 +109,9 @@ to run-many
   file-write "Number of steps before the color of an argument changes: "
   file-print research-speed
   file-print ""
-  file-write "Probability of sharing information with other networks: "
-  file-print social-collaboration
-  file-print ""
+  file-write "Network structure of the collaborator-networks: "
+  file-print network-structure
+  file-print "" 
   file-print "actions, within theory: "
   file-print social-actions
   file-print within-theory
@@ -152,12 +136,13 @@ to run-many
         while [try != 100][ 
           
           ; to keep track of the current setup of the run
-          write "#theories, depth, scientists, actions, sharing, within-theory, try: "
+          write "#theories, depth, scientists, actions, structure, within-theory, try: "
           print ""
           show number-of-theories-many
           show theory-depth-many
           show scientists-many
           show social-actions
+          show network-structure
           show within-theory
           show try
           
