@@ -403,109 +403,116 @@ to move-around
     set moved false
   ]
   ask agents [
-    let myx xcor
-    let myy ycor
-    ; variable for the argument the agent is currently working on and
-    ; the agent itself
-    let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]
     let curagent self
-    
-    ; a list of not-admissible arguments is created
-    let not-admissible []
-    if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-      let info-not-admissible filter [not member? ? admissible-subj-argu]
-        subjective-arguments
-      foreach info-not-admissible [
-        set not-admissible lput item 0 ? not-admissible
+    if [communicating] of curagent = 0 or ticks mod 5 = 0 [
+      let myx xcor
+      let myy ycor
+      ; variable for the argument the agent is currently working on and
+     ; the agent itself
+        let myargu one-of turtles with [(breed = starts or breed = arguments) and
+        xcor = myx and ycor = myy]
+      
+      ; a list of not-admissible arguments is created
+      let not-admissible []
+      if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
+        let info-not-admissible filter [not member? ? admissible-subj-argu]
+          subjective-arguments
+        foreach info-not-admissible [
+          set not-admissible lput item 0 ? not-admissible
+        ]
       ]
-    ]
    
-    ; an agent working on an attacked argument will try to find a defense for
-    ; this attack, by working further on the attacked argument, unless it
-    ; discoveres a child-argument that that has a defense for the attack
-    ; (it is not necessarily the case that this defense is already discovered)
-    ; the find-defense runs immediately for all agents working on a not
-    ; fully researched not-admissible argument, hence it is only once executed
-    if member? myargu not-admissible and not moved[
+      ; an agent working on an attacked argument will try to find a defense for
+      ; this attack, by working further on the attacked argument, unless it
+      ; discoveres a child-argument that that has a defense for the attack
+      ; (it is not necessarily the case that this defense is already discovered)
+      ; the find-defense runs immediately for all agents working on a not
+      ; fully researched not-admissible argument, hence it is only once executed
+      if member? myargu not-admissible and not moved[
       
-      if not run-find-defense [
-        find-defense
-        set run-find-defense true
+        if not run-find-defense [
+          find-defense
+          set run-find-defense true
+        ]
       ]
-    ]
     
-    if not moved and not member? myargu not-admissible or 
-      (member? myargu not-admissible and [color] of myargu = red)[
-      
-      ; when an argument exists that:
-      ; a) is a child-argument of the current argument;
-      ; b) is not gray, red or turquoise; and
-      ; c) no agent from the same collaborator-network is working on it
-      ; the agent moves there, with certain probability
-      ifelse any? turtles with [(breed = starts or breed = arguments) and
-        in-discovery-neighbor? myargu and color != gray and color != red and
-	color != turquoise and not (any? turtles with [breed = agents and
-	xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	[collaborator-network] of curagent])] [
-      let move-random random-float 1.0
+      if not moved and not member? myargu not-admissible or 
+        (member? myargu not-admissible and [color] of myargu = red)[
+        
+        ; when an argument exists that:
+        ; a) is a child-argument of the current argument;
+        ; b) is not gray, red or turquoise; and
+        ; c) no agent from the same collaborator-network is working on it
+        ; the agent moves there, with certain probability
+        ifelse any? turtles with [(breed = starts or breed = arguments) and
+          in-discovery-neighbor? myargu and color != gray and color != red and
+    	  color != turquoise and not (any? turtles with [breed = agents and
+	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+	  [collaborator-network] of curagent])] [
+        let move-random random-float 1.0
       
 
-      ; every time step with small-movement of the move-probability
-      ; the agent moves
-      ifelse move-random < (small-movement * move-probability *
-        (1 - (color / color-move))) [
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-          in-discovery-neighbor? myargu and color != gray and color != red and
-          color != turquoise and not ( any? turtles with [breed = agents and
-          xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [     collaborator-network] of curagent])]
-        set moved true
-      ][
-      
-      ; every 5th time step the agent mover with the full move-probability,
-      ; that depends a bit on the color
-      if ticks != 0 and ticks mod 5 = 0 and move-random <
-        move-probability * (1 - (color / color-move)) [
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-          in-discovery-neighbor? myargu and color != gray and color != red and
-	        color != turquoise and not ( any? turtles with [breed = agents
-		and xcor = [xcor] of myself and ycor = [ycor] of myself and
-		member? self [collaborator-network] of curagent])]
-        set moved true
-      ]
-      ]
-          ][
-
-      ; if there is no next argument and the current argument is
-      ; fully researched, the agent moves a step back
-      ifelse [color] of myargu = red and any? turtles with [color != gray and
-        out-discovery-neighbor? myargu and not any? turtles with [breed = agents
-        and xcor = [xcor] of myself and ycor = [ycor] of myself]]  and 
-        (communicating = 0 or ticks mod 5 = 0)[
-      move-to one-of turtles with [color != gray and out-discovery-neighbor?
-        myargu and not any? turtles with [breed = agents and xcor = [xcor] of
-        myself and ycor = [ycor] of myself and member? self
-        [collaborator-network] of curagent]]
-      set moved true
+        ; every time step with small-movement of the move-probability
+        ; the agent moves
+        ifelse move-random < (small-movement * move-probability *
+          (1 - (color / color-move))) [
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+            in-discovery-neighbor? myargu and color != gray and color != red and
+            color != turquoise and not ( any? turtles with [breed = agents and
+            xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+  	    [collaborator-network] of curagent])]
+          set moved true
         ][
       
-      ; if moving back is not possible, it jumps to another argument in
-      ; the same tree/theory that is discovered but not fully researched
-      if [color] of myargu = red and (communicating = 0 or ticks mod 5 = 0)[
-        let askstart [mytheory] of myargu
-        if any? turtles with [(breed = starts or breed = arguments) and
-	        color != gray and color != turquoise and color != red and
-	        mytheory = askstart][
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-	        color != turquoise and color != gray and color != red and
-	        mytheory = askstart]
+        ; every 5th time step the agent mover with the full move-probability,
+        ; that depends a bit on the color
+        if ticks != 0 and ticks mod 5 = 0 and move-random <
+          move-probability * (1 - (color / color-move)) [
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+            in-discovery-neighbor? myargu and color != gray and color != red and
+	    color != turquoise and not ( any? turtles with [breed = agents
+	    and xcor = [xcor] of myself and ycor = [ycor] of myself and
+	    member? self [collaborator-network] of curagent])]
+          set moved true
+        ]
+        ]
+            ][
+
+        ; if there is no next argument and the current argument is
+        ; fully researched, the agent moves a step back
+        ifelse [color] of myargu = red and any? turtles with [color != gray and
+          color != turquoise and out-discovery-neighbor? myargu and not any?
+	  turtles with [breed = agents and xcor = [xcor] of myself and
+	  ycor = [ycor] of myself and member? self [collaborator-network]
+	  of curagent]][
+        move-to one-of turtles with [color != gray and out-discovery-neighbor?
+          myargu and not any? turtles with [breed = agents and xcor = [xcor] of
+          myself and ycor = [ycor] of myself and member? self
+          [collaborator-network] of curagent]]
         set moved true
-          ]
-      ]
+          ][
+      
+        ; if moving back is not possible, it jumps to another argument in
+        ; the same tree/theory that is discovered but not fully researched
+        if [color] of myargu = red[
+          let askstart [mytheory] of myargu
+          if any? turtles with [(breed = starts or breed = arguments) and
+	    color != gray and color != turquoise and color != red and
+	    mytheory = askstart and not any? turtles with [breed = agents and
+  	    xcor = [xcor] of myself and ycor = [ycor] of myself and member?
+	    self [collaborator-network] of curagent]][
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+	   color != turquoise and color != gray and color != red and
+  	   mytheory = askstart and not any? turtles with [breed = agents and
+	   xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+           [collaborator-network] of curagent]]
+          set moved true
+            ]
         ]
           ]
-    ]
+            ]
+      ]
+    ]	
   ]
 end
 
@@ -521,49 +528,51 @@ end
 ; then an agent can move on and can try to find a defense in another branch,
 ; further away
 to find-defense
-  ask agents with [not moved][
-    let myx xcor
-    let myy ycor
-    ; variables for the argument the agent is working on and
-    ; for the agent itself
-    let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]    
+  ask agents with [not moved][    
     let curagent self
+    if [communicating] of curagent = 0 or ticks mod 5 = 0 [
+      let myx xcor
+      let myy ycor
+      ; variables for the argument the agent is working on and
+      ; for the agent itself
+      let myargu one-of turtles with [(breed = starts or breed = arguments) and
+        xcor = myx and ycor = myy]
     
-    ; lists of arguments that are not admissible
-    let not-admissible []
-    if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-      let info-not-admissible filter [not member? ? admissible-subj-argu]
-        subjective-arguments
-      foreach info-not-admissible [
-        set not-admissible lput item 0 ? not-admissible
+      ; lists of arguments that are not admissible
+      let not-admissible []
+      if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
+        let info-not-admissible filter [not member? ? admissible-subj-argu]
+          subjective-arguments
+        foreach info-not-admissible [
+          set not-admissible lput item 0 ? not-admissible
+        ]
       ]
-    ]
     
-    ; if the current argument is not fully researched and not admissible
-    ; and it is a 5th time step or the agent is not communicating
-    ; the agent tries to move prospectively to a child-argument of the current 
-    ; argument that provides a defense for the current argument
-    if member? myargu not-admissible and (communicating = 0 or ticks mod 5 = 0)[
-      ask myargu [
-        ask my-in-attacks [
-          ask end1 [
-            ; create a set of arguments that provide a defense for the current
-	    ; argument, these:
-            ; a) attack the attacker of the current argument;
-	    ;b) are a child-argument of the current argument;
-            ; c) are discovered; and
-	    ; d) no agent from the same network is working on it
-            let nextargu in-attack-neighbors with [in-discovery-neighbor? myargu
-	      and color != gray and color != turquoise and not (any? agents with
-	      [xcor = [xcor] of myself and ycor = [ycor] of myself and
-	      member? self [collaborator-network] of curagent])]
-            ; if such an argument exists the agent moves there
-            ; and cannot move anymore this time step
-            if any? nextargu [
-              ask curagent [
-                move-to one-of nextargu
-                set moved true
+      ; if the current argument is not fully researched and not admissible
+      ; and it is a 5th time step or the agent is not communicating
+      ; the agent tries to move prospectively to a child-argument of the current 
+      ; argument that provides a defense for the current argument
+      if member? myargu not-admissible[
+        ask myargu [
+          ask my-in-attacks [
+            ask end1 [
+              ; create a set of arguments that provide a defense for the current
+	      ; argument, these:
+              ; a) attack the attacker of the current argument;
+	      ; b) are a child-argument of the current argument;
+              ; c) are discovered; and
+	      ; d) no agent from the same network is working on it
+              let nextargu in-attack-neighbors with [in-discovery-neighbor?
+	        myargu and color != gray and color != turquoise and not (any?
+		agents with [xcor = [xcor] of myself and ycor = [ycor] of myself
+		and member? self [collaborator-network] of curagent])]
+              ; if such an argument exists the agent moves there
+              ; and cannot move anymore this time step
+              if any? nextargu [
+                ask curagent [
+                  move-to one-of nextargu
+                  set moved true
+                ]
               ]
             ]
           ]
