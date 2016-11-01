@@ -35,39 +35,39 @@ to update-memories
     ; (attacks and discovery) to a to-add list
     ask cur-argum [
       ; add the parent argument of the discovery relation
-      if any? in-discovery-neighbors with [color != gray][
-        ask in-discovery-neighbors with [color != gray][
-          let add-disc self
+      if any? my-in-discoveries with [color != gray][
+        ask my-in-discoveries with [color != gray][
+          let add-other-end other-end
           ask cur-agent [
-            set neighborargs lput add-disc neighborargs
+            set neighborargs lput add-other-end neighborargs
           ]
           ; construction of the to be added discovery relation
           let add-rel []
           set add-rel lput "d" add-rel
-          set add-rel lput add-disc add-rel
+          set add-rel lput add-other-end add-rel
           set add-rel lput cur-argum add-rel
           set to-add lput add-rel to-add
           ; the to be added argument
-          let add-other (sentence add-disc color)
+          let add-other (sentence add-other-end [color] of add-other-end)
           set to-add-argu lput add-other to-add-argu
         ]
       ]
       
       ; add the child argument of the discovery relation
-      if any? out-discovery-neighbors with [color != gray][
-        ask out-discovery-neighbors with [color != gray][
-          let add-disc self
-          ask cur-agent [
-            set neighborargs lput add-disc neighborargs
-          ]
-          ; construction of the to be added discovery relation
-          let add-rel []
-          set add-rel lput "d" add-rel
+      if any? my-out-discoveries with [color != gray][
+        ask my-out-discoveries with [color != gray][
+	  let add-other-end other-end
+	  ask cur-agent [
+	    set neighborargs lput add-other-end neighborargs
+	  ]
+	  ; construction of the to be added discovery relation
+	  let add-rel []
+	  set add-rel lput "d" add-rel
           set add-rel lput cur-argum add-rel
-          set add-rel lput add-disc add-rel
+          set add-rel lput add-other-end add-rel
           set to-add lput add-rel to-add
           ; the to be added argument
-          let add-other (sentence add-disc color)
+          let add-other (sentence add-other-end [color] of add-other-end)
           set to-add-argu lput add-other to-add-argu
         ]
       ]
