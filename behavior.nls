@@ -344,13 +344,6 @@ to compute-time-costs
     ; the day that they received information is also lost
     set communicating ((ceiling (length comb-new / 10)) + 1)
   ]
-  
-  ; reset the variables
-  ask agents [
-    set rep-agent false 
-    set to-add-mem-argu []
-    set to-add-mem-rel []
-  ]
 end
 
 
