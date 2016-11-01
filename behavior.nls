@@ -135,6 +135,11 @@ end
 ; second they share information with agents from other networks
 to share-with-others
   ask agents [
+    ; reset the variables
+    set rep-agent false 
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    
     ; variables to keep track of the current agents own memory
     ; and the combined memory of all the sharing agents
     let own-memory-argu subjective-arguments
