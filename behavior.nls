@@ -328,9 +328,10 @@ to compute-time-costs
     let comb-new sentence new-memory-args new-memory-rel
     
     ; every communication round an agent can update a maximum of 
-    ; 30 new arguments/relations (corresponding to three ticks of communication)
-    ; these new arguments and relations are added to the memory of the agent
-    ifelse length comb-new > 30 [
+    ; 3 * max-learn new arguments/relations (corresponding to three ticks of
+    ; communication) these new arguments and relations are added to the
+    ; memory of the agent
+    ifelse length comb-new > (3 * max-learn) [
       set comb-new shuffle comb-new
       repeat 30 [
         let cur-entr first comb-new

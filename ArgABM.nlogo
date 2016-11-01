@@ -52,8 +52,7 @@ agents-own [theory-jump times-jumped collaborator-network
 globals [times-right number-of-theories-many theory-depth-many
   scientists-many setup-successful-m setup-successful-p setup-time
   setup-discovered setup-discovered-best setup-jumps
-  undirected-communication small-movement color-move colla-networks
-  share-structure]
+  max-learn small-movement color-move colla-networks share-structure]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]

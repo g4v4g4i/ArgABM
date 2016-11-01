@@ -11,9 +11,9 @@
 ; procedure in which the variables that are not mentioned 
 ; in the interface can be set
 to initialize-hidden-variables
-  ; probability that communication among agents from 
-  ; different networks is undirected
-  set undirected-communication 0.5
+  ; the number of arguments that an agent can learn
+  ; each tick
+  set max-learn 10
   
   ; the probability that agents move every round is
   ; only small-movement * move-probability
