@@ -214,7 +214,7 @@ SLIDER
 scientists
 scientists
 5
-50
+100
 15
 5
 1
@@ -458,7 +458,7 @@ CHOOSER
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-0
+1
 
 BUTTON
 70
