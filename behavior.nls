@@ -98,11 +98,11 @@ to update-memories
             set neighborargs lput add-other-end neighborargs
           ]
           ; construction of the to be added attack relation
-          let add-argu []
-          set add-argu lput "a" add-argu
-          set add-argu lput cur-argum add-argu
-          set add-argu lput other-end add-argu
-          set to-add lput add-argu to-add
+          let add-rel []
+          set add-rel lput "a" add-argu
+          set add-rel lput cur-argum add-argu
+          set add-rel lput other-end add-argu
+          set to-add lput add-rel to-add
           ; the to be added argument
           let add-other (sentence add-other-end [color] of add-other-end)
           set to-add-argu lput add-other to-add-argu
