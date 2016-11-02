@@ -99,9 +99,9 @@ to update-memories
           ]
           ; construction of the to be added attack relation
           let add-rel []
-          set add-rel lput "a" add-argu
-          set add-rel lput cur-argum add-argu
-          set add-rel lput other-end add-argu
+          set add-rel lput "a" add-rel
+          set add-rel lput cur-argum add-rel
+          set add-rel lput other-end add-rel
           set to-add lput add-rel to-add
           ; the to be added argument
           let add-other (sentence add-other-end [color] of add-other-end)
