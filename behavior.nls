@@ -200,8 +200,16 @@ to create-share-memory
   ; for each collaborator-network one agent is set to be
   ; the representative agent
   foreach colla-networks [
-    ask one-of agents with [member? self ?][
-      set rep-agent true
+    ifelse length ? > 1 [
+      ask one-of agents with [member? self ?][
+        set rep-agent true
+      ] 	
+    ][
+    if ticks mod 25 = 4 [
+      ask one-of agents with [member? self ?][
+        set rep-agent true
+      ]
+    ]
     ]
   ]
   
