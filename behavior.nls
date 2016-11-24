@@ -15,12 +15,15 @@
 ; collaborator-network
 to update-memories
   ask agents [
+    ; variables for the x and y coordinate of the agent, the argument she is
+    ; working on and the agent herself
     let myx xcor
     let myy ycor
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
     let cur-agent self
     ; information of current argument in the format of the memory
+    ; is added to the subjective-arguments
     let add-cur (sentence cur-argum [color] of cur-argum)
     set subjective-arguments lput add-cur subjective-arguments
     ; list of relations (resp. arguments) that are added
@@ -56,13 +59,13 @@ to update-memories
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
-	  let add-other-end other-end
-	  ask cur-agent [
-	    set neighborargs lput add-other-end neighborargs
-	  ]
-	  ; construction of the to be added discovery relation
-	  let add-rel []
-	  set add-rel lput "d" add-rel
+          let add-other-end other-end
+          ask cur-agent [
+            set neighborargs lput add-other-end neighborargs
+          ]
+          ; construction of the to be added discovery relation
+          let add-rel []
+          set add-rel lput "d" add-rel
           set add-rel lput cur-argum add-rel
           set add-rel lput add-other-end add-rel
           set to-add lput add-rel to-add
@@ -131,7 +134,7 @@ end
 
 
 ; procedure in which agents share (part of) their memory with other agents
-; first they share their whole memory with agents from their
+; first, they share their whole memory with agents from their
 ; collaborator-network
 ; second, with a certain probability, they share information with
 ; agents from other networks
@@ -153,13 +156,15 @@ to share-with-others
       set comb-memory-rel sentence subjective-relations comb-memory-rel
     ]
     
-    ; each agent adds the combined memory to its own
-    ; then removing duplicates
+    ; each agent adds the combined memory to her own
+    ; and removes duplicates
     set subjective-arguments remove-duplicates sentence
       own-memory-argu comb-memory-argu
     set subjective-relations remove-duplicates sentence
       own-memory-rel comb-memory-rel
     
+    ; if more than one entry of an argument still exists in the memory
+    ; only the entry with the lowest color value (most researched) is kept
     foreach subjective-arguments [
       ; the argument of the current subjective-arguments entry
       let argu first ?
@@ -178,7 +183,7 @@ to share-with-others
     ]
   ]
   
-  ; then agents can share some of their information with agents 
+  ; then agents can share (some of) their information with agents 
   ; from other collaborator-networks
   create-share-memory
   share-with-other-network
@@ -197,7 +202,7 @@ to create-share-memory
     let myx xcor
     let myy ycor
     ; variables for the argument the agent is currently working on,
-    ; the agent itself and the theory it is working on
+    ; the agent herself and the theory she is working on
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
     let cur-agent self 
@@ -247,8 +252,8 @@ to create-share-memory
     ]
     ]
     
-    ; if the agent behaves biased it does not share the attack relations that
-    ; attack its current theory, these relations are removed
+    ; if the agent behaves biased she does not share the attack relations that
+    ; attack her current theory, these relations are removed
     if social-actions = "biased"[
       foreach th-relations [
         if item 0 ? = "a" and [mytheory] of item 2 ? = cur-th [
@@ -265,8 +270,8 @@ end
 
 ; procedure in which the actual sharing with agents from other
 ; networks happens with probability social-collaboration
-; in 50% of the cases this is done by exchanging information (undirected)
-; as in a discussion
+; with probability undirected-communication this is done by exchanging 
+; information (undirected) as in a discussion
 ; in the other cases the agent provides information (directed)
 ; information sharing is done from one agent to another, when new information
 ; is obtained they share this information with their own network after the
@@ -274,55 +279,57 @@ end
 to share-with-other-network
   ask agents [
     ; variables for the combined information (arguments and relations),
-    ; the network of the current agent and the theory it is working on
+    ; the network of the current agent and the theory she is working on
     let comb-memory-argu th-args
     let comb-memory-rel th-relations
     let cur-network collaborator-network
     let my-cur-theory [mytheory] of item 0 item 0 th-args
     
     if random-float 1 < social-collaboration [
+      
       ; information is exchanged (undirected)
       ; both agents cannot do further research in this round
       ifelse random-float 1 < undirected-communication [
         set communicating true ; the current agent communicates
-        ; the agent with which the information is exchanged
+        ; the agent with whom the information is exchanged
         let share-agent one-of agents with [not member? self cur-network]
         if share-agent != nobody [
           ; the combined memory is updated to contain that of the sharing agent
           set comb-memory-argu sentence th-args [th-args] of share-agent
           set comb-memory-rel sentence th-relations [th-relations] of share-agent
           ; update of the memory from the current agent,
-	  ; incl. removing duplicates
+          ; incl. removing duplicates
           set subjective-arguments remove-duplicates sentence
-	    subjective-arguments comb-memory-argu
+            subjective-arguments comb-memory-argu
           set subjective-relations remove-duplicates sentence
-	    subjective-relations comb-memory-rel
+            subjective-relations comb-memory-rel
           ; then the memory of the agent from the other network is updated
+          ; in the same way
           ask share-agent [
             set communicating true ; the sharing agent communicates
             set subjective-arguments remove-duplicates sentence
-	      subjective-arguments comb-memory-argu
+              subjective-arguments comb-memory-argu
             set subjective-relations remove-duplicates sentence
-	      subjective-relations comb-memory-rel
+              subjective-relations comb-memory-rel
           ]
         ]
       ][
       
       ; now the current agent only provides the information, like writing a paper
-      ; in this case the agent can still do research/move: it does not set its
-      ; communicating to true the agent which receives the information
+      ; in this case the agent can still do research/move: she does not set her
+      ; communicating to true, the agent which receives the information does
       let share-agent one-of agents with [not member? self cur-network]
       if share-agent != nobody [
-        ; the combined memory is updated ot contain that of the sharing agent
+        ; the combined memory is updated to contain that of the sharing agent
         set comb-memory-argu sentence th-args [th-args] of share-agent
         set comb-memory-rel sentence th-relations [th-relations] of share-agent
-        ; the agent that receives the information updates its memory
+        ; the agent that receives the information updates her memory
         ask share-agent [
           set communicating true ; the receiving agent communicates
           set subjective-arguments remove-duplicates sentence
-	    subjective-arguments comb-memory-argu
+            subjective-arguments comb-memory-argu
           set subjective-relations remove-duplicates sentence
-	    subjective-relations comb-memory-rel
+            subjective-relations comb-memory-rel
         ]
       ]
       ]
@@ -343,11 +350,11 @@ to duplicate-remover
     ; list of arguments of which the duplicates will be removed
     let new-args subjective-arguments
     foreach new-args [
-      ; the argument of the current entry and its color
+      ; the argument of the current entry
       let argu first ?
-      let my-color first but-first ?
       ; list of entries with the same argument, but maybe different color
       let color-argu filter [first ? = argu] new-args
+      
       ; remove entries of arguments that are also present as
       ; better researched entries
       set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
@@ -368,8 +375,8 @@ end
 ; procedure that describes how the agents move around over the landscape
 ; they only "see" the colored part of the landscape and hence can only move
 ; there, the probability of moving increases (a little) when the argument is
-; further researched in one time step agents can either receive information or
-; move, but not both
+; further researched 
+; in one time step agents can either receive information or move, but not both
 to move-around
   ; variable to make sure that the procedure find-defense
   ; is only run once
@@ -382,7 +389,7 @@ to move-around
     let myx xcor
     let myy ycor
     ; variable for the argument the agent is currently working on and
-    ; the agent itself
+    ; the agent herself
     let myargu one-of turtles with [(breed = starts or breed = arguments) and
       xcor = myx and ycor = myy]
     let curagent self
@@ -398,11 +405,11 @@ to move-around
     ]
    
     ; an agent working on an attacked argument will try to find a defense for
-    ; this attack, by working further on the attacked argument, unless it
+    ; this attack, by working further on the attacked argument, unless she
     ; discoveres a child-argument that that has a defense for the attack
     ; (it is not necessarily the case that this defense is already discovered)
     ; the find-defense runs immediately for all agents working on a not
-    ; fully researched not-admissible argument, hence it is only once executed
+    ; not-admissible argument, hence it is only once executed
     if member? myargu not-admissible and not moved[
       
       if not run-find-defense [
@@ -412,6 +419,8 @@ to move-around
       
     ]
     
+    ; agents that did not move and are not working on a not-admissible
+    ; argument (or that argument is red) can consider moving
     if not moved and not member? myargu not-admissible or 
       (member? myargu not-admissible and [color] of myargu = red)[
       
@@ -422,22 +431,22 @@ to move-around
       ; the agent moves there, with certain probability
       ifelse any? turtles with [(breed = starts or breed = arguments) and
         in-discovery-neighbor? myargu and color != gray and color != red and
-	color != turquoise and not (any? turtles with [breed = agents and
-	xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	[collaborator-network] of curagent])] [
-      let move-random random-float 1.0
+        color != turquoise and not (any? turtles with [breed = agents and
+        xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+        [collaborator-network] of curagent])] [
+        let move-random random-float 1.0
       
-      ; every time step with small-movement of the move-probability
-      ; the agent moves
-      ifelse move-random < (small-movement * move-probability *
-        (1 - (color / color-move))) [
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-          in-discovery-neighbor? myargu and color != gray and color != red and
-	  color != turquoise and not ( any? turtles with [breed = agents and
-	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [collaborator-network] of curagent])]
-        set moved true
-      ][
+        ; every time step with small-movement of the move-probability
+        ; the agent moves
+        ifelse move-random < (small-movement * move-probability *
+          (1 - (color / color-move))) [
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+            in-discovery-neighbor? myargu and color != gray and color != red and
+            color != turquoise and not ( any? turtles with [breed = agents and
+            xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+            [collaborator-network] of curagent])]
+            set moved true
+        ][
       
       ; every 5th time step the agent mover with the full move-probability,
       ; that depends a bit on the color
@@ -445,11 +454,11 @@ to move-around
         move-probability * (1 - (color / color-move)) [
         move-to one-of turtles with [(breed = starts or breed = arguments) and
           in-discovery-neighbor? myargu and color != gray and color != red and
-	  color != turquoise and not ( any? turtles with [breed = agents and
-	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [collaborator-network] of curagent])]
-        set moved true
-      ]
+          color != turquoise and not ( any? turtles with [breed = agents and
+          xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+          [collaborator-network] of curagent])]
+          set moved true
+        ]
       ]
           ][
       
@@ -457,30 +466,30 @@ to move-around
       ; fully researched, the agent moves a step back
       ifelse [color] of myargu = red and any? turtles with [color != gray and
         color != turquoise and out-discovery-neighbor? myargu and not any?
-	turtles with [breed = agents and xcor = [xcor] of myself and
-	ycor = [ycor] of myself and member? self [collaborator-network]
-	of curagent]][
-      move-to one-of turtles with [color != gray and color != turquoise and
-        out-discovery-neighbor? myargu and not any? turtles with [breed = agents
-	and xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	[collaborator-network] of curagent]]
-      set moved true
-        ][
+        turtles with [breed = agents and xcor = [xcor] of myself and
+        ycor = [ycor] of myself and member? self [collaborator-network]
+        of curagent]][
+        move-to one-of turtles with [color != gray and color != turquoise and
+          out-discovery-neighbor? myargu and not any? turtles with [breed = agents
+          and xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+          [collaborator-network] of curagent]]
+        set moved true
+      ][
       
-      ; if moving back is not possible, it jumps to another argument in
+      ; if moving back is not possible, she jumps to another argument in
       ; the same tree/theory that is discovered but not fully researched
       if [color] of myargu = red [
         let askstart [mytheory] of myargu
         if any? turtles with [(breed = starts or breed = arguments) and
-	  color != gray and color != turquoise and color != red and
-	  mytheory = askstart and member? self[collaborator-network]
-	  of curagent][
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-	  color != turquoise and color != gray and color != red and
-	  mytheory = askstart and member? self [collaborator-network]
-	  of curagent]
-        set moved true
-          ]
+          color != gray and color != turquoise and color != red and
+          mytheory = askstart and member? self[collaborator-network]
+          of curagent][
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+            color != turquoise and color != gray and color != red and
+            mytheory = askstart and member? self [collaborator-network]
+            of curagent]
+          set moved true
+        ]
       ]
         ]
           ]
@@ -504,12 +513,12 @@ to find-defense
     let myx xcor
     let myy ycor
     ; variables for the argument the agent is working on and
-    ; for the agent itself
+    ; for the agent herself
     let myargu one-of turtles with [(breed = starts or breed = arguments) and
       xcor = myx and ycor = myy]    
     let curagent self
     
-    ; lists of arguments that are not admissible
+    ; a list of arguments that are not admissible is create
     let not-admissible []
     if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
       let info-not-admissible filter [not member? ? admissible-subj-argu]
@@ -527,15 +536,15 @@ to find-defense
         ask my-in-attacks [
           ask end1 [
             ; create a set of arguments that provide a defense for the current
-	    ; argument, these:
+            ; argument, these:
             ; a) attack the attacker of the current argument;
-	    ;b) are a child-argument of the current argument;
+            ; b) are a child-argument of the current argument;
             ; c) are discovered; and
-	    ; d) no agent from the same network is working on it
+            ; d) no agent from the same network is working on it
             let nextargu in-attack-neighbors with [in-discovery-neighbor? myargu
-	      and color != gray and color != turquoise and not (any? agents with
-	      [xcor = [xcor] of myself and ycor = [ycor] of myself and
-	      member? self [collaborator-network] of curagent])]
+              and color != gray and color != turquoise and not (any? agents with
+              [xcor = [xcor] of myself and ycor = [ycor] of myself and
+              member? self [collaborator-network] of curagent])]
             ; if such an argument exists the agent moves there
             ; and cannot move anymore this time step
             if any? nextargu [
@@ -561,7 +570,7 @@ to update-landscape
   ask turtles with [breed = arguments or breed = starts][
     let myx xcor
     let myy ycor
-    ; discoveries only occur when an agent is working on that argument working
+    ; discoveries only occur when an agent is working on that argument, working
     ; on an argument means that the agent did not communicate in that round
     if any? turtles with [breed = agents and xcor = myx and ycor = myy and not
       communicating][
@@ -576,40 +585,44 @@ to update-landscape
         
       ; depending on the color a new child-argument is discovered, until all
       ; child-arguments are discovered
+      ; yellow arguments have one child (unless the argument is a leave)
       if color = yellow and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 4 [
+        [color = gray or color = turquoise] >= 4 [
         ask one-of out-discovery-neighbors with
-	  [color = gray or color = turquoise][
+          [color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan
           ]
         ]
       ]
+      ; brown arguments have two child arguments (unless the argument is a leave)
       if color = brown and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 3 [
+      	[color = gray or color = turquoise] >= 3 [
         ask one-of out-discovery-neighbors with
-	  [color = gray or color = turquoise][
+        	[color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan
           ]
         ]
       ]
+      ; orange arguments have three child args (unless the argument is a leave)
       if color = orange and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 2 [
-       ask one-of out-discovery-neighbors with
-         [color = gray or color = turquoise][
+        [color = gray or color = turquoise] >= 2 [
+        ask one-of out-discovery-neighbors with
+          [color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan
           ]
         ]
       ]
+      ; red arguments have four child arguments (unless the argument is a leave)
       if color = red and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 1 [
+      	[color = gray or color = turquoise] >= 1 [
         ask one-of out-discovery-neighbors with
-  	 [color = gray or color = turquoise][
+          [color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan
@@ -618,7 +631,7 @@ to update-landscape
       ]
 
       ; for arguments that have still undiscovered relations/neighbors and are
-      ; not fully researched
+      ; not fully researched, not yet found attack relations can pop-up
       if ticks mod 5 = 0 and color != red [
         let attack-random random-float 1.00
         
@@ -661,11 +674,12 @@ to full-discovery
   ask turtles with [breed = arguments or breed = starts and full-research][
     let myx xcor
     let myy ycor
+    ; only arguments with agents that do not communicate are considered
     if any? turtles with [breed = agents and xcor = myx and ycor = myy and
       not communicating][
       
       ; once an argument is fully researched all its relations,
-      ; attack and discovery, are discovered
+      ; attack and discovery, are found
       if any? out-discovery-neighbors with [color = gray or color = turquoise][
         ask out-discovery-neighbors with [color = gray or color = turquoise][
           set color lime
@@ -694,7 +708,3 @@ to full-discovery
     set full-research false
   ]
 end
-
-
-
-
