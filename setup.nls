@@ -17,6 +17,7 @@ to initialize-hidden-variables
   
   ; the probability that agents move every round is
   ; only small-movement * move-probability
+  ; every fifth round the probability is the full move-probability
   set small-movement 0.2
   
   ; influence color on move probability
@@ -36,20 +37,20 @@ to create-discovery-landscape
   
   repeat number-of-theories [ ; trees are created theory for theory
     create-starts 1 [
-      ; variables for color, the theory it belongs to
-      ; and whether it just turned red are initialized
-      set color lime
+      set color lime ; starts start out lime
       set current-start true
+      ; variables the theory it belongs to
+      ; and whether it just turned red are initialized
       set mytheory self
       set full-research false
     ]
     let i 0
     while [i < theory-depth] [
       create-arguments ( 4 ^ (theory-depth - i))[
-        ; variables for color, the theory it belongs to
-        ; and whether it just turned red are initialized
-        set color gray
+        set color gray ; arguments start out gray
         set current-argument true
+        ; variables the theory it belongs to
+        ; and whether it just turned red are initialized
         set mytheory one-of starts with [current-start]
         set full-research false
       ]
@@ -78,12 +79,14 @@ end
 
 
 ; create the theory discovery trees
-; each node has 0 or 4 child-arguments
+; each node has 4 or 0 child-arguments
 ; starting from the starts as root
 to create-discovery-trees
   ; first level with starts as roots
   ask starts with [count out-discovery-neighbors = 0 and current-start][
     repeat 4 [
+      ; only just created arguments with no ingoing discovery relation
+      ; are considered
       if any? arguments with [count in-discovery-neighbors = 0 and
         current-argument] [
         create-discovery-to one-of arguments with [
@@ -91,13 +94,15 @@ to create-discovery-trees
       ]
     ]
   ]
-  ; then adding all the normal arguments
+  ; then adding all the "normal" arguments
   while [any? arguments with [count in-discovery-neighbors = 0 and
     current-argument]][
     ask arguments with [count in-discovery-neighbors = 1 and
       count out-discovery-neighbors < 4 and current-argument][
       let curarg self
       repeat (4 - count out-discovery-neighbors) [
+        ; only just created arguments with no ingoing discovery relation
+        ; are considered, to have a total of 4 child arguments
         if any? other arguments with [count in-discovery-neighbors = 0 and
           current-argument and not out-discovery-neighbor? curarg][
           create-discovery-to one-of other arguments with
@@ -113,7 +118,7 @@ end
 
 
 ; on the created landscape an attack relation is defined
-; attacks occur only between theories
+; attacks occur only between theories, which makes the theories conflict-free
 ; the probability that an argument is attacked by another argument
 ; depends on the attack-probability for the theory the attacked
 ; argument belongs to, as can be set in the interface
@@ -147,8 +152,8 @@ to define-attack-relation-create-attacks
     ]
     set starts-list sort starts-list
     
-    ; with attack-probability-2nd from the interface an attack towards
-    ; the current argument is created
+    ; for a setup with two theories, with attack-probability-2nd from 
+    ; the interface, an attack towards the current argument is created
     ifelse number-of-theories = 2[
       if attack-random < attack-probability-2nd and curtheory != start 0 [
         create-attack-from one-of other turtles with [(breed = starts or
@@ -248,8 +253,8 @@ end
 
 
 ; in this procedure the agents are created,
-; including their memory and the social netoworks
-; and they are distributed randomly over the theories
+; including their memory and the social netoworks,
+; then they are distributed randomly over the theories
 to distribute-agents
   set-default-shape agents "person"
   
@@ -258,13 +263,15 @@ to distribute-agents
   agents-create-scientists
   
   ; create the network of collaborators
-  ; if in the interface "within-theory" is on, collaborative networks are created
+  ; if in the interface "within-theory" is on, 
+  ; collaborative networks are created
   ; among agents that start from the same theory
   ; a network has at most 5 agents in it
   ifelse within-theory [
     distribute-agents-within-theory-on
   ][
-  ; if "within-theory" is off in the interface, random collaborative networks
+  ; if "within-theory" is off in the interface, 
+  ; random collaborative networks
   ; are created, all of size 5
   distribute-agents-within-theory-off    
   ]
@@ -354,11 +361,11 @@ to distribute-agents-within-theory-on
       while [count agents with [xcor = myx and ycor = myy and
         empty? collaborator-network] > 5][
         ; five agents are added to the list cur-col
-        ; which is then set as the collaborator-network of each of these agents
         ask n-of 5 agents with [xcor = myx and ycor = myy and
 	        empty? collaborator-network] [
           set cur-col lput self cur-col
         ]
+        ; cur-col is then set as the collaborator-network of each of these agents
         ask agents with [member? self cur-col][
           set collaborator-network cur-col
         ]
@@ -370,6 +377,7 @@ to distribute-agents-within-theory-on
         empty? collaborator-network] [
         set cur-col lput self cur-col
       ]
+      ; cur-col is then set as the collaborator-network of each of these agents
       ask agents with [member? self cur-col][
         set collaborator-network cur-col
       ]
@@ -390,6 +398,7 @@ to distribute-agents-within-theory-off
     ask n-of 5 agents with [empty? collaborator-network][
       set cur-col lput self cur-col
     ]
+    ; cur-col is set as the collaborator-network of each of these agents
     ask agents with [member? self cur-col][
       set collaborator-network cur-col
     ]
@@ -409,7 +418,7 @@ to compute-popularity
   
   ask agents [
     ; variables for x and y coordinate of the current agent,
-    ; the argument it is currently working on and the 
+    ; the argument she is currently working on and the 
     ; theory this argument belongs to
     let myx xcor
     let myy ycor

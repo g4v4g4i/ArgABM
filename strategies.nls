@@ -17,12 +17,12 @@
 to compute-strategies-agents
   
   ; agents start with figuring out which argument in their
-  ; memory are admissible and which are attacked
+  ; memory are admissible and which are attacked and not defended
   compute-subjective-attacked
  
   ask agents [
     set cur-best-th []
-    ; variables for the list that contains the number admissible arguments 
+    ; variables for the list that contains the number of admissible arguments 
     ; per theory and a sublist which contains only the numbers that are
     ; within the strategy-threshold
     let list-admissible-arguments []
@@ -56,7 +56,7 @@ end
 
 
 
-; procedure that computes for each agent which of the arguments in its memory
+; procedure that computes for each agent which of the arguments in her memory
 ; are admissible (and hence which are attacked)
 to compute-subjective-attacked
   ask agents [
@@ -99,7 +99,7 @@ to compute-subjective-attacked
     ; the computation of the admissible arguments is done recursively
     ; a list of arguments that are currently considered attacked
     let open-rec []
-    ; variable that lets the loop run at least one time
+    ; variable to let the loop run at least one time
     let i 0
     foreach current-theory-info [
       ; the theory that is considered in this loop
@@ -107,6 +107,8 @@ to compute-subjective-attacked
       let cur-theory ?
       let askstart item 0 cur-theory
       while [ i < 1 or not empty? open-rec][
+        ; add the content of open-rec to the non-admissible arguments
+        ; reset the variables
         set not-admissible sentence not-admissible open-rec
         set open-rec []
         set attacked-by-me []
@@ -136,15 +138,15 @@ to compute-subjective-attacked
           ask turtles with [member? self args-cur-arguments and
 	          mytheory = askstart and not member? self not-admissible and
 	          member? self cur-attacked][
-          let cur-turtle self
-          foreach attack-relations [
-            if last ? = cur-turtle [
-              if not member? last but-last ? attacked-by-me [
-                set open-rec lput cur-turtle open-rec
+            let cur-turtle self
+            foreach attack-relations [
+              if last ? = cur-turtle [
+                if not member? last but-last ? attacked-by-me [
+                  set open-rec lput cur-turtle open-rec
+                ]
               ]
             ]
           ]
-            ]
         ]
         set i i + 1
       ]
@@ -186,7 +188,7 @@ to act-on-strategy-agents
       let myy ycor
       
       ; if the agent is not currently working on the best theory
-      ; it considers jumping
+      ; she considers jumping
       foreach subjective-arguments [
         if [xcor] of item 0 ? = myx and [ycor] of item 0 ? = myy and
         not member? [mytheory] of item 0 ? cur-best-th [
@@ -195,8 +197,8 @@ to act-on-strategy-agents
       ]
       
       ; if the agent has considered jumping jump-threshold times
-      ; it jumps to one of the theories it considers best, based
-      ; on its memory and the computations
+      ; she jumps to one of the theories she considers best, based
+      ; on her memory and the computations
       if theory-jump >= jump-threshold [
         let ch-best one-of cur-best-th
         let subj-argus []
@@ -204,7 +206,7 @@ to act-on-strategy-agents
           set subj-argus lput item 0 ? subj-argus
         ]
         
-        ; if one of the arguments from the best theory is in its memory
+        ; if one of the arguments from the best theory is in her memory
         ; the agent will jump there
         ifelse any? turtles with [(breed = starts or breed = arguments) and
 	        member? self subj-argus and mytheory = ch-best and color != turquoise][
