@@ -339,16 +339,40 @@ to compute-time-costs
     ; 3 * max-learn new arguments/relations (corresponding to three ticks of
     ; communication) these new arguments and relations are added to the
     ; memory of the agent
+    ; when a new relation is added and the arguments are not part of the
+    ; memory of the agent, these arguments are added as well
     ifelse length comb-new > (3 * max-learn) [
       set comb-new shuffle comb-new
-      repeat 30 [
+      let repeats length comb-new - (3 * max-learn)
+      while [length comb-new > repeats] [
         let cur-entr first comb-new
+        let new-mem-argargs filter [member? ? new-memory-args] comb-new
+        set new-mem-argargs map [first ?] new-mem-argargs
         ifelse member? cur-entr new-memory-args [
           set subjective-arguments lput cur-entr subjective-arguments
+          set comb-new remove cur-entr comb-new
         ][
         set subjective-relations lput cur-entr subjective-relations
+        set comb-new remove cur-entr comb-new
+        if member? item 1 cur-entr new-mem-argargs[
+          let item-1-cur-entr item 1 cur-entr
+          foreach comb-new [
+            if item-1-cur-entr = item 0 ? [
+              set subjective-arguments lput ? subjective-arguments
+              set comb-new remove ? comb-new
+            ]
+          ] 
         ]
-        set comb-new remove-item 0 comb-new
+        if member? item 2 cur-entr new-mem-argargs[
+          let item-2-cur-entr item 2 cur-entr
+          foreach comb-new [
+            if item-2-cur-entr = item 0 ? [
+              set subjective-arguments lput ? subjective-arguments
+              set comb-new remove ? comb-new
+            ]
+          ] 
+        ]
+        ]
       ]
     ][
     set subjective-arguments sentence subjective-arguments new-memory-args
