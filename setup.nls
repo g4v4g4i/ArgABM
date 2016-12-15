@@ -5,8 +5,30 @@
 ; 3. populate the landscape with agents
 
 
+; the core-setup procedure:
+; the hidden variables (not set in the interface)
+; it creates a landscape of arguments and a discovery relation
+; on this landscape; attacks are defined;
+; the agents are distributed over the theories
+to setupcore [clearing numberoftheories theorydepth scientistsno]
+  run clearing
+  initialize-hidden-variables
+  create-discovery-landscape runresult numberoftheories runresult theorydepth
+  define-attack-relation
+  distribute-agents runresult scientistsno
+  reset-ticks
+end
 
+; the setup for a normal run
+to setup
+	setupcore task [clear-all] task [number-of-theories] task [theory-depth] task [scientists]
+end
 
+; the setup for a run-many
+to setup-many
+  ; instead of clear-all, the globals should not be cleared
+	setupcore task [ clear-turtles clear-patches clear-drawing clear-all-plots clear-output ] task [number-of-theories-many] task [theory-depth-many] task [scientists-many]
+end
 
 ; procedure in which the variables that are not mentioned 
 ; in the interface can be set
@@ -14,11 +36,11 @@ to initialize-hidden-variables
   ; the number of arguments that an agent can learn
   ; each tick
   set max-learn 10
-  
+ 
   ; the probability that agents move every round is
   ; only small-movement * move-probability
   set small-movement 0.2
-  
+ 
   ; influence color on move probability
   set color-move 200
 end
@@ -29,12 +51,12 @@ end
 
 ; a landscape of arguments and a discovery relation
 ; on these arguments is defined
-to create-discovery-landscape
+to create-discovery-landscape [numberoftheories theorydepth]
   ; at the start arguments and starts are a circle
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
   
-  repeat number-of-theories [ ; trees are created theory for theory
+  repeat numberoftheories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
       ; and whether it just turned red are initialized
@@ -44,8 +66,8 @@ to create-discovery-landscape
       set full-research false
     ]
     let i 0
-    while [i < theory-depth] [
-      create-arguments ( 4 ^ (theory-depth - i))[
+    while [i < theorydepth] [
+      create-arguments ( 4 ^ (theorydepth - i))[
         ; variables for color, the theory it belongs to
         ; and whether it just turned red are initialized
         set color gray
@@ -250,12 +272,12 @@ end
 ; in this procedure the agents are created,
 ; including their memory and the social netoworks
 ; and they are distributed randomly over the theories
-to distribute-agents
+to distribute-agents [scientistsno]
   set-default-shape agents "person"
   
   ; the right number of agents is created
   ; and the agent variables are initialized
-  agents-create-scientists
+  agents-create-scientists scientistsno
   
   ; create the network of collaborators
   ; if in the interface "within-theory" is on, collaborative networks are created
@@ -281,8 +303,8 @@ end
 
 
 ; create agents and initialize their variables
-to agents-create-scientists
-  create-agents scientists [
+to agents-create-scientists [scientistsno]
+  create-agents scientistsno [
     ; the agents are blue-colored
     ; and start on one of the roots
     set color blue
