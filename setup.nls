@@ -24,11 +24,6 @@ to setup
 	setupcore task [clear-all] task [number-of-theories] task [theory-depth] task [scientists]
 end
 
-; the setup for a run-many
-to setup-many
-  ; instead of clear-all, the globals should not be cleared
-	setupcore task [ clear-turtles clear-patches clear-drawing clear-all-plots clear-output ] task [number-of-theories-many] task [theory-depth-many] task [scientists-many]
-end
 
 ; procedure in which the variables that are not mentioned 
 ; in the interface can be set

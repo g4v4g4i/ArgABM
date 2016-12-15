@@ -339,29 +339,8 @@ end
 ; a landscape of arguments and a discovery relation on these arguments is defined
 ; what kind of arguments are used depends on whether this is a two-phase
 ; setup or a "normal" setup
-
-
-; create agents and initialize their variables
-to agents-create-scientists-many
-  create-agents scientists-many [
-    set color blue
-    move-to one-of starts
-    set collaborator-network []
-    set subjective-relations []
-    set subjective-arguments []
-    set times-jumped 0
-    set moved false 
-    let theories []
-    set moved false
-    set communicating 0
-    set rep-agent false
-    
-    ask starts [
-      let start-add []
-      set start-add lput self start-add
-      set start-add lput 0 start-add
-      set theories lput start-add theories
-    ]
-    set current-theory-info theories
-  ]
+; the setup for a run-many
+to setup-many
+  ; instead of clear-all, the globals should not be cleared
+	setupcore task [ clear-turtles clear-patches clear-drawing clear-all-plots clear-output ] task [number-of-theories-many] task [theory-depth-many] task [scientists-many]
 end
