@@ -296,7 +296,6 @@ to agents-create-scientists
     set collaborator-network []
     set subjective-relations []
     set subjective-arguments []
-    set times-jumped 0
     set moved false
     
     ; an agent is always aware of all the theories

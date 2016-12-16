@@ -216,7 +216,6 @@ to act-on-strategy-agents
           move-to ch-best
           ]
         
-        set times-jumped times-jumped + 1
         set theory-jump 0
       ]
     ]
