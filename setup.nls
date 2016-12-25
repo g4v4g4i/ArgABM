@@ -13,15 +13,15 @@
 to setupcore [clearing numberoftheories theorydepth scientistsno]
   run clearing
   initialize-hidden-variables
-  create-discovery-landscape runresult numberoftheories runresult theorydepth
+  create-discovery-landscape numberoftheories theorydepth
   define-attack-relation
-  distribute-agents runresult scientistsno
+  distribute-agents scientistsno
   reset-ticks
 end
 
 ; the setup for a normal run
 to setup
-	setupcore task [clear-all] task [number-of-theories] task [theory-depth] task [scientists]
+	setupcore task [clear-all] number-of-theories theory-depth scientists
 end
 
 
