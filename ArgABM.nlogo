@@ -59,26 +59,6 @@ __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
 
-
-
-; the setup procedure:
-; the hidden variables (not set in the interface)
-; it creates a landscape of arguments and a discovery relation
-; on this landscape; attacks are defined;
-; the agents are distributed over the theories
-to setup
-  clear-all
-  initialize-hidden-variables
-  create-discovery-landscape
-  define-attack-relation
-  distribute-agents
-  reset-ticks
-end
-
-
-
-
-
 ; procedure that lets the program run, after the landscape was setup
 ; every five time steps agents update their memory and compute the
 ; best strategy
@@ -118,8 +98,8 @@ GRAPHICS-WINDOW
 25
 -25
 25
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -184,7 +164,7 @@ number-of-theories
 number-of-theories
 2
 3
-2
+3
 1
 1
 NIL
@@ -214,7 +194,7 @@ scientists
 scientists
 5
 100
-15
+50
 5
 1
 NIL
@@ -349,7 +329,7 @@ attack-probability-best
 attack-probability-best
 0
 1
-0.31
+0.3
 0.01
 1
 NIL
@@ -457,7 +437,7 @@ CHOOSER
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-1
+2
 
 BUTTON
 70

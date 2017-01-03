@@ -128,7 +128,7 @@ to run-many
       set setup-discovered-best []
       set setup-jumps []
       clear-turtles
-      create-discovery-landscape-many
+      create-discovery-landscape number-of-theories-many theory-depth-many
       set tot-arguments count turtles with [breed = arguments or breed = starts]
       set max-cycle precision (15 * tot-arguments) -3
       
@@ -336,118 +336,15 @@ to run-many
 end
 
 
-
-
-
-; the setup procedure:
-; it creates a landscape of arguments and a discovery relation
-; on this landscape; attacks are defined;
-; the agents are distributed over the theories
+; the setup for a run-many
 to setup-many
   ; instead of clear-all, the globals should not be cleared
-  clear-turtles clear-patches clear-drawing clear-all-plots clear-output
-  initialize-hidden-variables
-  create-discovery-landscape-many
-  define-attack-relation
-  distribute-agents-many
-  reset-ticks
-end
-
-
-; a landscape of arguments and a discovery relation on these arguments is defined
-; what kind of arguments are used depends on whether this is a two-phase
-; setup or a "normal" setup
-to create-discovery-landscape-many
-  set-default-shape arguments "circle"
-  set-default-shape starts "circle"
-  
-  repeat number-of-theories-many [ ; trees are created theory for theory
-    create-starts 1 [
-      set color lime
-      set current-start true
-      set mytheory self
-      set full-research false
-    ]
-    let i 0
-    while [i < theory-depth-many] [
-      create-arguments ( 4 ^ (theory-depth-many - i))[
-        set color gray
-        set current-argument true
-        set mytheory one-of starts with [current-start]
-        set full-research false
-      ]
-      set i i + 1
-    ]
-    
-    create-discovery-trees
-    
-    ask starts [ ; to make sure that all theories are visible
-      create-starters-with other starts [set color black]
-      set current-start false
-    ]
-    ask arguments [set current-argument false]
-  ]
-  ; set the shape of the arguments of the best theory different from a circle
-  ask turtles with [(breed = starts or breed = arguments) and
-    mytheory = start 0 ][
-    set shape "triangle"
-  ]
-end
-
-
-
-
-
-; agents are distributed randomly over the theories
-to distribute-agents-many
-  set-default-shape agents "person"
-  
-  agents-create-scientists-many
-  
-  ; create the network of collaborators
-  ; if in the interface "within-theory" is on, collaborative networks are created
-  ; among agents that start from the same theory
-  ; a network has at most 5 agents in it
-  ifelse within-theory [
-    distribute-agents-within-theory-on
-  ][
-  ; if "within-theory" is off in the interface random collaborative networks
-  ; are created, all of size 5
-  distribute-agents-within-theory-off    
-  ]
-  
-  ; the memory of the agents is created
-  agents-create-memory
-  
-  ; the networks in which agents share with other groups is created
-  create-networks
-end
-
-
-
-
-
-; create agents and initialize their variables
-to agents-create-scientists-many
-  create-agents scientists-many [
-    set color blue
-    move-to one-of starts
-    set collaborator-network []
-    set subjective-relations []
-    set subjective-arguments []
-    set times-jumped 0
-    set moved false 
-    let theories []
-    set moved false
-    set communicating 0
-    set rep-agent false
-    
-    ask starts [
-      let start-add []
-      set start-add lput self start-add
-      set start-add lput 0 start-add
-      set theories lput start-add theories
-    ]
-    set current-theory-info theories
-  ]
+	setupcore task [
+		clear-turtles
+		clear-patches
+		clear-drawing
+		clear-all-plots
+		clear-output
+	]
+	number-of-theories-many theory-depth-many scientists-many
 end
