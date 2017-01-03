@@ -339,5 +339,12 @@ end
 ; the setup for a run-many
 to setup-many
   ; instead of clear-all, the globals should not be cleared
-	setupcore task [ clear-turtles clear-patches clear-drawing clear-all-plots clear-output ] number-of-theories-many theory-depth-many scientists-many
+	setupcore task [
+		clear-turtles
+		clear-patches
+		clear-drawing
+		clear-all-plots
+		clear-output
+	]
+	number-of-theories-many theory-depth-many scientists-many
 end
