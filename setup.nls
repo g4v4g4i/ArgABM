@@ -182,7 +182,7 @@ to define-attack-relation-create-attacks
     ; belongs to first for the third theory
     ifelse [who] of curtheory = max starts-list and attack-random <
       attack-probability-3rd [
-      create-attack-to one-of other turtles with [(breed = starts or
+      create-attack-from one-of other turtles with [(breed = starts or
         breed = arguments) and mytheory != curtheory and not
 	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
 	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
