@@ -1,0 +1,415 @@
+; procedures for probing, testing and giving additional insights into the model.
+; experimental: this file is not properly commented
+
+globals [ctiho] ;current-theory(2)-info-hand-over (sorted)
+
+to calc-global-admiss-core [vis] ;vis for visibility
+	let new-info []
+  let new-cur-info []
+  let not-admissible []
+	let subjective-arguments2 []
+  let args-cur-arguments []
+	let admissible-subj-argu2 []
+  let attacked-by-me []
+	let attack-relations []
+	let cur-attacked []
+	let cur-attacker []
+  let theories []
+  ask starts [
+    let start-add []
+    set start-add lput self start-add
+    set start-add lput 0 start-add
+    set theories lput start-add theories
+  ]
+  let current-theory-info2 theories
+  ask attacks with [runresult vis] [
+		set attack-relations lput self attack-relations
+    set cur-attacked lput end2 cur-attacked
+    set cur-attacker lput end1 cur-attacker
+  ]
+  ask turtles with [(breed = starts or breed = arguments) and runresult vis][
+   set args-cur-arguments lput self args-cur-arguments
+	 set subjective-arguments2 lput self subjective-arguments2
+  ]
+  foreach current-theory-info2 [
+   set new-info lput replace-item 1 ? 0 new-info
+  ]
+	set current-theory-info2 new-info
+ 
+ ; the computation of the admissible arguments is done recursively
+ ; a list of arguments that are currently considered attacked
+	let open-rec []
+    ; variable that lets the loop run at least one time
+  let i 0
+  foreach current-theory-info2 [
+  ; the theory that is considered in this loop
+  ; and the root of that theory (the start)
+		let cur-theory ?
+    let askstart item 0 cur-theory
+    while [ i < 1 or not empty? open-rec][
+			set not-admissible sentence not-admissible open-rec
+      set open-rec []
+      set attacked-by-me []
+        
+      ; create a list of arguments that are attacked by the current theory
+      ; based on the memory of the current agent
+      if not empty? attack-relations [
+				ask turtles with [member? self args-cur-arguments and mytheory = askstart][
+					if member? self cur-attacker and not member? self not-admissible [
+					; the argument considered and a list of arguments
+					; attacked by that argument
+						let cur-turtle self
+						let my-attacked []
+						foreach attack-relations [
+							if [end1] of ? = cur-turtle [
+								set my-attacked lput [end2] of ? my-attacked
+							]
+						]
+						set attacked-by-me sentence my-attacked attacked-by-me
+					]
+				]
+          
+        ; arguments that are attacked by arguments from another theory that are
+        ; not attacked by non-attacked arguments from the current theory
+        ; are added to the open-rec list, the list of attacked-arguments
+        ask turtles with [member? self args-cur-arguments and mytheory = askstart and not member? self not-admissible and member? self cur-attacked][
+          let cur-turtle self
+          foreach attack-relations [
+            if [end2] of ? = cur-turtle [
+              if not member? [end1] of ? attacked-by-me [
+                set open-rec lput cur-turtle open-rec
+              ]
+            ]
+          ]
+        ]
+      ]
+      set i i + 1
+    ]
+    set i 0
+      
+    ; for the update of the information in current-theory-info
+    set new-cur-info lput replace-item 1 cur-theory (count turtles with [member? self args-cur-arguments and mytheory = askstart] - count turtles with [member? self not-admissible and mytheory = askstart]) new-cur-info
+  ]
+    
+    ; arguments that are part of the not-admissible list
+    ; are not part of the admissible subjective arguments and hence removed
+    set admissible-subj-argu2 subjective-arguments2
+    foreach subjective-arguments2 [
+			let cur-argu ?
+			if member? cur-argu not-admissible [
+				set admissible-subj-argu2 remove cur-argu admissible-subj-argu2
+			]
+		]
+		
+    ; update the current-theory-info
+    set current-theory-info2 new-cur-info
+		set ctiho sort-by [item 0 ? < item 0 ?2] current-theory-info2
+end
+
+
+
+
+; cadmis= calc-admissibility input can be red for the discovered landscape or
+; anything else (e.g. 1) for the general landscape
+to cadmis [input] 
+	ifelse input = red [
+		calc-global-admiss-core task [color != gray]
+	][
+		calc-global-admiss-core task [true]
+	]
+end
+
+
+
+; prints the admissibility input the same as for cadmis (gets handed over)
+to cadmisp [input]
+	cadmis input
+	print ctiho
+end
+
+
+
+; prints the admissibility of theory 170 - 85
+to compare-two-with-three [times]
+	repeat times [
+		setup
+		cadmis 1
+		print (item 1 item 2 ctiho - item 1 item 1 ctiho)
+	]
+end
+
+; setup which - as the run-many setup - doesn't clear globals, but unlike
+; the run-many setup it uses the normal variables from the interface
+to setup-test
+	setupcore task [
+		clear-turtles
+		clear-patches
+		clear-drawing
+		clear-all-plots
+		clear-output
+	]
+	number-of-theories theory-depth scientists
+end
+
+
+
+to test1
+	let cur-attacked []
+	ask attacks [
+		set cur-attacked lput end2 cur-attacked
+	]
+  print cur-attacked
+	
+end
+
+to test2 ; one random agent shows her attack-relations
+  ask one-of agents [
+    ; variables for lists that contain:
+    ; the current-theory-info with 0 admissible arguments; an updated number
+    ; of admissible arguments during the recursive computation; the arguments
+    ; that are not admissible; the arguments that the agents knows about; and
+    ; the arguments that are attacked by the current theory 
+    let new-info []
+    let new-cur-info []
+    let not-admissible []
+    let args-cur-arguments []
+    let attacked-by-me []
+    
+    ; create a list of only the attacks
+    let attack-relations []
+    foreach subjective-relations [
+      if first ? = "a" [
+        set attack-relations lput ? attack-relations
+      ]
+    ]
+		show attack-relations
+    ; create lists of attacked and attacking arguments
+    let cur-attacked []
+    let cur-attacker []
+    foreach attack-relations [
+      set cur-attacked lput last ? cur-attacked
+      set cur-attacker lput first but-first ? cur-attacker
+    ]
+    
+    ; create a list of the arguments the agents knows about and 
+    ; set the number of admissible arguments for each theory to 0
+    foreach subjective-arguments [
+      set args-cur-arguments lput first ? args-cur-arguments
+    ]
+    foreach current-theory-info [
+      set new-info lput replace-item 1 ? 0 new-info
+    ]
+    set current-theory-info new-info
+    
+    ; the computation of the admissible arguments is done recursively
+    ; a list of arguments that are currently considered attacked
+    let open-rec []
+    ; variable that lets the loop run at least one time
+    let i 0
+    foreach current-theory-info [
+      ; the theory that is considered in this loop
+      ; and the root of that theory (the start)
+      let cur-theory ?
+      let askstart item 0 cur-theory
+      while [ i < 1 or not empty? open-rec][
+        set not-admissible sentence not-admissible open-rec
+        set open-rec []
+        set attacked-by-me []
+        
+        ; create a list of arguments that are attacked by the current theory
+        ; based on the memory of the current agent
+        if not empty? attack-relations [
+          ask turtles with [member? self args-cur-arguments and
+	        mytheory = askstart][
+            if member? self cur-attacker and not member? self not-admissible [
+              ; the argument considered and a list of arguments
+              ; attacked by that argument
+              let cur-turtle self
+              let my-attacked []
+              foreach attack-relations [
+                if first but-first ? = cur-turtle [
+                  set my-attacked lput last ? my-attacked
+                ]
+              ]
+              set attacked-by-me sentence my-attacked attacked-by-me
+            ]
+          ]
+          
+          ; arguments that are attacked by arguments from another theory that are
+          ; not attacked by non-attacked arguments from the current theory
+          ; are added to the open-rec list, the list of attacked-arguments
+          ask turtles with [member? self args-cur-arguments and
+	          mytheory = askstart and not member? self not-admissible and
+	          member? self cur-attacked][
+          let cur-turtle self
+          foreach attack-relations [
+            if last ? = cur-turtle [
+              if not member? last but-last ? attacked-by-me [
+                set open-rec lput cur-turtle open-rec
+              ]
+            ]
+          ]
+            ]
+        ]
+        set i i + 1
+      ]
+      set i 0
+      
+      ; for the update of the information in current-theory-info
+      set new-cur-info lput replace-item 1 cur-theory (count turtles with
+        [member? self args-cur-arguments and mytheory = askstart] -
+	      count turtles with [member? self not-admissible and mytheory = askstart])
+	        new-cur-info
+    ]
+    
+    ; arguments that are part of the not-admissible list
+    ; are not part of the admissible subjective arguments and hence removed
+    set admissible-subj-argu subjective-arguments
+    foreach subjective-arguments [
+      let cur-argu ?
+      if member? first cur-argu not-admissible [
+        set admissible-subj-argu remove cur-argu admissible-subj-argu
+      ]
+    ]
+    ; update the current-theory-info
+    set current-theory-info new-cur-info
+  ]
+end
+
+to test3 [input]
+	ifelse input = red [
+		calc-global-admiss-core task [color != gray]
+	][
+		calc-global-admiss-core task [true]
+	]
+end
+
+to test4 [input1]
+	ask attacks with [runresult input1] [print self]
+end
+
+; performs the setup times often and each time shows the admissibility for
+; all theories
+to test5 [times]
+	repeat times [
+		setup
+		cadmisp 1
+	]
+end
+
+
+; setup for the errorneous attack-relations
+to setup-test-error
+	clear-all
+  initialize-hidden-variables
+  create-discovery-landscape number-of-theories theory-depth
+  define-attack-relation-error
+  distribute-agents scientists
+  reset-ticks
+end
+
+
+to define-attack-relation-error
+  ; first the random attacks are defined
+  define-attack-relation-create-attacks-error
+  
+  ; then the best theory defends itself
+  define-attack-relation-defend-best
+  
+  ; the arguments and relations are spread over the patches
+  define-attack-relation-visualize
+end
+
+
+to define-attack-relation-create-attacks-error
+  ask turtles with [breed = starts or breed = arguments][
+    ; variables for the current argument, the theory it belongs to,
+    ; a random number between 0.00 and 1.00 and a list of theories
+    let askargu self
+    let curtheory mytheory
+    let attack-random random-float 1.00
+    let starts-list []
+    ask starts [
+      set starts-list lput who starts-list
+    ]
+    set starts-list sort starts-list
+    
+    ; with attack-probability-2nd from the interface an attack towards
+    ; the current argument is created
+    ifelse number-of-theories = 2[
+      if attack-random < attack-probability-2nd and curtheory != start 0 [
+        create-attack-from one-of other turtles with [(breed = starts or
+	      breed = arguments)and mytheory != curtheory and not
+	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        set color gray
+            ]
+      ]
+    ][
+    
+    ; when there are three theories both attack-probability-2nd and -3rd are
+    ; considered to create attacks, depending on the theory the current argument
+    ; belongs to first for the third theory
+    ifelse [who] of curtheory = max starts-list and attack-random <
+      attack-probability-3rd [
+      create-attack-to one-of other turtles with [(breed = starts or
+        breed = arguments) and mytheory != curtheory and not
+	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        set color gray
+          ]
+    ][
+    ; then attacks towards arguments of the 2nd theory are created
+    if [who] of curtheory != max starts-list and curtheory != start 0 and
+      attack-random < attack-probability-2nd [
+      create-attack-from one-of other turtles with [(breed = starts or
+      breed = arguments) and mytheory != curtheory and not
+      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        set color gray
+          ]
+    ]
+    ]
+    ]
+    
+    ; if the current argument belongs to the objective best theory
+    ; an attack towards this argument is created with attack-probability-best
+    if attack-random < attack-probability-best and curtheory = start 0 [
+      create-attack-from one-of other turtles with [(breed = starts or
+      breed = arguments) and mytheory != curtheory and not
+	    (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        set color gray
+          ]
+    ]
+  ]
+end
+
+to compare-error-with-new [times]
+	repeat times [
+		setup
+		cadmis 1
+		print (word "fixed:      " ctiho " #attacks: "count attacks)
+		setup-test-error
+		cadmis 1
+		print (word "errorneous: " ctiho " #attacks: "count attacks)
+	]
+end
+
+to compare-error-with-new-statistics [times]
+	repeat times [
+		file-open "testprocedure_adm_fixed.txt"
+		setup
+		cadmis 1
+		file-print (word item 1 item 1 ctiho " " item 1 item 2 ctiho)
+		file-open "testprocedure_attack_fixed.txt"
+		file-print count attacks
+		file-open "testprocedure_adm_error.txt"
+		setup-test-error
+		cadmis 1
+		file-print (word item 1 item 1 ctiho " " item 1 item 2 ctiho)
+		file-open "testprocedure_attack_error.txt"
+		file-print count attacks
+	]
+	file-close-all
+end
