@@ -50,7 +50,7 @@ Buttons
 
 * _go-stop_: lets the program run until all agents are working on a fully researched theory
 
-Landscape settings (cf. 2.3 "Setup of the landscape")
+Landscape settings (cf. 2.2 "Setup of the landscape")
 
 * _number-of-theories_: sets the number of theories/trees that will be created
 
@@ -62,7 +62,9 @@ Landscape settings (cf. 2.3 "Setup of the landscape")
 
 * _attack-probability-3rd_: if there are three theories, the probability that an argument of the 3rd theory has an incoming attack, before the best theory defends itself
 
-Strategy settings (cf. 2.5 "Strategies")
+* _landscape_: (only relevant in case of 3 theories) in which landscape A or landscape B can be chosen, as described in (cf. 2.2 "Setup of the landscape").
+
+Strategy settings (cf. 2.4 "Strategies")
 
 * _strategy-threshold_: defines the interval within which the number of admissible arguments is still considered good, if this threshold gets higher, the interval of acceptable values gets smaller
 
@@ -72,11 +74,11 @@ Agent settings
 
 * _scientists_: the number of agents that will explore the landscape
 
-* _move-probability_: the probability that agents move to a next argument while exploring the landscape (cf. 2.4.2 "Agents move around")
+* _move-probability_: the probability that agents move to a next argument while exploring the landscape (cf. 2.3.2 "Agents move around")
 
-* _visibility-probability_: the probability that new attacks are discovered by agents (cf. 2.4.3 "Update of the landscape")
+* _visibility-probability_: the probability that new attacks are discovered by agents (cf. 2.3.3 "Update of the landscape")
 
-* _research-speed_: the time an agent has to work on an argument before it will change color (cf. 2.4.3 "Update of the landscape")
+* _research-speed_: the time an agent has to work on an argument before it will change color (cf. 2.3.3 "Update of the landscape")
 
 * _within-theory_: here the kind of collaborative network is set to agents that start on the same theory (on) or randomly chosen agents (off) (cf. 2.3.3 "Agents")
 
@@ -119,6 +121,12 @@ Each argument has a memory for:
 ### 2.2.2 Defining the attack relation
 
 On the created landscape an attack relation is added. Each argument has, with `attack-probability` corresponding to the theory the argument belongs to, an incoming attack from an argument belonging to another theory. Once the random attacks are created, the best theory (`(start 0)`), has to make sure that it is fully defended. It creates attacks to arguments that attack one of its arguments, until it has defended all its attacked arguments.
+
+In the interface a choice is made between "landscape-A" and "landscape-B", this is only relevant in the case that there are three theories, since it concerns the admissibility ratio between the second (T2) and third theory (T3).
+
+* On the one hand, landscape A represents a situation in which T2 and T3 are clearly worse than T1 while not being completely problematic (as would, for instance, be the case with pseudo-scientific theories).
+
+* On the other hand, landscape B represents a situation in which T2 is clearly worse than the other two theories, while T3 has a degree of defensibility closer to fully defensible T1. For example, T2 corresponds to a theory that doesn't have many successful hypotheses (e.g. they fail at offering successful explanations of the relevant phenomena), and whose arguments are thus very much attacked. In contrast, T3 stands for a theory that can explain many phenomena, but still less than T1.
 
 ### 2.2.3 Agents
 

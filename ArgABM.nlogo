@@ -37,13 +37,13 @@ starts-own [mytheory current-start myscientists researcher-ticks full-research]
 arguments-own [mytheory current-argument researcher-ticks full-research]
 
 ; every agent keeps track of how often it thinks
-; that it should jump to another theory, the social network it belongs to,
-; its current subjective landscape, the current best theory,
-; if it received information at the current time
+; that it should jump to another theory, how many times it jumped,
+; the social network it belongs to, its current subjective landscape,
+; the current best theory, if it received information at the current time
 ; the information in its neighborhood and whether it moved
-agents-own [theory-jump collaborator-network
-  subjective-arguments subjective-relations current-theory-info cur-best-th
-  admissible-subj-argu th-args th-relations communicating neighborargs moved]
+agents-own [theory-jump collaborator-network subjective-arguments
+  subjective-relations current-theory-info cur-best-th admissible-subj-argu
+  th-args th-relations communicating neighborargs moved]
 
 ; the global variables are all concerned with the
 ; the initialization of hidden variables
@@ -57,7 +57,7 @@ __includes ["setup.nls" "behavior.nls" "strategies.nls"]
 
 
 ; the setup procedure:
-; the hidden variables (not set in the interface) are initialized
+; the hidden variables (not set in the interface)
 ; it creates a landscape of arguments and a discovery relation
 ; on this landscape; attacks are defined;
 ; the agents are distributed over the theories
@@ -123,10 +123,10 @@ ticks
 30.0
 
 BUTTON
-35
-50
-90
-83
+10
+10
+65
+43
 NIL
 setup
 NIL
@@ -140,10 +140,10 @@ NIL
 1
 
 BUTTON
-35
-85
-90
-118
+10
+45
+65
+78
 NIL
 go
 NIL
@@ -157,10 +157,10 @@ NIL
 1
 
 BUTTON
-95
-85
-150
-118
+70
+45
+125
+78
 NIL
 go
 T
@@ -182,7 +182,7 @@ number-of-theories
 number-of-theories
 2
 3
-2
+3
 1
 1
 NIL
@@ -197,7 +197,7 @@ theory-depth
 theory-depth
 1
 5
-2
+3
 1
 1
 NIL
@@ -205,13 +205,13 @@ HORIZONTAL
 
 SLIDER
 10
-170
+125
 182
-203
+158
 scientists
 scientists
 5
-100
+50
 10
 5
 1
@@ -245,9 +245,9 @@ HORIZONTAL
 
 TEXTBOX
 15
-140
+95
 165
-158
+113
 Agent settings
 13
 0.0
@@ -255,9 +255,9 @@ Agent settings
 
 SLIDER
 10
-210
+165
 182
-243
+198
 move-probability
 move-probability
 0
@@ -270,9 +270,9 @@ HORIZONTAL
 
 SLIDER
 10
-250
+205
 182
-283
+238
 visibility-probability
 visibility-probability
 0
@@ -285,9 +285,9 @@ HORIZONTAL
 
 SLIDER
 10
-290
+245
 182
-323
+278
 research-speed
 research-speed
 0
@@ -355,9 +355,9 @@ HORIZONTAL
 
 PLOT
 5
-540
+495
 205
-690
+645
 Popularity
 Time steps
 No. of agents
@@ -386,9 +386,9 @@ NIL
 
 TEXTBOX
 10
-515
+470
 160
-533
+488
 Plots
 13
 0.0
@@ -396,25 +396,25 @@ Plots
 
 SWITCH
 10
-330
-180
-363
+285
+100
+318
 within-theory
 within-theory
-1
+0
 1
 -1000
 
 SLIDER
 10
-370
+325
 182
-403
+358
 social-collaboration
 social-collaboration
 0
 1
-0.3
+0.5
 0.01
 1
 NIL
@@ -422,9 +422,9 @@ HORIZONTAL
 
 CHOOSER
 10
+365
+148
 410
-180
-455
 social-actions
 social-actions
 "reliable" "biased"
@@ -447,19 +447,19 @@ HORIZONTAL
 
 CHOOSER
 10
+415
+148
 460
-180
-505
 sharing
 sharing
 "all" "neighborhood"
 1
 
 BUTTON
-95
-50
-150
-83
+70
+10
+125
+43
 go-stop
  setup\n go\n while [any? arguments with [color != red and\n            [myscientists] of mytheory !=  0]][\n            go\n          ]
 NIL
@@ -472,8 +472,21 @@ NIL
 NIL
 1
 
+CHOOSER
+100
+280
+192
+325
+landscape
+landscape
+"landscape-A" "landscape-B"
+0
+
 @#$#@#$#@
 # UNDER CONSTRUCTION
+
+# ArgABM
+An agent-based model for scientific inquiry based on abstract argumentation
 
 Documentation of the program ArgABM for the paper _An argumentative agent-based model of
 scientific inquiry_ by AnneMarie Borg, Daniel Frey, Dunja Šešelja and Christian Straßer
@@ -522,7 +535,7 @@ Buttons
 
 * _go-stop_: lets the program run until all agents are working on a fully researched theory
 
-Landscape settings (cf. 2.3 "Setup of the landscape")
+Landscape settings (cf. 2.2 "Setup of the landscape")
 
 * _number-of-theories_: sets the number of theories/trees that will be created
 
@@ -534,7 +547,9 @@ Landscape settings (cf. 2.3 "Setup of the landscape")
 
 * _attack-probability-3rd_: if there are three theories, the probability that an argument of the 3rd theory has an incoming attack, before the best theory defends itself
 
-Strategy settings (cf. 2.5 "Strategies")
+* _landscape_: (only relevant in case of 3 theories) in which landscape A or landscape B can be chosen, as described in (cf. 2.2 "Setup of the landscape").
+
+Strategy settings (cf. 2.4 "Strategies")
 
 * _strategy-threshold_: defines the interval within which the number of admissible arguments is still considered good, if this threshold gets higher, the interval of acceptable values gets smaller
 
@@ -544,11 +559,11 @@ Agent settings
 
 * _scientists_: the number of agents that will explore the landscape
 
-* _move-probability_: the probability that agents move to a next argument while exploring the landscape (cf. 2.4.2 "Agents move around")
+* _move-probability_: the probability that agents move to a next argument while exploring the landscape (cf. 2.3.2 "Agents move around")
 
-* _visibility-probability_: the probability that new attacks are discovered by agents (cf. 2.4.3 "Update of the landscape")
+* _visibility-probability_: the probability that new attacks are discovered by agents (cf. 2.3.3 "Update of the landscape")
 
-* _research-speed_: the time an agent has to work on an argument before it will change color (cf. 2.4.3 "Update of the landscape")
+* _research-speed_: the time an agent has to work on an argument before it will change color (cf. 2.3.3 "Update of the landscape")
 
 * _within-theory_: here the kind of collaborative network is set to agents that start on the same theory (on) or randomly chosen agents (off) (cf. 2.3.3 "Agents")
 
@@ -591,6 +606,12 @@ Each argument has a memory for:
 ### 2.2.2 Defining the attack relation
 
 On the created landscape an attack relation is added. Each argument has, with `attack-probability` corresponding to the theory the argument belongs to, an incoming attack from an argument belonging to another theory. Once the random attacks are created, the best theory (`(start 0)`), has to make sure that it is fully defended. It creates attacks to arguments that attack one of its arguments, until it has defended all its attacked arguments.
+
+In the interface a choice is made between "landscape-A" and "landscape-B", this is only relevant in the case that there are three theories, since it concerns the admissibility ratio between the second (T2) and third theory (T3).
+
+* On the one hand, landscape A represents a situation in which T2 and T3 are clearly worse than T1 while not being completely problematic (as would, for instance, be the case with pseudo-scientific theories).
+
+* On the other hand, landscape B represents a situation in which T2 is clearly worse than the other two theories, while T3 has a degree of defensibility closer to fully defensible T1. For example, T2 corresponds to a theory that doesn't have many successful hypotheses (e.g. they fail at offering successful explanations of the relevant phenomena), and whose arguments are thus very much attacked. In contrast, T3 stands for a theory that can explain many phenomena, but still less than T1.
 
 ### 2.2.3 Agents
 
@@ -1047,14 +1068,14 @@ NetLogo 5.3.1
       <value value="false"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="social-actions">
-      <value value="&quot;kind&quot;"/>
+      <value value="&quot;reliable&quot;"/>
       <value value="&quot;biased&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="social-collaboration">
-      <value value="0"/>
       <value value="0.3"/>
       <value value="0.5"/>
       <value value="1"/>
+      <value value="0"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
