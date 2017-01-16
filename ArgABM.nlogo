@@ -45,7 +45,7 @@ arguments-own [mytheory current-argument researcher-ticks full-research]
 agents-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   admissible-subj-argu th-args th-relations communicating neighborargs moved
-  rep-agent to-add-mem-argu to-add-mem-rel]
+  rep-agent to-add-mem-argu to-add-mem-rel lastalist lastblist lastalistafter]
 
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables

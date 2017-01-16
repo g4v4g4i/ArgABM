@@ -17,6 +17,11 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
   define-attack-relation
   distribute-agents scientistsno
   reset-ticks
+	ask agents [
+		set lastalist []
+		set lastblist []
+		set lastalistafter []
+	]	
 end
 
 ; the setup for a normal run
