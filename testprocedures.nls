@@ -439,6 +439,7 @@ to profile [repetitions version]
 	if version = "old3" [set go-version task go-test-oldv3]
 	if version = "v41" [set go-version task go-test-v41]
 	if version = "v51" [set go-version task go-test-v51]
+	if version = "v61" [set go-version task go-test-v61]
 	profilecore repetitions go-version
 end
 
@@ -994,8 +995,31 @@ to go-test-v51
   tick
 end
 
+
+to go-test-v61
+  update-memories-test5
+
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]  
+  if ticks mod 5 = 4 [
+		share-with-others-test5
+		create-share-memory-test5
+		share-with-other-networks-test5
+		compute-time-costs-test5
+    ; update-memories-test
+		compute-subj-attacked-test6
+		compute-strategies-agents-test6
+    act-on-strategy-agents
+  ]
+  move-around-test6
+  update-landscape
+  compute-popularity
+  tick
+end
+
 to go-test
-	go-test-v51
+	go-test-v61
 end
 
 to go-stop-test
@@ -1263,7 +1287,7 @@ end
 
 
 to bla [times]
-	repeat times [go-test]
+	repeat times [go-test-v61]
 end
 
 
@@ -2257,3 +2281,398 @@ to compute-time-costs-test5
 		set conference-attended false
 	]
 end
+
+to-report gps
+	let myx xcor
+	let myy ycor
+	; variable for the argument the agent is currently working on and
+ ; the agent itself
+	let myargu one-of turtles with [(breed = starts or breed = arguments) and
+	xcor = myx and ycor = myy]
+	report myargu
+end
+
+to-report non-admiss-args
+	; let not-admissible []
+	; let info-not-admissible filter [not member? ? admissible-subj-argu]
+		; subjective-arguments
+	; foreach info-not-admissible [
+		; set not-admissible lput item 0 ? not-admissible
+	; ]	
+	report non-admiss-subj-argu
+end
+
+; move, but not both
+to move-around-test6
+  ; variable to make sure that the procedure find-defense
+  ; is only run once
+  let run-find-defense false 
+  ; at the beginning of the procedure no agent has moved yet
+  ask agents [
+    set moved false
+  ]
+  ask agents [
+    let curagent self
+    if [communicating] of curagent = 0 or ticks mod 5 = 0 [
+			let myargu gps
+      ; let myx xcor
+      ; let myy ycor
+      ; ; variable for the argument the agent is currently working on and
+     ; ; the agent itself
+        ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
+        ; xcor = myx and ycor = myy]
+      
+      ; a list of not-admissible arguments is created
+      let not-admissible []			
+      if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
+				set not-admissible non-admiss-args
+        ; let info-not-admissible filter [not member? ? admissible-subj-argu]
+          ; subjective-arguments
+        ; foreach info-not-admissible [
+          ; set not-admissible lput item 0 ? not-admissible
+        ; ]
+      ]
+   
+      ; an agent working on an attacked argument will try to find a defense for
+      ; this attack, by working further on the attacked argument, unless it
+      ; discoveres a child-argument that that has a defense for the attack
+      ; (it is not necessarily the case that this defense is already discovered)
+      ; the find-defense runs immediately for all agents working on a not
+      ; fully researched not-admissible argument, hence it is only once executed
+      if member? myargu not-admissible and not moved[
+      
+        if not run-find-defense [
+          find-defense-test6
+          set run-find-defense true
+        ]
+      ]
+    
+      if not moved and not member? myargu not-admissible or 
+        (member? myargu not-admissible and [color] of myargu = red)[
+        
+        ; when an argument exists that:
+        ; a) is a child-argument of the current argument;
+        ; b) is not gray, red or turquoise; and
+        ; c) no agent from the same collaborator-network is working on it
+        ; the agent moves there, with certain probability
+        ifelse any? turtles with [(breed = starts or breed = arguments) and
+          in-discovery-neighbor? myargu and color != gray and color != red and
+    	  color != turquoise and not (any? turtles with [breed = agents and
+	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+	  [collaborator-network] of curagent])] [
+        let move-random random-float 1.0
+      
+
+        ; every time step with small-movement of the move-probability
+        ; the agent moves
+        ifelse move-random < (small-movement * move-probability *
+          (1 - (color / color-move))) [
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+            in-discovery-neighbor? myargu and color != gray and color != red and
+            color != turquoise and not ( any? turtles with [breed = agents and
+            xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+  	    [collaborator-network] of curagent])]
+          set moved true
+        ][
+      
+        ; every 5th time step the agent mover with the full move-probability,
+        ; that depends a bit on the color
+        if ticks != 0 and ticks mod 5 = 0 and move-random <
+          move-probability * (1 - (color / color-move)) [
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+            in-discovery-neighbor? myargu and color != gray and color != red and
+	    color != turquoise and not ( any? turtles with [breed = agents
+	    and xcor = [xcor] of myself and ycor = [ycor] of myself and
+	    member? self [collaborator-network] of curagent])]
+          set moved true
+        ]
+        ]
+            ][
+
+        ; if there is no next argument and the current argument is
+        ; fully researched, the agent moves a step back
+        ifelse [color] of myargu = red and any? turtles with [color != gray and
+          color != turquoise and out-discovery-neighbor? myargu and not any?
+	  turtles with [breed = agents and xcor = [xcor] of myself and
+	  ycor = [ycor] of myself and member? self [collaborator-network]
+	  of curagent]][
+        move-to one-of turtles with [color != gray and out-discovery-neighbor?
+          myargu and not any? turtles with [breed = agents and xcor = [xcor] of
+          myself and ycor = [ycor] of myself and member? self
+          [collaborator-network] of curagent]]
+        set moved true
+          ][
+      
+        ; if moving back is not possible, it jumps to another argument in
+        ; the same tree/theory that is discovered but not fully researched
+        if [color] of myargu = red[
+          let askstart [mytheory] of myargu
+          if any? turtles with [(breed = starts or breed = arguments) and
+	    color != gray and color != turquoise and color != red and
+	    mytheory = askstart and not any? turtles with [breed = agents and
+  	    xcor = [xcor] of myself and ycor = [ycor] of myself and member?
+	    self [collaborator-network] of curagent]][
+          move-to one-of turtles with [(breed = starts or breed = arguments) and
+	   color != turquoise and color != gray and color != red and
+  	   mytheory = askstart and not any? turtles with [breed = agents and
+	   xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+           [collaborator-network] of curagent]]
+          set moved true
+            ]
+        ]
+          ]
+            ]
+      ]
+    ]	
+  ]
+end
+
+
+
+
+
+; agents working on a not fully researched attacked argument will try to find a
+; defense for that attack, by staying on the current argument
+; if a child-argument is discovered that can provide a defense, the 
+; agent moves there
+; once an argument is fully researched all its relations are discovered,
+; then an agent can move on and can try to find a defense in another branch,
+; further away
+to find-defense-test6
+  ask agents with [not moved][    
+    let curagent self
+    if [communicating] of curagent = 0 or ticks mod 5 = 0 [
+			let myargu gps
+      ; let myx xcor
+      ; let myy ycor
+      ; ; variables for the argument the agent is working on and
+      ; ; for the agent itself
+      ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
+        ; xcor = myx and ycor = myy]
+    
+      ; lists of arguments that are not admissible
+			let not-admissible []			
+      if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
+				set not-admissible non-admiss-args        
+      ]
+      ; let not-admissible []
+      ; if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
+        ; let info-not-admissible filter [not member? ? admissible-subj-argu]
+          ; subjective-arguments
+        ; foreach info-not-admissible [
+          ; set not-admissible lput item 0 ? not-admissible
+        ; ]
+      ; ]
+    
+      ; if the current argument is not fully researched and not admissible
+      ; and it is a 5th time step or the agent is not communicating
+      ; the agent tries to move prospectively to a child-argument of the current 
+      ; argument that provides a defense for the current argument
+      if member? myargu not-admissible[
+        ask myargu [
+          ask my-in-attacks [
+            ask end1 [
+              ; create a set of arguments that provide a defense for the current
+	      ; argument, these:
+              ; a) attack the attacker of the current argument;
+	      ; b) are a child-argument of the current argument;
+              ; c) are discovered; and
+	      ; d) no agent from the same network is working on it
+              let nextargu in-attack-neighbors with [in-discovery-neighbor?
+	        myargu and color != gray and color != turquoise and not (any?
+		agents with [xcor = [xcor] of myself and ycor = [ycor] of myself
+		and member? self [collaborator-network] of curagent])]
+              ; if such an argument exists the agent moves there
+              ; and cannot move anymore this time step
+              if any? nextargu [
+                ask curagent [
+                  move-to one-of nextargu
+                  set moved true
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+
+
+
+
+to compute-subj-attacked-test6
+	foreach colla-networks [
+		let calc-done false
+		let calc-agent []
+		let cur-group ?
+		foreach cur-group [
+			let cur-agent ?
+			if not [rep-agent] of cur-agent [
+				ifelse calc-done [
+					ask cur-agent [
+						set admissible-subj-argu [admissible-subj-argu] of calc-agent
+						set current-theory-info [current-theory-info] of calc-agent
+						set non-admiss-subj-argu [non-admiss-subj-argu] of calc-agent
+					]
+				][
+					set calc-done true
+					set calc-agent cur-agent
+					ask cur-agent [
+						; variables for lists that contain:
+						; the current-theory-info with 0 admissible arguments; an updated number
+						; of admissible arguments during the recursive computation; the arguments
+						; that are not admissible; the arguments that the agents knows about; and
+						; the arguments that are attacked by the current theory 
+						let new-info []
+						let new-cur-info []
+						let not-admissible []
+						let args-cur-arguments []
+						let attacked-by-me []
+						
+						; create a list of only the attacks
+						let attack-relations []
+						foreach subjective-relations [
+							if first ? = "a" [
+								set attack-relations lput ? attack-relations
+							]
+						]
+						; create lists of attacked and attacking arguments
+						let cur-attacked []
+						let cur-attacker []
+						foreach attack-relations [
+							set cur-attacked lput last ? cur-attacked
+							set cur-attacker lput first but-first ? cur-attacker
+						]
+						
+						; create a list of the arguments the agents knows about and 
+						; set the number of admissible arguments for each theory to 0
+						foreach subjective-arguments [
+							set args-cur-arguments lput first ? args-cur-arguments
+						]
+						foreach current-theory-info [
+							set new-info lput replace-item 1 ? 0 new-info
+						]
+						set current-theory-info new-info
+						
+						; the computation of the admissible arguments is done recursively
+						; a list of arguments that are currently considered attacked
+						let open-rec []
+						; variable that lets the loop run at least one time
+						let i 0
+						foreach current-theory-info [
+							; the theory that is considered in this loop
+							; and the root of that theory (the start)
+							let cur-theory ?
+							let askstart item 0 cur-theory
+							while [ i < 1 or not empty? open-rec][
+								set not-admissible sentence not-admissible open-rec
+								set open-rec []
+								set attacked-by-me []
+								
+								; create a list of arguments that are attacked by the current theory
+								; based on the memory of the current agent
+								if not empty? attack-relations [
+									ask turtles with [member? self args-cur-arguments and
+									mytheory = askstart][
+										if member? self cur-attacker and not member? self not-admissible [
+											; the argument considered and a list of arguments
+											; attacked by that argument
+											let cur-turtle self
+											let my-attacked []
+											foreach attack-relations [
+												if first but-first ? = cur-turtle [
+													set my-attacked lput last ? my-attacked
+												]
+											]
+											set attacked-by-me sentence my-attacked attacked-by-me
+										]
+									]
+									
+									; arguments that are attacked by arguments from another theory that are
+									; not attacked by non-attacked arguments from the current theory
+									; are added to the open-rec list, the list of attacked-arguments
+									ask turtles with [member? self args-cur-arguments and
+										mytheory = askstart and not member? self not-admissible and
+										member? self cur-attacked][
+									let cur-turtle self
+									foreach attack-relations [
+										if last ? = cur-turtle [
+											if not member? last but-last ? attacked-by-me [
+												set open-rec lput cur-turtle open-rec
+											]
+										]
+									]
+										]
+								]
+								set i i + 1
+							]
+							set i 0
+							
+							; for the update of the information in current-theory-info
+							set new-cur-info lput replace-item 1 cur-theory (count turtles with
+								[member? self args-cur-arguments and mytheory = askstart] -
+								count turtles with [member? self not-admissible and mytheory = askstart])
+									new-cur-info
+						]
+						
+						; arguments that are part of the not-admissible list
+						; are not part of the admissible subjective arguments and hence removed
+						set admissible-subj-argu subjective-arguments
+						set non-admiss-subj-argu []
+						foreach subjective-arguments [
+							let cur-argu ?
+							if member? first cur-argu not-admissible [
+								set admissible-subj-argu remove cur-argu admissible-subj-argu								
+								set non-admiss-subj-argu lput item 0 cur-argu non-admiss-subj-argu
+							]
+						]
+						; update the current-theory-info
+						set current-theory-info new-cur-info
+					]
+				]
+			]
+		]
+	]
+end
+
+
+to compute-strategies-agents-test6
+  
+  ; agents start with figuring out which argument in their
+  ; memory are admissible and which are attacked
+  ; compute-subj-attacked-test
+ 
+  ask agents with [not rep-agent][
+    set cur-best-th []
+    ; variables for the list that contains the number admissible arguments 
+    ; per theory and a sublist which contains only the numbers that are
+    ; within the strategy-threshold
+    let list-admissible-arguments []
+    let threshold-admissible-arguments []
+    
+    ; create a list with the number of admissible arguments
+    ; of each of the theories
+    foreach current-theory-info [
+      set list-admissible-arguments lput item 1 ? list-admissible-arguments
+    ]
+    set list-admissible-arguments sort list-admissible-arguments
+    
+    ; a list of theories with values within the strategy threshold is constructed
+    set threshold-admissible-arguments filter [? >=
+      ((max list-admissible-arguments) * strategy-threshold)]
+        list-admissible-arguments
+    set threshold-admissible-arguments sort threshold-admissible-arguments
+    
+    ; computation of the current best theory
+    ; theories with a number of admissible arguments that are
+    ; within the threshold can be considered as current best theory
+    foreach current-theory-info [
+      if member? item 1 ? threshold-admissible-arguments [
+        set cur-best-th lput item 0 ? cur-best-th
+      ]
+    ]
+  ]
+end
+
