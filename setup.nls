@@ -1,3 +1,4 @@
+
 ; the setup procedures for
 ; 1. the hidden variables (not set in the interface)
 ; 2. building the argumentative landscape with
@@ -21,26 +22,26 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
 		set lastalist []
 		set lastblist []
 		set lastalistafter []
-	]	
+	]
 end
 
 ; the setup for a normal run
 to setup
-	setupcore task [clear-all] number-of-theories theory-depth scientists
+	setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
 end
 
 
-; procedure in which the variables that are not mentioned 
+; procedure in which the variables that are not mentioned
 ; in the interface can be set
 to initialize-hidden-variables
   ; the number of arguments that an researcher can learn
   ; each tick
   set max-learn 10
- 
+
   ; the probability that researchers move every round is
   ; only small-movement * move-probability
   set small-movement 0.2
- 
+
   ; influence color on move probability
   set color-move 200
 end
@@ -55,7 +56,7 @@ to create-discovery-landscape [numberoftheories theorydepth]
   ; at the start arguments and starts are a circle
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
-  
+
   repeat numberoftheories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
@@ -77,11 +78,11 @@ to create-discovery-landscape [numberoftheories theorydepth]
       ]
       set i i + 1
     ]
-    
+
     ; with the created turtles (arguments and roots)
     ; trees are build, one for each start/root
     create-discovery-trees
-    
+
     ask starts [ ; to make sure that all theories are visible
       create-starters-with other starts [set color black]
       set current-start false
@@ -143,10 +144,10 @@ end
 to define-attack-relation
   ; first the random attacks are defined
   define-attack-relation-create-attacks
-  
+
   ; then the best theory defends itself
   define-attack-relation-defend-best
-  
+
   ; the arguments and relations are spread over the patches
   define-attack-relation-visualize
 end
@@ -168,7 +169,7 @@ to define-attack-relation-create-attacks
       set starts-list lput who starts-list
     ]
     set starts-list sort starts-list
-    
+
     ; with attack-probability-2nd from the interface an attack towards
     ; the current argument is created
     ifelse number-of-theories = 2[
@@ -181,7 +182,7 @@ to define-attack-relation-create-attacks
             ]
       ]
     ][
-    
+
     ; when there are three theories both attack-probability-2nd and -3rd are
     ; considered to create attacks, depending on the theory the current argument
     ; belongs to first for the third theory
@@ -206,7 +207,7 @@ to define-attack-relation-create-attacks
     ]
     ]
     ]
-    
+
     ; if the current argument belongs to the objective best theory
     ; an attack towards this argument is created with attack-probability-best
     if attack-random < attack-probability-best and curtheory = start 0 [
@@ -231,7 +232,7 @@ to define-attack-relation-defend-best
     mytheory = start 0][
     ; variable for the current argument
     let askargu self
-    
+
     if any? in-attack-neighbors [
       ask in-attack-neighbors [
         ; variable for the attacking argument, if such an argument exists
@@ -256,7 +257,7 @@ end
 
 
 
-; creates the visible tree, centered around 
+; creates the visible tree, centered around
 ; the root of the best theory
 to define-attack-relation-visualize
   layout-radial
@@ -274,11 +275,11 @@ end
 ; and they are distributed randomly over the theories
 to distribute-researchers [scientistsno]
   set-default-shape researchers "person"
-  
+
   ; the right number of researchers is created
   ; and the researcher variables are initialized
   researchers-create-scientists scientistsno
-  
+
   ; create the network of collaborators
   ; if in the interface "within-theory" is on, collaborative networks are created
   ; among researchers that start from the same theory
@@ -288,12 +289,12 @@ to distribute-researchers [scientistsno]
   ][
   ; if "within-theory" is off in the interface, random collaborative networks
   ; are created, all of size 5
-  distribute-researchers-within-theory-off    
+  distribute-researchers-within-theory-off
   ]
-  
+
   ; the memory of the researchers is created
   researchers-create-memory
-  
+
   ; the networks in which researchers share with other groups is created
   create-networks
 end
@@ -309,7 +310,7 @@ to researchers-create-scientists [scientistsno]
     ; and start on one of the roots
     set color blue
     move-to one-of starts
-    
+
     ; the researcher-own variables are initialized
     set collaborator-network []
     set subjective-relations []
@@ -318,7 +319,7 @@ to researchers-create-scientists [scientistsno]
     set communicating 0
     set moved false
     set rep-researcher false
-    
+
     ; an researcher is always aware of all the theories
     ; the information the researcher has about a theory
     ; is collected in current-theory-info which has
@@ -349,7 +350,7 @@ to researchers-create-memory
     let myx xcor
     let myy ycor
     let cur-theory one-of starts with [xcor = myx and ycor = myy]
-    
+
     ; the current theory is added to the subjective-arguments list:
     ; [[(start x) lime]]
     let add-cur []
@@ -373,7 +374,7 @@ to distribute-researchers-within-theory-on
     let myx xcor
     let myy ycor
     let cur-col []
-    
+
     ; while there are more than five researchers on the root without a network
     ; networks of exactly five researchers are created
     if any? researchers with [xcor = myx and ycor = myy and
@@ -431,19 +432,19 @@ end
 ; it computes for every theory the number of
 ; researchers working on it
 to compute-popularity
-  ; initialize the variable at 0 
+  ; initialize the variable at 0
   ask starts [ set myscientists 0 ]
-  
+
   ask researchers [
     ; variables for x and y coordinate of the current researcher,
-    ; the argument it is currently working on and the 
+    ; the argument it is currently working on and the
     ; theory this argument belongs to
     let myx xcor
     let myy ycor
     let myargu one-of turtles with [(breed = starts or breed = arguments) and
       xcor = myx and ycor = myy]
     let mystart [mytheory] of myargu
-    
+
     ; the myscientists variable of the theory the researcher
     ; is working on is increased by one
     ask mystart [
@@ -465,25 +466,25 @@ to create-networks
   ; an entry in share-structure starts with the network that
   ; is the network that initializes the sharing
   set share-structure []
-  
+
   ; list of all sorted collaborator-networks
   let networks []
   ask researchers [
     set networks lput sort collaborator-network networks
   ]
   set colla-networks remove-duplicates networks
-  
+
   ; in the case that the choice in the interface is cycle
   ifelse network-structure = "cycle" [
     let connect-networks colla-networks
-    
+
     ; when there are only two collaborator-networks
     ; they always share with each other
     ifelse length colla-networks = 2 [
       set share-structure lput colla-networks share-structure
       set share-structure lput reverse colla-networks share-structure
-    ][ 
-    
+    ][
+
     ; in all other cases networks share with two neighboring networks
     ; for three networks this is still a complete case
     while [length connect-networks > 2] [
@@ -506,16 +507,16 @@ to create-networks
       set to-add-structure lput first connect-networks to-add-structure
       set connect-networks remove-item 0 connect-networks
       set to-add-structure lput first but-first connect-networks to-add-structure
-      set share-structure lput to-add-structure share-structure 
+      set share-structure lput to-add-structure share-structure
       ]
     ]
     ]
   ][
-  
+
   ; in the case that the choice in the interface is wheel
   ifelse network-structure = "wheel" [
     let connect-networks colla-networks
-    
+
     ; when there are only two or three collaborator-networks
     ; they always share with each other
     ifelse length colla-networks < 4 [
@@ -528,17 +529,17 @@ to create-networks
         set add-colla-networks lput last colla-networks add-colla-networks
         set share-structure lput add-colla-networks share-structure
       ]
-    ][ 
-    
+    ][
+
     ; the first network is defined to be the royal family:
     ; the network that shares with all other networks
     let middle first connect-networks
     set connect-networks remove-item 0 connect-networks
     let add-middle []
     set add-middle lput middle add-middle
-    foreach connect-networks [
-      if ? != middle [
-        set add-middle lput ? add-middle
+    foreach connect-networks [ [?1] ->
+      if ?1 != middle [
+        set add-middle lput ?1 add-middle
       ]
     ]
     ; the other networks are put in a cycle, with the
@@ -567,22 +568,22 @@ to create-networks
       set share-structure lput to-add-structure share-structure
       ]
     ]
-    
+
     ; the first entry of share-structure is the royal family entry
     set share-structure fput add-middle share-structure
     ]
   ][
-  
+
   ; the other cases: a completely connected graph
-  ; for each collaborator-network an entry is created with at the 
+  ; for each collaborator-network an entry is created with at the
   ; first position the network and then all others
-  foreach colla-networks [
-    let cur-network ? 
+  foreach colla-networks [ [?1] ->
+    let cur-network ?1
     let to-add-structure []
     set to-add-structure lput cur-network to-add-structure
-    foreach colla-networks [
-      if ? != cur-network [
-        set to-add-structure lput ? to-add-structure
+    foreach colla-networks [ [??1] ->
+      if ??1 != cur-network [
+        set to-add-structure lput ??1 to-add-structure
       ]
     ]
     set share-structure lput to-add-structure share-structure
@@ -590,4 +591,3 @@ to create-networks
   ]
   ]
 end
-

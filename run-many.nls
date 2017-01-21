@@ -1,5 +1,5 @@
 ; the run-many procedure is used to obtain results
-; it lets the program run several times for a few 
+; it lets the program run several times for a few
 ; setups at once
 ; the results are put into a .txt file that can be
 ; used for comparison and making plots for papers/slides
@@ -14,9 +14,9 @@ to run-many
   let try 0  ; the number of the run with the same setup
   let cycle 0  ; the number of ticks
   let max-cycle 0  ; time limit for one try/run
-  ; lists that collect for each setup the percentage of 
+  ; lists that collect for each setup the percentage of
   ; discovered arguments (of the best theory)
-  let perc-disc-argu []  
+  let perc-disc-argu []
   let perc-disc-best-argu []
   let find-good-m 0  ; number of successful runs, monist
   let find-good-p 0  ; number of successful runs, pluralist
@@ -30,7 +30,7 @@ to run-many
   let disc-best-arguments 0  ; number of discovered best arguments
   let tot-best-arguments 0  ; total number of best arguments
   let jumps 0  ; number of jumps
-  
+
   ; different setups write results to different files
   ifelse network-structure = "cycle" [
     ifelse social-actions = "biased" [
@@ -79,8 +79,8 @@ to run-many
   ]
   ]
   ]
-  
-  ; the settings from the interface are 
+
+  ; the settings from the interface are
   ; written in the .txt files
   file-write "New run for results times "
   file-print date-and-time
@@ -111,14 +111,14 @@ to run-many
   file-print ""
   file-write "Network structure of the collaborator-networks: "
   file-print network-structure
-  file-print "" 
+  file-print ""
   file-print "actions, within theory: "
   file-print social-actions
   file-print within-theory
   file-print ""
   file-print ""
   file-print ""
-  
+
   while [number-of-theories-many != 4][
     while [theory-depth-many != 4][
       set setup-time []
@@ -131,10 +131,10 @@ to run-many
       create-discovery-landscape number-of-theories-many theory-depth-many
       set tot-arguments count turtles with [breed = arguments or breed = starts]
       set max-cycle precision (15 * tot-arguments) -3
-      
+
       while [scientists-many <= 100][
-        while [try != 100][ 
-          
+        while [try != 100][
+
           ; to keep track of the current setup of the run
           write "#theories, depth, scientists, actions, structure, within-theory, try: "
           print ""
@@ -145,18 +145,18 @@ to run-many
           show network-structure
           show within-theory
           show try
-          
+
           setup-many
           set cycle 1
           go
-          ; the program is stopped once all researchers are working 
+          ; the program is stopped once all researchers are working
           ; on a fully discovered theory
           while [cycle != max-cycle and any? arguments with [color != red and
             [myscientists] of mytheory !=  0]][
             go
             set cycle cycle + 1
           ]
-          
+
           set steps-needed lput cycle steps-needed
           ; compute researcher distribution over the theories
           ask starts [
@@ -173,7 +173,7 @@ to run-many
           ask researchers [
             set jumps times-jumped + jumps
           ]
-          
+
           ; for the computation of the output
           set disc-arguments count turtles with [(breed = arguments or
 	    breed = starts) and color != gray and color != turquoise]
@@ -191,7 +191,7 @@ to run-many
           set share-structure []
           set try try + 1
         ]
-        
+
         ; add the results from the current setup to the
         ; list of already obtained results
         set setup-time lput mean steps-needed setup-time
@@ -205,7 +205,7 @@ to run-many
 	  setup-discovered-best
         set setup-jumps lput ((jumps / try) / scientists-many)
 	  setup-jumps
-        
+
         ; reset some of the variables
         set try 0
         set perc-disc-argu []
@@ -223,7 +223,7 @@ to run-many
         set scientists-many scientists-many + 30
         ]
       ]
-      
+
       ; add the results to the file
       file-write "Time, successful, discovered, discovered of best, jumps: "
       file-print ""
@@ -339,12 +339,12 @@ end
 ; the setup for a run-many
 to setup-many
   ; instead of clear-all, the globals should not be cleared
-	setupcore task [
+	setupcore [ [] ->
 		clear-turtles
 		clear-patches
 		clear-drawing
 		clear-all-plots
 		clear-output
-	]
+	 ]
 	number-of-theories-many theory-depth-many scientists-many
 end
