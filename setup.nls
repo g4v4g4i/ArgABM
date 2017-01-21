@@ -2,22 +2,22 @@
 ; 1. the hidden variables (not set in the interface)
 ; 2. building the argumentative landscape with
 ;    attacks and discovery relations
-; 3. populate the landscape with agents
+; 3. populate the landscape with researchers
 
 
 ; the core-setup procedure:
 ; the hidden variables (not set in the interface)
 ; it creates a landscape of arguments and a discovery relation
 ; on this landscape; attacks are defined;
-; the agents are distributed over the theories
+; the researchers are distributed over the theories
 to setupcore [clearing numberoftheories theorydepth scientistsno]
   run clearing
   initialize-hidden-variables
   create-discovery-landscape numberoftheories theorydepth
   define-attack-relation
-  distribute-agents scientistsno
+  distribute-researchers scientistsno
   reset-ticks
-	ask agents [
+	ask researchers [
 		set lastalist []
 		set lastblist []
 		set lastalistafter []
@@ -33,11 +33,11 @@ end
 ; procedure in which the variables that are not mentioned 
 ; in the interface can be set
 to initialize-hidden-variables
-  ; the number of arguments that an agent can learn
+  ; the number of arguments that an researcher can learn
   ; each tick
   set max-learn 10
  
-  ; the probability that agents move every round is
+  ; the probability that researchers move every round is
   ; only small-movement * move-probability
   set small-movement 0.2
  
@@ -269,32 +269,32 @@ end
 
 
 
-; in this procedure the agents are created,
+; in this procedure the researchers are created,
 ; including their memory and the social netoworks
 ; and they are distributed randomly over the theories
-to distribute-agents [scientistsno]
-  set-default-shape agents "person"
+to distribute-researchers [scientistsno]
+  set-default-shape researchers "person"
   
-  ; the right number of agents is created
-  ; and the agent variables are initialized
-  agents-create-scientists scientistsno
+  ; the right number of researchers is created
+  ; and the researcher variables are initialized
+  researchers-create-scientists scientistsno
   
   ; create the network of collaborators
   ; if in the interface "within-theory" is on, collaborative networks are created
-  ; among agents that start from the same theory
-  ; a network has at most 5 agents in it
+  ; among researchers that start from the same theory
+  ; a network has at most 5 researchers in it
   ifelse within-theory [
-    distribute-agents-within-theory-on
+    distribute-researchers-within-theory-on
   ][
   ; if "within-theory" is off in the interface, random collaborative networks
   ; are created, all of size 5
-  distribute-agents-within-theory-off    
+  distribute-researchers-within-theory-off    
   ]
   
-  ; the memory of the agents is created
-  agents-create-memory
+  ; the memory of the researchers is created
+  researchers-create-memory
   
-  ; the networks in which agents share with other groups is created
+  ; the networks in which researchers share with other groups is created
   create-networks
 end
 
@@ -302,25 +302,25 @@ end
 
 
 
-; create agents and initialize their variables
-to agents-create-scientists [scientistsno]
-  create-agents scientistsno [
-    ; the agents are blue-colored
+; create researchers and initialize their variables
+to researchers-create-scientists [scientistsno]
+  create-researchers scientistsno [
+    ; the researchers are blue-colored
     ; and start on one of the roots
     set color blue
     move-to one-of starts
     
-    ; the agent-own variables are initialized
+    ; the researcher-own variables are initialized
     set collaborator-network []
     set subjective-relations []
     set subjective-arguments []
     set times-jumped 0
     set communicating 0
     set moved false
-    set rep-agent false
+    set rep-researcher false
     
-    ; an agent is always aware of all the theories
-    ; the information the agent has about a theory
+    ; an researcher is always aware of all the theories
+    ; the information the researcher has about a theory
     ; is collected in current-theory-info which has
     ; the form [[(start 0) no. adm args] ...]
     let theories []
@@ -338,14 +338,14 @@ end
 
 
 
-; create the memory of the agent
-; keep track of the theories and arguments that the agent has visited
+; create the memory of the researcher
+; keep track of the theories and arguments that the researcher has visited
 ; an argument memory entry has two elements: the argument and its color:
 ; [[(argument a) colora] ... [(argument i) colori] ...]
-to agents-create-memory
-  ask agents [
+to researchers-create-memory
+  ask researchers [
     ; variables for the x and y coordinate and the theory of
-    ; the current agent
+    ; the current researcher
     let myx xcor
     let myy ycor
     let cur-theory one-of starts with [xcor = myx and ycor = myy]
@@ -364,9 +364,9 @@ end
 
 
 ; if in the interface "within-theory" is on, collaborative networks are created
-; among agents that start from the same theory
-; a network has at most 5 agents in it
-to distribute-agents-within-theory-on
+; among researchers that start from the same theory
+; a network has at most 5 researchers in it
+to distribute-researchers-within-theory-on
   ask starts [
     ; variables for the x and y coordinates of the root
     ; and an empty list for the created network
@@ -374,30 +374,30 @@ to distribute-agents-within-theory-on
     let myy ycor
     let cur-col []
     
-    ; while there are more than five agents on the root without a network
-    ; networks of exactly five agents are created
-    if any? agents with [xcor = myx and ycor = myy and
+    ; while there are more than five researchers on the root without a network
+    ; networks of exactly five researchers are created
+    if any? researchers with [xcor = myx and ycor = myy and
       empty? collaborator-network][
-      while [count agents with [xcor = myx and ycor = myy and
+      while [count researchers with [xcor = myx and ycor = myy and
         empty? collaborator-network] > 5][
-        ; five agents are added to the list cur-col
-        ; which is then set as the collaborator-network of each of these agents
-        ask n-of 5 agents with [xcor = myx and ycor = myy and
+        ; five researchers are added to the list cur-col
+        ; which is then set as the collaborator-network of each of these researchers
+        ask n-of 5 researchers with [xcor = myx and ycor = myy and
 	        empty? collaborator-network] [
           set cur-col lput self cur-col
         ]
-        ask agents with [member? self cur-col][
+        ask researchers with [member? self cur-col][
           set collaborator-network cur-col
         ]
         set cur-col []
       ]
-      ; once there are five or less agents without a network
+      ; once there are five or less researchers without a network
       ; they form a network together
-      ask agents with [xcor = myx and ycor = myy and
+      ask researchers with [xcor = myx and ycor = myy and
         empty? collaborator-network] [
         set cur-col lput self cur-col
       ]
-      ask agents with [member? self cur-col][
+      ask researchers with [member? self cur-col][
         set collaborator-network cur-col
       ]
     ]
@@ -410,14 +410,14 @@ end
 
 ; if "within-theory" is off in the interface random collaborative networks
 ; are created, all of size 5
-to distribute-agents-within-theory-off
-  while [any? agents with [empty? collaborator-network]][
-    ; variable that collects exactly five agents for a network
+to distribute-researchers-within-theory-off
+  while [any? researchers with [empty? collaborator-network]][
+    ; variable that collects exactly five researchers for a network
     let cur-col []
-    ask n-of 5 agents with [empty? collaborator-network][
+    ask n-of 5 researchers with [empty? collaborator-network][
       set cur-col lput self cur-col
     ]
-    ask agents with [member? self cur-col][
+    ask researchers with [member? self cur-col][
       set collaborator-network cur-col
     ]
   ]
@@ -429,13 +429,13 @@ end
 
 ; computations for the Popularity plot
 ; it computes for every theory the number of
-; agents working on it
+; researchers working on it
 to compute-popularity
   ; initialize the variable at 0 
   ask starts [ set myscientists 0 ]
   
-  ask agents [
-    ; variables for x and y coordinate of the current agent,
+  ask researchers [
+    ; variables for x and y coordinate of the current researcher,
     ; the argument it is currently working on and the 
     ; theory this argument belongs to
     let myx xcor
@@ -444,7 +444,7 @@ to compute-popularity
       xcor = myx and ycor = myy]
     let mystart [mytheory] of myargu
     
-    ; the myscientists variable of the theory the agent
+    ; the myscientists variable of the theory the researcher
     ; is working on is increased by one
     ask mystart [
       set myscientists myscientists + 1
@@ -468,7 +468,7 @@ to create-networks
   
   ; list of all sorted collaborator-networks
   let networks []
-  ask agents [
+  ask researchers [
     set networks lput sort collaborator-network networks
   ]
   set colla-networks remove-duplicates networks

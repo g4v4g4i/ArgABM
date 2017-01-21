@@ -1,5 +1,5 @@
 ; the procedures that determine
-; the basic behavior of the agents:
+; the basic behavior of the researchers:
 ; 1. how they update their memory
 ; 2. how they share information
 ; 3. how they walk around on the landscape
@@ -9,17 +9,17 @@
 
 
 
-; every round, the agents update their memory:
+; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
-; every fifth round the agents share their updated memory within their
+; every fifth round the researchers share their updated memory within their
 ; collaborator-network
 to update-memories
-  ask agents [
+  ask researchers [
     let myx xcor
     let myy ycor
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
-    let cur-agent self
+    let cur-researcher self
     ; information of current argument in the format of the memory
     let add-cur (sentence cur-argum [color] of cur-argum)
     set subjective-arguments lput add-cur subjective-arguments
@@ -37,7 +37,7 @@ to update-memories
        if any? my-in-discoveries with [color != gray][
         ask my-in-discoveries with [color != gray][
           let add-other-end other-end
-          ask cur-agent [
+          ask cur-researcher [
             set neighborargs lput add-other-end neighborargs
           ]
           ; construction of the to be added discovery relation
@@ -56,7 +56,7 @@ to update-memories
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
 	  let add-other-end other-end
-	  ask cur-agent [
+	  ask cur-researcher [
 	    set neighborargs lput add-other-end neighborargs
 	  ]
 	  ; construction of the to be added discovery relation
@@ -75,7 +75,7 @@ to update-memories
       if any? my-in-attacks with [color != gray][
         ask my-in-attacks with [color != gray][
           let add-other-end other-end
-          ask cur-agent [
+          ask cur-researcher [
             set neighborargs lput add-other-end neighborargs
           ]
           ; construction of the to be added attack relation
@@ -94,7 +94,7 @@ to update-memories
       if any? my-out-attacks with [color != gray][
         ask my-out-attacks with [color != gray][
           let add-other-end other-end
-          ask cur-agent [
+          ask cur-researcher [
             set neighborargs lput add-other-end neighborargs
           ]
           ; construction of the to be added attack relation
@@ -118,7 +118,7 @@ to update-memories
   ]
   
   ; every 5 plus 4 time-steps the collected information
-  ; is shared with other agents
+  ; is shared with other researchers
   if ticks mod 5 = 4 [
     share-with-others
   ] 
@@ -129,34 +129,34 @@ end
 
 
 
-; procedure in which agents share (part of) their memory with other agents
-; first they share their whole memory with agents from their
+; procedure in which researchers share (part of) their memory with other researchers
+; first they share their whole memory with researchers from their
 ; collaborator-network
-; second they share information with agents from other networks
+; second they share information with researchers from other networks
 to share-with-others
-  ask agents [
+  ask researchers [
     ; reset the variables
-    set rep-agent false 
+    set rep-researcher false 
     set to-add-mem-argu []
     set to-add-mem-rel []
     
-    ; variables to keep track of the current agents own memory
-    ; and the combined memory of all the sharing agents
+    ; variables to keep track of the current researchers own memory
+    ; and the combined memory of all the sharing researchers
     let own-memory-argu subjective-arguments
     let own-memory-rel subjective-relations
     let comb-memory-argu []
     let comb-memory-rel []
-    ; collaborator network of the current agent
+    ; collaborator network of the current researcher
     let cur-network collaborator-network
     
-    ; the information in the memories of the single agents in the network
+    ; the information in the memories of the single researchers in the network
     ; are combined 
     ask turtles with [member? self cur-network] [
       set comb-memory-argu sentence subjective-arguments comb-memory-argu
       set comb-memory-rel sentence subjective-relations comb-memory-rel
     ]
     
-    ; each agent adds the combined memory to its own
+    ; each researcher adds the combined memory to its own
     ; then removing duplicates
     set subjective-arguments remove-duplicates sentence
       own-memory-argu comb-memory-argu
@@ -181,7 +181,7 @@ to share-with-others
     ]
   ]
   
-  ; then agents can share some of their information with agents 
+  ; then researchers can share some of their information with researchers 
   ; from neighboring networks in the social structures
   create-share-memory
   share-with-other-networks
@@ -192,63 +192,63 @@ end
 
 
 
-; procedure in which agents collect the information from their
-; memory that they want to share with agents that do not 
+; procedure in which researchers collect the information from their
+; memory that they want to share with researchers that do not 
 ; belong to their own collaborator-network
 to create-share-memory
   
-  ; for each collaborator-network one agent is set to be
-  ; the representative agent
+  ; for each collaborator-network one researcher is set to be
+  ; the representative researcher
   foreach colla-networks [
     ifelse length ? > 1 [
-      ask one-of agents with [member? self ?][
-        set rep-agent true
+      ask one-of researchers with [member? self ?][
+        set rep-researcher true
       ] 	
     ][
     if ticks mod 25 = 4 [
-      ask one-of agents with [member? self ?][
-        set rep-agent true
+      ask one-of researchers with [member? self ?][
+        set rep-researcher true
       ]
     ]
     ]
   ]
   
-  ; only the representative agents create a memory 
-  ; that they want to share with agents from other networks
-  ask agents with [rep-agent][
+  ; only the representative researchers create a memory 
+  ; that they want to share with researchers from other networks
+  ask researchers with [rep-researcher][
     let myx xcor
     let myy ycor
-    ; variables for the argument the agent is currently working on,
-    ; the agent itself and the theory it is working on
+    ; variables for the argument the researcher is currently working on,
+    ; the researcher itself and the theory it is working on
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
-    let cur-agent self 
+    let cur-researcher self 
     let cur-th [mytheory] of cur-argum
-    ; create a list of arguments and a list of relations that the agent can
-    ; share with agents from other collaborative networks
-    ; what agents share depends on the "social-action" and "sharing"
+    ; create a list of arguments and a list of relations that the researcher can
+    ; share with researchers from other collaborative networks
+    ; what researchers share depends on the "social-action" and "sharing"
     ; from the interface
     set th-args []
     set th-relations []
     
-    ; agents share only information obtained in the neighborhood 
+    ; researchers share only information obtained in the neighborhood 
     ; they are currently working on
-    ; collect the arguments from the agent's memory
+    ; collect the arguments from the researcher's memory
     ; that belong also to the neighborargs
     foreach subjective-arguments [
-      if member? item 0 ? [neighborargs] of cur-agent [
+      if member? item 0 ? [neighborargs] of cur-researcher [
         set th-args lput ? th-args
       ]
     ]
     ; collect the relations from/to the current argument
-    ; from the agent's memory
+    ; from the researcher's memory
     foreach subjective-relations [
       if item 1 ? = cur-argum or item 2 ? = cur-argum [
         set th-relations lput ? th-relations
       ]
     ]
     
-    ; if the agent behaves biased it does not share the attack relations that
+    ; if the researcher behaves biased it does not share the attack relations that
     ; attack its current theory, these relations are removed
     if social-actions = "biased"[
       foreach th-relations [
@@ -264,45 +264,45 @@ end
 
 
 
-; procedure in which the representative agents of the networks
+; procedure in which the representative researchers of the networks
 ; share information according to the social structure
 to share-with-other-networks 
-  ask agents with [rep-agent][
+  ask researchers with [rep-researcher][
     ; variables for the combined information (arguments and relations),
-    ; the network of the current agent and the theory it is working on
+    ; the network of the current researcher and the theory it is working on
     let comb-memory-argu th-args
     let comb-memory-rel th-relations
     let cur-network sort collaborator-network
     let my-cur-theory [mytheory] of item 0 item 0 th-args
     
     ; create a list of the neighboring networks and then a 
-    ; list of the representative agents of these networks
-    ; which will be the agents the current agent shares with
-    let share-agents []
+    ; list of the representative researchers of these networks
+    ; which will be the researchers the current researcher shares with
+    let share-researchers []
     let share-neighbors []
     foreach share-structure [    
       if first ? = cur-network [
         set share-neighbors ?
       ]
     ]
-    ask agents with [rep-agent][
-      let cur-agent self
+    ask researchers with [rep-researcher][
+      let cur-researcher self
       foreach share-neighbors [
-        if member? cur-agent ? [
-          set share-agents lput cur-agent share-agents
+        if member? cur-researcher ? [
+          set share-researchers lput cur-researcher share-researchers
         ]
       ]
     ]
     
     ; create a list of arguments and a list of relations that is
-    ; shared among the share-agents
-    foreach share-agents [
-      ; the combined memory is updated to contain that of the sharing agent
+    ; shared among the share-researchers
+    foreach share-researchers [
+      ; the combined memory is updated to contain that of the sharing researcher
       set comb-memory-argu sentence comb-memory-argu [th-args] of ?
       set comb-memory-rel sentence comb-memory-rel [th-relations] of ?
     ]
     ; create lists of arguments/relations that have to be added
-    foreach share-agents [
+    foreach share-researchers [
       set to-add-mem-argu remove-duplicates sentence subjective-arguments
         comb-memory-argu
       set to-add-mem-rel remove-duplicates sentence subjective-relations
@@ -310,7 +310,7 @@ to share-with-other-networks
     ]
   ] 
   
-  ; to compute the time that agents have to
+  ; to compute the time that researchers have to
   ; spend on communication
   compute-time-costs 
 end
@@ -320,13 +320,13 @@ end
 
 
 ; procedure that adds the new information to the memory of the 
-; representative agents and computes the time they have lost by
+; representative researchers and computes the time they have lost by
 ; communicating
 to compute-time-costs
-  ask agents with [rep-agent][
+  ask researchers with [rep-researcher][
     
     ; variables that contain the arguments and relations the
-    ; agent has to update in its memory
+    ; researcher has to update in its memory
     let new-memory-args []
     let new-memory-rel []
     set new-memory-args filter [not member? ? subjective-arguments]
@@ -334,7 +334,7 @@ to compute-time-costs
     set new-memory-rel filter [not member? ? subjective-relations]
       to-add-mem-rel
     let comb-new sentence new-memory-args new-memory-rel
-    ; every tick an agent can obtain a maximum of 10 new entries
+    ; every tick an researcher can obtain a maximum of 10 new entries
     ; the day that they received information is also lost
     ifelse length comb-new >= (3 * max-learn) [
       set communicating 4
@@ -342,12 +342,12 @@ to compute-time-costs
     set communicating ((ceiling (length comb-new / max-learn)) + 1)
     ]
     
-    ; every communication round an agent can update a maximum of 
+    ; every communication round an researcher can update a maximum of 
     ; 3 * max-learn new arguments/relations (corresponding to three ticks of
     ; communication) these new arguments and relations are added to the
-    ; memory of the agent
+    ; memory of the researcher
     ; when a new relation is added and the arguments are not part of the
-    ; memory of the agent, these arguments are added as well
+    ; memory of the researcher, these arguments are added as well
     ifelse length comb-new > (3 * max-learn) [
       set comb-new shuffle comb-new
       let repeats length comb-new - (3 * max-learn)
@@ -392,12 +392,12 @@ end
 
 
 
-; procedure that removes all duplicates from the memory of an agent
+; procedure that removes all duplicates from the memory of an researcher
 ; duplicates also include arguments that are part of the memory with
 ; different colors in these cases only the entry with the lowest color value
 ; is kept these arguments are furthest researched
 to duplicate-remover
-  ask agents [
+  ask researchers [
     ; list of arguments of which the duplicates will be removed
     let new-args subjective-arguments
     foreach new-args [
@@ -414,7 +414,7 @@ to duplicate-remover
         set color-argu but-last color-argu
       ]
     ]
-    ; update the agent's memory
+    ; update the researcher's memory
     set subjective-arguments new-args
   ]
 end
@@ -423,26 +423,26 @@ end
 
 
 
-; procedure that describes how the agents move around over the landscape
+; procedure that describes how the researchers move around over the landscape
 ; they only "see" the colored part of the landscape and hence can only move
 ; there, the probability of moving increases (a little) when the argument is
-; further researched in one time step agents can either receive information or
+; further researched in one time step researchers can either receive information or
 ; move, but not both
 to move-around
   ; variable to make sure that the procedure find-defense
   ; is only run once
   let run-find-defense false 
-  ; at the beginning of the procedure no agent has moved yet
-  ask agents [
+  ; at the beginning of the procedure no researcher has moved yet
+  ask researchers [
     set moved false
   ]
-  ask agents [
-    let curagent self
-    if [communicating] of curagent = 0 or ticks mod 5 = 0 [
+  ask researchers [
+    let curresearcher self
+    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myx xcor
       let myy ycor
-      ; variable for the argument the agent is currently working on and
-     ; the agent itself
+      ; variable for the argument the researcher is currently working on and
+     ; the researcher itself
         let myargu one-of turtles with [(breed = starts or breed = arguments) and
         xcor = myx and ycor = myy]
       
@@ -456,11 +456,11 @@ to move-around
         ]
       ]
    
-      ; an agent working on an attacked argument will try to find a defense for
+      ; an researcher working on an attacked argument will try to find a defense for
       ; this attack, by working further on the attacked argument, unless it
       ; discoveres a child-argument that that has a defense for the attack
       ; (it is not necessarily the case that this defense is already discovered)
-      ; the find-defense runs immediately for all agents working on a not
+      ; the find-defense runs immediately for all researchers working on a not
       ; fully researched not-admissible argument, hence it is only once executed
       if member? myargu not-admissible and not moved[
       
@@ -476,53 +476,53 @@ to move-around
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
-        ; c) no agent from the same collaborator-network is working on it
-        ; the agent moves there, with certain probability
+        ; c) no researcher from the same collaborator-network is working on it
+        ; the researcher moves there, with certain probability
         ifelse any? turtles with [(breed = starts or breed = arguments) and
           in-discovery-neighbor? myargu and color != gray and color != red and
-    	  color != turquoise and not (any? turtles with [breed = agents and
+    	  color != turquoise and not (any? turtles with [breed = researchers and
 	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [collaborator-network] of curagent])] [
+	  [collaborator-network] of curresearcher])] [
         let move-random random-float 1.0
       
 
         ; every time step with small-movement of the move-probability
-        ; the agent moves
+        ; the researcher moves
         ifelse move-random < (small-movement * move-probability *
           (1 - (color / color-move))) [
           move-to one-of turtles with [(breed = starts or breed = arguments) and
             in-discovery-neighbor? myargu and color != gray and color != red and
-            color != turquoise and not ( any? turtles with [breed = agents and
+            color != turquoise and not ( any? turtles with [breed = researchers and
             xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-  	    [collaborator-network] of curagent])]
+  	    [collaborator-network] of curresearcher])]
           set moved true
         ][
       
-        ; every 5th time step the agent mover with the full move-probability,
+        ; every 5th time step the researcher mover with the full move-probability,
         ; that depends a bit on the color
         if ticks != 0 and ticks mod 5 = 0 and move-random <
           move-probability * (1 - (color / color-move)) [
           move-to one-of turtles with [(breed = starts or breed = arguments) and
             in-discovery-neighbor? myargu and color != gray and color != red and
-	    color != turquoise and not ( any? turtles with [breed = agents
+	    color != turquoise and not ( any? turtles with [breed = researchers
 	    and xcor = [xcor] of myself and ycor = [ycor] of myself and
-	    member? self [collaborator-network] of curagent])]
+	    member? self [collaborator-network] of curresearcher])]
           set moved true
         ]
         ]
             ][
 
         ; if there is no next argument and the current argument is
-        ; fully researched, the agent moves a step back
+        ; fully researched, the researcher moves a step back
         ifelse [color] of myargu = red and any? turtles with [color != gray and
           color != turquoise and out-discovery-neighbor? myargu and not any?
-	  turtles with [breed = agents and xcor = [xcor] of myself and
+	  turtles with [breed = researchers and xcor = [xcor] of myself and
 	  ycor = [ycor] of myself and member? self [collaborator-network]
-	  of curagent]][
+	  of curresearcher]][
         move-to one-of turtles with [color != gray and out-discovery-neighbor?
-          myargu and not any? turtles with [breed = agents and xcor = [xcor] of
+          myargu and not any? turtles with [breed = researchers and xcor = [xcor] of
           myself and ycor = [ycor] of myself and member? self
-          [collaborator-network] of curagent]]
+          [collaborator-network] of curresearcher]]
         set moved true
           ][
       
@@ -532,14 +532,14 @@ to move-around
           let askstart [mytheory] of myargu
           if any? turtles with [(breed = starts or breed = arguments) and
 	    color != gray and color != turquoise and color != red and
-	    mytheory = askstart and not any? turtles with [breed = agents and
+	    mytheory = askstart and not any? turtles with [breed = researchers and
   	    xcor = [xcor] of myself and ycor = [ycor] of myself and member?
-	    self [collaborator-network] of curagent]][
+	    self [collaborator-network] of curresearcher]][
           move-to one-of turtles with [(breed = starts or breed = arguments) and
 	   color != turquoise and color != gray and color != red and
-  	   mytheory = askstart and not any? turtles with [breed = agents and
+  	   mytheory = askstart and not any? turtles with [breed = researchers and
 	   xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-           [collaborator-network] of curagent]]
+           [collaborator-network] of curresearcher]]
           set moved true
             ]
         ]
@@ -554,21 +554,21 @@ end
 
 
 
-; agents working on a not fully researched attacked argument will try to find a
+; researchers working on a not fully researched attacked argument will try to find a
 ; defense for that attack, by staying on the current argument
 ; if a child-argument is discovered that can provide a defense, the 
-; agent moves there
+; researcher moves there
 ; once an argument is fully researched all its relations are discovered,
-; then an agent can move on and can try to find a defense in another branch,
+; then an researcher can move on and can try to find a defense in another branch,
 ; further away
 to find-defense
-  ask agents with [not moved][    
-    let curagent self
-    if [communicating] of curagent = 0 or ticks mod 5 = 0 [
+  ask researchers with [not moved][    
+    let curresearcher self
+    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myx xcor
       let myy ycor
-      ; variables for the argument the agent is working on and
-      ; for the agent itself
+      ; variables for the argument the researcher is working on and
+      ; for the researcher itself
       let myargu one-of turtles with [(breed = starts or breed = arguments) and
         xcor = myx and ycor = myy]
     
@@ -583,8 +583,8 @@ to find-defense
       ]
     
       ; if the current argument is not fully researched and not admissible
-      ; and it is a 5th time step or the agent is not communicating
-      ; the agent tries to move prospectively to a child-argument of the current 
+      ; and it is a 5th time step or the researcher is not communicating
+      ; the researcher tries to move prospectively to a child-argument of the current 
       ; argument that provides a defense for the current argument
       if member? myargu not-admissible[
         ask myargu [
@@ -595,15 +595,15 @@ to find-defense
               ; a) attack the attacker of the current argument;
 	      ; b) are a child-argument of the current argument;
               ; c) are discovered; and
-	      ; d) no agent from the same network is working on it
+	      ; d) no researcher from the same network is working on it
               let nextargu in-attack-neighbors with [in-discovery-neighbor?
 	        myargu and color != gray and color != turquoise and not (any?
-		agents with [xcor = [xcor] of myself and ycor = [ycor] of myself
-		and member? self [collaborator-network] of curagent])]
-              ; if such an argument exists the agent moves there
+		researchers with [xcor = [xcor] of myself and ycor = [ycor] of myself
+		and member? self [collaborator-network] of curresearcher])]
+              ; if such an argument exists the researcher moves there
               ; and cannot move anymore this time step
               if any? nextargu [
-                ask curagent [
+                ask curresearcher [
                   move-to one-of nextargu
                   set moved true
                 ]
@@ -626,16 +626,16 @@ to update-landscape
   ask turtles with [breed = arguments or breed = starts][
     let myx xcor
     let myy ycor
-    ; discoveries only occur when an agent is working on that argument, 
-    ; it is the 5th time step or the agent does not communicate
-    ; working on an argument means that the agent did 
+    ; discoveries only occur when an researcher is working on that argument, 
+    ; it is the 5th time step or the researcher does not communicate
+    ; working on an argument means that the researcher did 
     ; not communicate in that round
-    if any? turtles with [breed = agents and xcor = myx and ycor = myy and 
-      communicating = 0] or (any? turtles with [breed = agents and 
+    if any? turtles with [breed = researchers and xcor = myx and ycor = myy and 
+      communicating = 0] or (any? turtles with [breed = researchers and 
       xcor = myx and ycor = myy] and ticks mod 5 = 0)[
       set researcher-ticks researcher-ticks + 1
       
-      ; the color of an argument is changed if agents have been working
+      ; the color of an argument is changed if researchers have been working
       ; on that argument for research-speed time steps
       if researcher-ticks mod research-speed = 0 and color != red[
         set color color - 10
@@ -718,10 +718,10 @@ to update-landscape
     ]
   ]
   
-  ; at the end of the time steps 1, 2, 3 and 4 communicating agents
+  ; at the end of the time steps 1, 2, 3 and 4 communicating researchers
   ; decrease their communicating value by 1
   if ticks mod 5 != 0 [
-    ask agents with [communicating > 0][
+    ask researchers with [communicating > 0][
       set communicating communicating - 1
     ]
   ]
@@ -737,9 +737,9 @@ to full-discovery
   ask turtles with [breed = arguments or breed = starts and full-research][
     let myx xcor
     let myy ycor
-    if any? turtles with [breed = agents and xcor = myx and ycor = myy and 
+    if any? turtles with [breed = researchers and xcor = myx and ycor = myy and 
       communicating = 0] or (ticks mod 5 = 0 and any? turtles with 
-      [breed = agents and xcor = myx and ycor = myy])[
+      [breed = researchers and xcor = myx and ycor = myy])[
       
       ; once an argument is fully researched all its relations,
       ; attack and discovery, are discovered
