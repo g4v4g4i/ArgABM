@@ -81,7 +81,7 @@ end
 
 ; run-many.nls starts here
 ; the run-many procedure is used to obtain results
-; it lets the program run several times for a few 
+; it lets the program run several times for a few
 ; setups at once
 ; the results are put into a .txt file that can be
 ; used for comparison and making plots for papers/slides
@@ -96,9 +96,9 @@ to run-many
   let try 0  ; the number of the run with the same setup
   let cycle 0  ; the number of ticks
   let max-cycle 0  ; time limit for one try/run
-  ; lists that collect for each setup the percentage of 
+  ; lists that collect for each setup the percentage of
   ; discovered arguments (of the best theory)
-  let perc-disc-argu []  
+  let perc-disc-argu []
   let perc-disc-best-argu []
   let find-good-m 0  ; number of successful runs, monist
   let find-good-p 0  ; number of successful runs, pluralist
@@ -112,7 +112,7 @@ to run-many
   let disc-best-arguments 0  ; number of discovered best arguments
   let tot-best-arguments 0  ; total number of best arguments
   let jumps 0  ; number of jumps
-  
+
   ; different setups write results to different files
   ifelse network-structure = "cycle" [
     ifelse social-actions = "biased" [
@@ -161,8 +161,8 @@ to run-many
   ]
   ]
   ]
-  
-  ; the settings from the interface are 
+
+  ; the settings from the interface are
   ; written in the .txt files
   file-write "New run for results times "
   file-print date-and-time
@@ -193,14 +193,14 @@ to run-many
   file-print ""
   file-write "Network structure of the collaborator-networks: "
   file-print network-structure
-  file-print "" 
+  file-print ""
   file-print "actions, within theory: "
   file-print social-actions
   file-print within-theory
   file-print ""
   file-print ""
   file-print ""
-  
+
   while [number-of-theories-many != 4][
     while [theory-depth-many != 4][
       set setup-time []
@@ -213,10 +213,10 @@ to run-many
       create-discovery-landscape number-of-theories-many theory-depth-many
       set tot-arguments count turtles with [breed = arguments or breed = starts]
       set max-cycle precision (15 * tot-arguments) -3
-      
+
       while [scientists-many <= 100][
-        while [try != 100][ 
-          
+        while [try != 100][
+
           ; to keep track of the current setup of the run
           write "#theories, depth, scientists, actions, structure, within-theory, try: "
           print ""
@@ -227,18 +227,18 @@ to run-many
           show network-structure
           show within-theory
           show try
-          
+
           setup-many
           set cycle 1
           go
-          ; the program is stopped once all researchers are working 
+          ; the program is stopped once all researchers are working
           ; on a fully discovered theory
           while [cycle != max-cycle and any? arguments with [color != red and
             [myscientists] of mytheory !=  0]][
             go
             set cycle cycle + 1
           ]
-          
+
           set steps-needed lput cycle steps-needed
           ; compute researcher distribution over the theories
           ask starts [
@@ -255,7 +255,7 @@ to run-many
           ask researchers [
             set jumps times-jumped + jumps
           ]
-          
+
           ; for the computation of the output
           set disc-arguments count turtles with [(breed = arguments or
 	    breed = starts) and color != gray and color != turquoise]
@@ -273,7 +273,7 @@ to run-many
           set share-structure []
           set try try + 1
         ]
-        
+
         ; add the results from the current setup to the
         ; list of already obtained results
         set setup-time lput mean steps-needed setup-time
@@ -287,7 +287,7 @@ to run-many
 	  setup-discovered-best
         set setup-jumps lput ((jumps / try) / scientists-many)
 	  setup-jumps
-        
+
         ; reset some of the variables
         set try 0
         set perc-disc-argu []
@@ -305,7 +305,7 @@ to run-many
         set scientists-many scientists-many + 30
         ]
       ]
-      
+
       ; add the results to the file
       file-write "Time, successful, discovered, discovered of best, jumps: "
       file-print ""
@@ -421,13 +421,13 @@ end
 ; the setup for a run-many
 to setup-many
   ; instead of clear-all, the globals should not be cleared
-	setupcore task [
+	setupcore [ [] ->
 		clear-turtles
 		clear-patches
 		clear-drawing
 		clear-all-plots
 		clear-output
-	]
+	 ]
 	number-of-theories-many theory-depth-many scientists-many
 end
 ;run-many.nls ends here
@@ -456,26 +456,26 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
 		set lastalist []
 		set lastblist []
 		set lastalistafter []
-	]	
+	]
 end
 
 ; the setup for a normal run
 to setup
-	setupcore task [clear-all] number-of-theories theory-depth scientists
+	setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
 end
 
 
-; procedure in which the variables that are not mentioned 
+; procedure in which the variables that are not mentioned
 ; in the interface can be set
 to initialize-hidden-variables
   ; the number of arguments that an researcher can learn
   ; each tick
   set max-learn 10
- 
+
   ; the probability that researchers move every round is
   ; only small-movement * move-probability
   set small-movement 0.2
- 
+
   ; influence color on move probability
   set color-move 200
 end
@@ -490,7 +490,7 @@ to create-discovery-landscape [numberoftheories theorydepth]
   ; at the start arguments and starts are a circle
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
-  
+
   repeat numberoftheories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
@@ -512,11 +512,11 @@ to create-discovery-landscape [numberoftheories theorydepth]
       ]
       set i i + 1
     ]
-    
+
     ; with the created turtles (arguments and roots)
     ; trees are build, one for each start/root
     create-discovery-trees
-    
+
     ask starts [ ; to make sure that all theories are visible
       create-starters-with other starts [set color black]
       set current-start false
@@ -578,10 +578,10 @@ end
 to define-attack-relation
   ; first the random attacks are defined
   define-attack-relation-create-attacks
-  
+
   ; then the best theory defends itself
   define-attack-relation-defend-best
-  
+
   ; the arguments and relations are spread over the patches
   define-attack-relation-visualize
 end
@@ -603,7 +603,7 @@ to define-attack-relation-create-attacks
       set starts-list lput who starts-list
     ]
     set starts-list sort starts-list
-    
+
     ; with attack-probability-2nd from the interface an attack towards
     ; the current argument is created
     ifelse number-of-theories = 2[
@@ -616,7 +616,7 @@ to define-attack-relation-create-attacks
             ]
       ]
     ][
-    
+
     ; when there are three theories both attack-probability-2nd and -3rd are
     ; considered to create attacks, depending on the theory the current argument
     ; belongs to first for the third theory
@@ -641,7 +641,7 @@ to define-attack-relation-create-attacks
     ]
     ]
     ]
-    
+
     ; if the current argument belongs to the objective best theory
     ; an attack towards this argument is created with attack-probability-best
     if attack-random < attack-probability-best and curtheory = start 0 [
@@ -666,7 +666,7 @@ to define-attack-relation-defend-best
     mytheory = start 0][
     ; variable for the current argument
     let askargu self
-    
+
     if any? in-attack-neighbors [
       ask in-attack-neighbors [
         ; variable for the attacking argument, if such an argument exists
@@ -691,7 +691,7 @@ end
 
 
 
-; creates the visible tree, centered around 
+; creates the visible tree, centered around
 ; the root of the best theory
 to define-attack-relation-visualize
   layout-radial
@@ -709,11 +709,11 @@ end
 ; and they are distributed randomly over the theories
 to distribute-researchers [scientistsno]
   set-default-shape researchers "person"
-  
+
   ; the right number of researchers is created
   ; and the researcher variables are initialized
   researchers-create-scientists scientistsno
-  
+
   ; create the network of collaborators
   ; if in the interface "within-theory" is on, collaborative networks are created
   ; among researchers that start from the same theory
@@ -723,12 +723,12 @@ to distribute-researchers [scientistsno]
   ][
   ; if "within-theory" is off in the interface, random collaborative networks
   ; are created, all of size 5
-  distribute-researchers-within-theory-off    
+  distribute-researchers-within-theory-off
   ]
-  
+
   ; the memory of the researchers is created
   researchers-create-memory
-  
+
   ; the networks in which researchers share with other groups is created
   create-networks
 end
@@ -744,7 +744,7 @@ to researchers-create-scientists [scientistsno]
     ; and start on one of the roots
     set color blue
     move-to one-of starts
-    
+
     ; the researcher-own variables are initialized
     set collaborator-network []
     set subjective-relations []
@@ -753,7 +753,7 @@ to researchers-create-scientists [scientistsno]
     set communicating 0
     set moved false
     set rep-researcher false
-    
+
     ; an researcher is always aware of all the theories
     ; the information the researcher has about a theory
     ; is collected in current-theory-info which has
@@ -784,7 +784,7 @@ to researchers-create-memory
     let myx xcor
     let myy ycor
     let cur-theory one-of starts with [xcor = myx and ycor = myy]
-    
+
     ; the current theory is added to the subjective-arguments list:
     ; [[(start x) lime]]
     let add-cur []
@@ -808,7 +808,7 @@ to distribute-researchers-within-theory-on
     let myx xcor
     let myy ycor
     let cur-col []
-    
+
     ; while there are more than five researchers on the root without a network
     ; networks of exactly five researchers are created
     if any? researchers with [xcor = myx and ycor = myy and
@@ -866,19 +866,19 @@ end
 ; it computes for every theory the number of
 ; researchers working on it
 to compute-popularity
-  ; initialize the variable at 0 
+  ; initialize the variable at 0
   ask starts [ set myscientists 0 ]
-  
+
   ask researchers [
     ; variables for x and y coordinate of the current researcher,
-    ; the argument it is currently working on and the 
+    ; the argument it is currently working on and the
     ; theory this argument belongs to
     let myx xcor
     let myy ycor
     let myargu one-of turtles with [(breed = starts or breed = arguments) and
       xcor = myx and ycor = myy]
     let mystart [mytheory] of myargu
-    
+
     ; the myscientists variable of the theory the researcher
     ; is working on is increased by one
     ask mystart [
@@ -900,25 +900,25 @@ to create-networks
   ; an entry in share-structure starts with the network that
   ; is the network that initializes the sharing
   set share-structure []
-  
+
   ; list of all sorted collaborator-networks
   let networks []
   ask researchers [
     set networks lput sort collaborator-network networks
   ]
   set colla-networks remove-duplicates networks
-  
+
   ; in the case that the choice in the interface is cycle
   ifelse network-structure = "cycle" [
     let connect-networks colla-networks
-    
+
     ; when there are only two collaborator-networks
     ; they always share with each other
     ifelse length colla-networks = 2 [
       set share-structure lput colla-networks share-structure
       set share-structure lput reverse colla-networks share-structure
-    ][ 
-    
+    ][
+
     ; in all other cases networks share with two neighboring networks
     ; for three networks this is still a complete case
     while [length connect-networks > 2] [
@@ -941,16 +941,16 @@ to create-networks
       set to-add-structure lput first connect-networks to-add-structure
       set connect-networks remove-item 0 connect-networks
       set to-add-structure lput first but-first connect-networks to-add-structure
-      set share-structure lput to-add-structure share-structure 
+      set share-structure lput to-add-structure share-structure
       ]
     ]
     ]
   ][
-  
+
   ; in the case that the choice in the interface is wheel
   ifelse network-structure = "wheel" [
     let connect-networks colla-networks
-    
+
     ; when there are only two or three collaborator-networks
     ; they always share with each other
     ifelse length colla-networks < 4 [
@@ -963,17 +963,17 @@ to create-networks
         set add-colla-networks lput last colla-networks add-colla-networks
         set share-structure lput add-colla-networks share-structure
       ]
-    ][ 
-    
+    ][
+
     ; the first network is defined to be the royal family:
     ; the network that shares with all other networks
     let middle first connect-networks
     set connect-networks remove-item 0 connect-networks
     let add-middle []
     set add-middle lput middle add-middle
-    foreach connect-networks [
-      if ? != middle [
-        set add-middle lput ? add-middle
+    foreach connect-networks [ [?1] ->
+      if ?1 != middle [
+        set add-middle lput ?1 add-middle
       ]
     ]
     ; the other networks are put in a cycle, with the
@@ -1002,22 +1002,22 @@ to create-networks
       set share-structure lput to-add-structure share-structure
       ]
     ]
-    
+
     ; the first entry of share-structure is the royal family entry
     set share-structure fput add-middle share-structure
     ]
   ][
-  
+
   ; the other cases: a completely connected graph
-  ; for each collaborator-network an entry is created with at the 
+  ; for each collaborator-network an entry is created with at the
   ; first position the network and then all others
-  foreach colla-networks [
-    let cur-network ? 
+  foreach colla-networks [ [?1] ->
+    let cur-network ?1
     let to-add-structure []
     set to-add-structure lput cur-network to-add-structure
-    foreach colla-networks [
-      if ? != cur-network [
-        set to-add-structure lput ? to-add-structure
+    foreach colla-networks [ [??1] ->
+      if ??1 != cur-network [
+        set to-add-structure lput ??1 to-add-structure
       ]
     ]
     set share-structure lput to-add-structure share-structure
@@ -1064,26 +1064,26 @@ to calc-global-admiss-core [vis] ;vis for visibility
    set args-cur-arguments lput self args-cur-arguments
 	 set subjective-arguments2 lput self subjective-arguments2
   ]
-  foreach current-theory-info2 [
-   set new-info lput replace-item 1 ? 0 new-info
+  foreach current-theory-info2 [ [?1] ->
+   set new-info lput replace-item 1 ?1 0 new-info
   ]
 	set current-theory-info2 new-info
- 
+
  ; the computation of the admissible arguments is done recursively
  ; a list of arguments that are currently considered attacked
 	let open-rec []
     ; variable that lets the loop run at least one time
   let i 0
-  foreach current-theory-info2 [
+  foreach current-theory-info2 [ [?1] ->
   ; the theory that is considered in this loop
   ; and the root of that theory (the start)
-		let cur-theory ?
+		let cur-theory ?1
     let askstart item 0 cur-theory
     while [ i < 1 or not empty? open-rec][
 			set not-admissible sentence not-admissible open-rec
       set open-rec []
       set attacked-by-me []
-        
+
       ; create a list of arguments that are attacked by the current theory
       ; based on the memory of the current researcher
       if not empty? attack-relations [
@@ -1093,23 +1093,23 @@ to calc-global-admiss-core [vis] ;vis for visibility
 					; attacked by that argument
 						let cur-turtle self
 						let my-attacked []
-						foreach attack-relations [
-							if [end1] of ? = cur-turtle [
-								set my-attacked lput [end2] of ? my-attacked
+						foreach attack-relations [ [??1] ->
+							if [end1] of ??1 = cur-turtle [
+								set my-attacked lput [end2] of ??1 my-attacked
 							]
-						]
+						 ]
 						set attacked-by-me sentence my-attacked attacked-by-me
 					]
 				]
-          
+
         ; arguments that are attacked by arguments from another theory that are
         ; not attacked by non-attacked arguments from the current theory
         ; are added to the open-rec list, the list of attacked-arguments
         ask turtles with [member? self args-cur-arguments and mytheory = askstart and not member? self not-admissible and member? self cur-attacked][
           let cur-turtle self
-          foreach attack-relations [
-            if [end2] of ? = cur-turtle [
-              if not member? [end1] of ? attacked-by-me [
+          foreach attack-relations [ [??1] ->
+            if [end2] of ??1 = cur-turtle [
+              if not member? [end1] of ??1 attacked-by-me [
                 set open-rec lput cur-turtle open-rec
               ]
             ]
@@ -1119,34 +1119,34 @@ to calc-global-admiss-core [vis] ;vis for visibility
       set i i + 1
     ]
     set i 0
-      
+
     ; for the update of the information in current-theory-info
     set new-cur-info lput replace-item 1 cur-theory (count turtles with [member? self args-cur-arguments and mytheory = askstart] - count turtles with [member? self not-admissible and mytheory = askstart]) new-cur-info
   ]
-    
+
     ; arguments that are part of the not-admissible list
     ; are not part of the admissible subjective arguments and hence removed
     set admissible-subj-argu2 subjective-arguments2
-    foreach subjective-arguments2 [
-			let cur-argu ?
+    foreach subjective-arguments2 [ [?1] ->
+			let cur-argu ?1
 			if member? cur-argu not-admissible [
 				set admissible-subj-argu2 remove cur-argu admissible-subj-argu2
 			]
-		]
-		
+		 ]
+
     ; update the current-theory-info
     set current-theory-info2 new-cur-info
-		set ctiho sort-by [item 0 ? < item 0 ?2] current-theory-info2
+		set ctiho sort-by [ [?1 ?2] -> item 0 ?1 < item 0 ?2 ] current-theory-info2
 end
 
 
 ; cadmis= calc-admissibility input can be red for the discovered landscape or
 ; anything else (e.g. 1) for the general landscape
-to cadmis [input] 
+to cadmis [input]
 	ifelse input = red [
-		calc-global-admiss-core task [color != gray]
+		calc-global-admiss-core [ [] -> color != gray ]
 	][
-		calc-global-admiss-core task [true]
+		calc-global-admiss-core [ [] -> true ]
 	]
 end
 
@@ -1177,7 +1177,7 @@ to test1
 		set cur-attacked lput end2 cur-attacked
 	]
   print cur-attacked
-	
+
 end
 
 to test2 ; one random researcher shows her attack-relations
@@ -1186,54 +1186,54 @@ to test2 ; one random researcher shows her attack-relations
     ; the current-theory-info with 0 admissible arguments; an updated number
     ; of admissible arguments during the recursive computation; the arguments
     ; that are not admissible; the arguments that the researchers knows about; and
-    ; the arguments that are attacked by the current theory 
+    ; the arguments that are attacked by the current theory
     let new-info []
     let new-cur-info []
     let not-admissible []
     let args-cur-arguments []
     let attacked-by-me []
-    
+
     ; create a list of only the attacks
     let attack-relations []
-    foreach subjective-relations [
-      if first ? = "a" [
-        set attack-relations lput ? attack-relations
+    foreach subjective-relations [ [?1] ->
+      if first ?1 = "a" [
+        set attack-relations lput ?1 attack-relations
       ]
     ]
 		show attack-relations
     ; create lists of attacked and attacking arguments
     let cur-attacked []
     let cur-attacker []
-    foreach attack-relations [
-      set cur-attacked lput last ? cur-attacked
-      set cur-attacker lput first but-first ? cur-attacker
+    foreach attack-relations [ [?1] ->
+      set cur-attacked lput last ?1 cur-attacked
+      set cur-attacker lput first but-first ?1 cur-attacker
     ]
-    
-    ; create a list of the arguments the researchers knows about and 
+
+    ; create a list of the arguments the researchers knows about and
     ; set the number of admissible arguments for each theory to 0
-    foreach subjective-arguments [
-      set args-cur-arguments lput first ? args-cur-arguments
+    foreach subjective-arguments [ [?1] ->
+      set args-cur-arguments lput first ?1 args-cur-arguments
     ]
-    foreach current-theory-info [
-      set new-info lput replace-item 1 ? 0 new-info
+    foreach current-theory-info [ [?1] ->
+      set new-info lput replace-item 1 ?1 0 new-info
     ]
     set current-theory-info new-info
-    
+
     ; the computation of the admissible arguments is done recursively
     ; a list of arguments that are currently considered attacked
     let open-rec []
     ; variable that lets the loop run at least one time
     let i 0
-    foreach current-theory-info [
+    foreach current-theory-info [ [?1] ->
       ; the theory that is considered in this loop
       ; and the root of that theory (the start)
-      let cur-theory ?
+      let cur-theory ?1
       let askstart item 0 cur-theory
       while [ i < 1 or not empty? open-rec][
         set not-admissible sentence not-admissible open-rec
         set open-rec []
         set attacked-by-me []
-        
+
         ; create a list of arguments that are attacked by the current theory
         ; based on the memory of the current researcher
         if not empty? attack-relations [
@@ -1244,15 +1244,15 @@ to test2 ; one random researcher shows her attack-relations
               ; attacked by that argument
               let cur-turtle self
               let my-attacked []
-              foreach attack-relations [
-                if first but-first ? = cur-turtle [
-                  set my-attacked lput last ? my-attacked
+              foreach attack-relations [ [??1] ->
+                if first but-first ??1 = cur-turtle [
+                  set my-attacked lput last ??1 my-attacked
                 ]
               ]
               set attacked-by-me sentence my-attacked attacked-by-me
             ]
           ]
-          
+
           ; arguments that are attacked by arguments from another theory that are
           ; not attacked by non-attacked arguments from the current theory
           ; are added to the open-rec list, the list of attacked-arguments
@@ -1260,9 +1260,9 @@ to test2 ; one random researcher shows her attack-relations
 	          mytheory = askstart and not member? self not-admissible and
 	          member? self cur-attacked][
           let cur-turtle self
-          foreach attack-relations [
-            if last ? = cur-turtle [
-              if not member? last but-last ? attacked-by-me [
+          foreach attack-relations [ [??1] ->
+            if last ??1 = cur-turtle [
+              if not member? last but-last ??1 attacked-by-me [
                 set open-rec lput cur-turtle open-rec
               ]
             ]
@@ -1272,19 +1272,19 @@ to test2 ; one random researcher shows her attack-relations
         set i i + 1
       ]
       set i 0
-      
+
       ; for the update of the information in current-theory-info
       set new-cur-info lput replace-item 1 cur-theory (count turtles with
         [member? self args-cur-arguments and mytheory = askstart] -
 	      count turtles with [member? self not-admissible and mytheory = askstart])
 	        new-cur-info
     ]
-    
+
     ; arguments that are part of the not-admissible list
     ; are not part of the admissible subjective arguments and hence removed
     set admissible-subj-argu subjective-arguments
-    foreach subjective-arguments [
-      let cur-argu ?
+    foreach subjective-arguments [ [?1] ->
+      let cur-argu ?1
       if member? first cur-argu not-admissible [
         set admissible-subj-argu remove cur-argu admissible-subj-argu
       ]
@@ -1296,9 +1296,9 @@ end
 
 to test3 [input]
 	ifelse input = red [
-		calc-global-admiss-core task [color != gray]
+		calc-global-admiss-core [ [] -> color != gray ]
 	][
-		calc-global-admiss-core task [true]
+		calc-global-admiss-core [ [] -> true ]
 	]
 end
 
@@ -1330,10 +1330,10 @@ end
 to define-attack-relation-error
   ; first the random attacks are defined
   define-attack-relation-create-attacks-error
-  
+
   ; then the best theory defends itself
   define-attack-relation-defend-best
-  
+
   ; the arguments and relations are spread over the patches
   define-attack-relation-visualize
 end
@@ -1351,7 +1351,7 @@ to define-attack-relation-create-attacks-error
       set starts-list lput who starts-list
     ]
     set starts-list sort starts-list
-    
+
     ; with attack-probability-2nd from the interface an attack towards
     ; the current argument is created
     ifelse number-of-theories = 2[
@@ -1364,7 +1364,7 @@ to define-attack-relation-create-attacks-error
             ]
       ]
     ][
-    
+
     ; when there are three theories both attack-probability-2nd and -3rd are
     ; considered to create attacks, depending on the theory the current argument
     ; belongs to first for the third theory
@@ -1389,7 +1389,7 @@ to define-attack-relation-create-attacks-error
     ]
     ]
     ]
-    
+
     ; if the current argument belongs to the objective best theory
     ; an attack towards this argument is created with attack-probability-best
     if attack-random < attack-probability-best and curtheory = start 0 [
@@ -1443,7 +1443,7 @@ to check-full-adm [times]
 	file-close-all
 end
 
-to test6 
+to test6
 	let i 0
 	repeat 10 [
 		set i (i + 1)
@@ -1451,7 +1451,7 @@ to test6
 	print i
 end
 
-to profilecore [repetitions go-version]               
+to profilecore [repetitions go-version]
 	profiler:start         ;; start profiling
 	repeat repetitions [ run go-version ]       ;; run something you want to measure
 	profiler:stop          ;; stop profiling
@@ -1461,16 +1461,16 @@ end
 
 to profile [repetitions version]
 	let go-version 0
-	if version = "old" [set go-version task go]
-	if version = "v1" [set go-version task go-test-v1]
-	if version = "v2" [set go-version task go-test-v2]
-	if version = "v31" [set go-version task go-test-v31]
-	if version = "v32" [set go-version task go-test-v32]
-	if version = "old3" [set go-version task go-test-oldv3]
-	if version = "v41" [set go-version task go-test-v41]
-	if version = "v51" [set go-version task go-test-v51]
-	if version = "v61" [set go-version task go-test-v61]
-	if version = "v71" [set go-version task go-test-v71]
+	if version = "old" [set go-version [ [] -> go ]]
+	if version = "v1" [set go-version [ [] -> go-test-v1 ]]
+	if version = "v2" [set go-version [ [] -> go-test-v2 ]]
+	if version = "v31" [set go-version [ [] -> go-test-v31 ]]
+	if version = "v32" [set go-version [ [] -> go-test-v32 ]]
+	if version = "old3" [set go-version [ [] -> go-test-oldv3 ]]
+	if version = "v41" [set go-version [ [] -> go-test-v41 ]]
+	if version = "v51" [set go-version [ [] -> go-test-v51 ]]
+	if version = "v61" [set go-version [ [] -> go-test-v61 ]]
+	if version = "v71" [set go-version [ [] -> go-test-v71 ]]
 	profilecore repetitions go-version
 end
 
@@ -1479,15 +1479,15 @@ to duplicate-remover-test
   ask researchers [
     ; list of arguments of which the duplicates will be removed
     let new-args subjective-arguments
-    foreach new-args [
+    foreach new-args [ [?1] ->
       ; the argument of the current entry and its color
-      let argu first ?
-      let my-color first but-first ?
+      let argu first ?1
+      let my-color first but-first ?1
       ; list of entries with the same argument, but maybe different color
-      let color-argu filter [first ? = argu] new-args
+      let color-argu filter [ [??1] -> first ??1 = argu ] new-args
       ; remove entries of arguments that are also present as
       ; better researched entries
-      set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
+      set color-argu sort-by [ [??1 ??2] -> first but-first ??1 < first but-first ??2 ] color-argu
       while [length color-argu != 1] [
 				show "idiots!"
 				show (word "last a list: ")
@@ -1506,13 +1506,13 @@ to duplicate-remover-test
 end
 
 to analize-list [inputlist]
-	foreach inputlist [
-		let temp ?
-		foreach temp [
-		show ?
-		]
+	foreach inputlist [ [?1] ->
+		let temp ?1
+		foreach temp [ [??1] ->
+		show ??1
+		 ]
 		show ""
-	]
+	 ]
 end
 
 to update-memories-test
@@ -1532,7 +1532,7 @@ to update-memories-test
     ; list of neighborhood arguments of the current argument
     set neighborargs []
     set neighborargs lput cur-argum neighborargs
-    
+
     ; for the current argument
     ; add the neighboring discovered arguments and relations
     ; (attacks and discovery) to a to-add list
@@ -1554,7 +1554,7 @@ to update-memories-test
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
@@ -1573,7 +1573,7 @@ to update-memories-test
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-     
+
       ; add the parent argument of the attack relation
       if any? my-in-attacks with [color != gray][
         ask my-in-attacks with [color != gray][
@@ -1592,7 +1592,7 @@ to update-memories-test
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the attack relation
       if any? my-out-attacks with [color != gray][
         ask my-out-attacks with [color != gray][
@@ -1612,11 +1612,11 @@ to update-memories-test
         ]
       ]
     ]
-    
+
     ; remove duplicates from the list
     set subjective-relations remove-duplicates sentence
       subjective-relations to-add
-		; show subjective-arguments	
+		; show subjective-arguments
 		; foreach to-add-argu [
 			; let argu first ?
 			; ; show ?
@@ -1631,9 +1631,9 @@ to update-memories-test
 					; ; show argument-position
 					; ; remove entries of arguments that are also present as
 					; ; better researched entries
-					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu 
+					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
 					; if argument-position != false [
-						
+
 						; ; show (word "replacing position " argument-position " with " ?)
 						; set subjective-arguments replace-item argument-position subjective-arguments ?
 					; ]
@@ -1649,13 +1649,13 @@ to update-memories-test
 	set subjective-arguments (merge-arg-wo-duplicates subjective-arguments to-add-argu false)
 	set flag-updated-memory true
   ]
-  
+
   ; every 5 plus 4 time-steps the collected information
   ; is shared with other researchers
   if ticks mod 5 = 4 [
    share-with-others-test
-  ] 
-  
+  ]
+
 end
 
 
@@ -1676,7 +1676,7 @@ to update-memories-test2
     ; list of neighborhood arguments of the current argument
     set neighborargs []
     set neighborargs lput cur-argum neighborargs
-    
+
     ; for the current argument
     ; add the neighboring discovered arguments and relations
     ; (attacks and discovery) to a to-add list
@@ -1698,7 +1698,7 @@ to update-memories-test2
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
@@ -1717,7 +1717,7 @@ to update-memories-test2
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-     
+
       ; add the parent argument of the attack relation
       if any? my-in-attacks with [color != gray][
         ask my-in-attacks with [color != gray][
@@ -1736,7 +1736,7 @@ to update-memories-test2
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the attack relation
       if any? my-out-attacks with [color != gray][
         ask my-out-attacks with [color != gray][
@@ -1756,11 +1756,11 @@ to update-memories-test2
         ]
       ]
     ]
-    
+
     ; remove duplicates from the list
     set subjective-relations remove-duplicates sentence
       subjective-relations to-add
-		; show subjective-arguments	
+		; show subjective-arguments
 		; foreach to-add-argu [
 			; let argu first ?
 			; ; show ?
@@ -1775,9 +1775,9 @@ to update-memories-test2
 					; ; show argument-position
 					; ; remove entries of arguments that are also present as
 					; ; better researched entries
-					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu 
+					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
 					; if argument-position != false [
-						
+
 						; ; show (word "replacing position " argument-position " with " ?)
 						; set subjective-arguments replace-item argument-position subjective-arguments ?
 					; ]
@@ -1793,13 +1793,13 @@ to update-memories-test2
 	set subjective-arguments (merge-arg-wo-duplicates subjective-arguments to-add-argu false)
 	set flag-updated-memory true
   ]
-  
+
   ; every 5 plus 4 time-steps the collected information
   ; is shared with other researchers
   if ticks mod 5 = 4 [
    share-with-others-test2
-  ] 
-  
+  ]
+
 end
 
 
@@ -1819,49 +1819,49 @@ to-report merge-arg-wo-duplicates [alist blist flag]
 	; if flag [
 		; ; set blist list-cleaner blist
 	; ]
-	foreach blist [
-		let argu first ?
+	foreach blist [ [?1] ->
+		let argu first ?1
 		; show ?
-		let my-color item 1 ?
+		let my-color item 1 ?1
 		; list of entries with the same argument, but maybe different color
 		if flag [
-			let duplicate-check filter [first ? = argu] blist		
-			foreach duplicate-check [
-				if item 1 ? > my-color [
-					set blist remove ? blist
+			let duplicate-check filter [ [??1] -> first ??1 = argu ] blist
+			foreach duplicate-check [ [??1] ->
+				if item 1 ??1 > my-color [
+					set blist remove ??1 blist
 				]
-			]
+			 ]
 		]
-		let argu-old filter [first ? = argu] alist
+		let argu-old filter [ [??1] -> first ??1 = argu ] alist
 		; show argu-old
 		if not empty? argu-old [
 			set argu-old item 0 argu-old
-			
-			if my-color < item 1 argu-old [		
-			let argument-position position argu-old alist			
+
+			if my-color < item 1 argu-old [
+			let argument-position position argu-old alist
 				; show argument-position
 				; remove entries of arguments that are also present as
 				; better researched entries
-				; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu 
+				; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
 				if argument-position != false [
-					
+
 					; show (word "replacing position " argument-position " with " ?)
-					set alist replace-item argument-position alist ?
+					set alist replace-item argument-position alist ?1
 				]
 			]
 			if my-color >= item 1 argu-old [
-				set blist remove ? blist
+				set blist remove ?1 blist
 				;show (word my-color " " item 1 argu-old)
 				;show (word "removed " ? " from " blist)
 				; let argument-position position argu-old blist
 				; set blist remove-item argument-position blist
-				;set blist replace-item argument-position blist 
+				;set blist replace-item argument-position blist
 			]
 		]
-	]
+	 ]
   set alist remove-duplicates sentence
       alist blist
-	
+
 	; set lastalistafter lput alist lastalistafter
 	; if length lastalistafter > 2 [
 		; set lastalistafter remove-item 0 lastalistafter
@@ -1870,38 +1870,38 @@ to-report merge-arg-wo-duplicates [alist blist flag]
 end
 
 to test-test [argu blist]
-	let duplicate-check filter [first ? = argu] blist		
+	let duplicate-check filter [ [?1] -> first ?1 = argu ] blist
 end
 
 to-report list-cleaner [blist]
 	let i 0
 	let help []
 	let blisth []
-	foreach blist [
-		set help lput 0 help	
-		set blisth lput sentence ? i blisth
+	foreach blist [ [?1] ->
+		set help lput 0 help
+		set blisth lput sentence ?1 i blisth
 		set i i + 1
-	]
+	 ]
 
 	set i 0
-	foreach blist [
+	foreach blist [ [?1] ->
 		if item i help != 1 [
-			let argu first ?
+			let argu first ?1
 			; show ?
-			let my-color item 1 ?
+			let my-color item 1 ?1
 			; list of entries with the same argument, but maybe different color
 				test-test argu blist
-				let duplicate-check filter [first ? = argu] blisth		
-				foreach duplicate-check [
-					let argpos item 2 ? 
+				let duplicate-check filter [ [??1] -> first ??1 = argu ] blisth
+				foreach duplicate-check [ [??1] ->
+					let argpos item 2 ??1
 					set help replace-item argpos help 1
-					if item 1 ? > my-color [
-						set blist remove ? blist
+					if item 1 ??1 > my-color [
+						set blist remove ??1 blist
 					]
-				]
+				 ]
 			]
 		set i i + 1
-		]
+		 ]
 		report blist
 
 end
@@ -1910,7 +1910,7 @@ to go-test-v2
   ; update-memories-test
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
     update-memories-test
 		compute-strategies-researchers
@@ -1929,7 +1929,7 @@ to go-test-v32
   ; update-memories-test
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
     update-memories-test
 		compute-strategies-researchers-test
@@ -1948,7 +1948,7 @@ to go-test-v1
   update-memories-test
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
     ; update-memories-test
 		compute-strategies-researchers
@@ -1964,7 +1964,7 @@ to go-test-v31
   update-memories-test
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
     ; update-memories-test
 		compute-strategies-researchers-test
@@ -1993,7 +1993,7 @@ to go-test-v41
   update-memories-test2
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
     ; update-memories-test
 		compute-strategies-researchers-test
@@ -2010,7 +2010,7 @@ to go-test-v51
 
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
 		share-with-others-test5
 		create-share-memory-test5
@@ -2032,7 +2032,7 @@ to go-test-v61
 
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
 		share-with-others-test5
 		create-share-memory-test5
@@ -2054,7 +2054,7 @@ to go-test-v71
 
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
-	; ]  
+	; ]
   if ticks mod 5 = 4 [
 		share-with-others-test5
 		create-share-memory-test7
@@ -2114,8 +2114,8 @@ to setuprs [rs]
 		set conference-attended false
 		set to-add-mem-argu []
 		set to-add-mem-rel []
-		
-	]	
+
+	]
 end
 
 
@@ -2124,10 +2124,10 @@ end
 to share-with-others-test
   ask researchers [
     ; reset the variables
-    set rep-researcher false 
+    set rep-researcher false
     set to-add-mem-argu []
     set to-add-mem-rel []
-    
+
     ; variables to keep track of the current researchers own memory
     ; and the combined memory of all the sharing researchers
     ; let own-memory-argu subjective-arguments
@@ -2136,50 +2136,50 @@ to share-with-others-test
     let comb-memory-rel []
     ; collaborator network of the current researcher
     let cur-network collaborator-network
-    
+
     ; the information in the memories of the single researchers in the network
-    ; are combined 
+    ; are combined
     ask turtles with [member? self cur-network] [
       set comb-memory-argu sentence subjective-arguments comb-memory-argu
       set comb-memory-rel sentence subjective-relations comb-memory-rel
     ]
-    
+
     ; each researcher adds the combined memory to its own
     ; then removing duplicates
 		set subjective-arguments (merge-arg-wo-duplicates subjective-arguments comb-memory-argu true)
     set subjective-relations remove-duplicates sentence
       subjective-relations comb-memory-rel
   ]
-  
-  ; then researchers can share some of their information with researchers 
+
+  ; then researchers can share some of their information with researchers
   ; from neighboring networks in the social structures
   create-share-memory-test
   share-with-other-networks-test
-  
+
 end
 
 
 
 
 to create-share-memory-test
-  
+
   ; for each collaborator-network one researcher is set to be
   ; the representative researcher
-  foreach colla-networks [
-    ifelse length ? > 1 [
-      ask one-of researchers with [member? self ?][
+  foreach colla-networks [ [?1] ->
+    ifelse length ?1 > 1 [
+      ask one-of researchers with [member? self ?1][
         set rep-researcher true
-      ] 	
+      ]
     ][
     if ticks mod 25 = 4 [
-      ask one-of researchers with [member? self ?][
+      ask one-of researchers with [member? self ?1][
         set rep-researcher true
       ]
     ]
     ]
   ]
-  
-  ; only the representative researchers create a memory 
+
+  ; only the representative researchers create a memory
   ; that they want to share with researchers from other networks
   ask researchers with [rep-researcher][
     let myx xcor
@@ -2188,7 +2188,7 @@ to create-share-memory-test
     ; the researcher itself and the theory it is working on
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
-    let cur-researcher self 
+    let cur-researcher self
     let cur-th [mytheory] of cur-argum
     ; create a list of arguments and a list of relations that the researcher can
     ; share with researchers from other collaborative networks
@@ -2196,30 +2196,30 @@ to create-share-memory-test
     ; from the interface
     set th-args []
     set th-relations []
-    
-    ; researchers share only information obtained in the neighborhood 
+
+    ; researchers share only information obtained in the neighborhood
     ; they are currently working on
     ; collect the arguments from the researcher's memory
     ; that belong also to the neighborargs
-    foreach subjective-arguments [
-      if member? item 0 ? [neighborargs] of cur-researcher [
-        set th-args lput ? th-args
+    foreach subjective-arguments [ [?1] ->
+      if member? item 0 ?1 [neighborargs] of cur-researcher [
+        set th-args lput ?1 th-args
       ]
     ]
     ; collect the relations from/to the current argument
     ; from the researcher's memory
-    foreach subjective-relations [
-      if item 1 ? = cur-argum or item 2 ? = cur-argum [
-        set th-relations lput ? th-relations
+    foreach subjective-relations [ [?1] ->
+      if item 1 ?1 = cur-argum or item 2 ?1 = cur-argum [
+        set th-relations lput ?1 th-relations
       ]
     ]
-    
+
     ; if the researcher behaves biased it does not share the attack relations that
     ; attack its current theory, these relations are removed
     if social-actions = "biased"[
-      foreach th-relations [
-        if item 0 ? = "a" and [mytheory] of item 2 ? = cur-th [
-          set th-relations remove ? th-relations
+      foreach th-relations [ [?1] ->
+        if item 0 ?1 = "a" and [mytheory] of item 2 ?1 = cur-th [
+          set th-relations remove ?1 th-relations
         ]
       ]
     ]
@@ -2229,7 +2229,7 @@ end
 
 
 
-to share-with-other-networks-test 
+to share-with-other-networks-test
   ask researchers with [rep-researcher][
     ; variables for the combined information (arguments and relations),
     ; the network of the current researcher and the theory it is working on
@@ -2237,32 +2237,32 @@ to share-with-other-networks-test
     let comb-memory-rel th-relations
     let cur-network sort collaborator-network
     let my-cur-theory [mytheory] of item 0 item 0 th-args
-    
-    ; create a list of the neighboring networks and then a 
+
+    ; create a list of the neighboring networks and then a
     ; list of the representative researchers of these networks
     ; which will be the researchers the current researcher shares with
     let share-researchers []
     let share-neighbors []
-    foreach share-structure [    
-      if first ? = cur-network [
-        set share-neighbors ?
+    foreach share-structure [ [?1] ->
+      if first ?1 = cur-network [
+        set share-neighbors ?1
       ]
     ]
     ask researchers with [rep-researcher][
       let cur-researcher self
-      foreach share-neighbors [
-        if member? cur-researcher ? [
+      foreach share-neighbors [ [?1] ->
+        if member? cur-researcher ?1 [
           set share-researchers lput cur-researcher share-researchers
         ]
       ]
     ]
-    
+
     ; create a list of arguments and a list of relations that is
     ; shared among the share-researchers
-    foreach share-researchers [
+    foreach share-researchers [ [?1] ->
       ; the combined memory is updated to contain that of the sharing researcher
-      set comb-memory-argu sentence comb-memory-argu [th-args] of ?
-      set comb-memory-rel sentence comb-memory-rel [th-relations] of ?
+      set comb-memory-argu sentence comb-memory-argu [th-args] of ?1
+      set comb-memory-rel sentence comb-memory-rel [th-relations] of ?1
     ]
     ; create lists of arguments/relations that have to be added
     foreach share-researchers [
@@ -2271,26 +2271,26 @@ to share-with-other-networks-test
       set to-add-mem-rel remove-duplicates sentence subjective-relations
         comb-memory-rel
     ]
-  ] 
-  
+  ]
+
   ; to compute the time that researchers have to
   ; spend on communication
-  compute-time-costs-test 
+  compute-time-costs-test
 end
 
 
 
 to compute-time-costs-test
   ask researchers with [rep-researcher][
-    
+
     ; variables that contain the arguments and relations the
     ; researcher has to update in its memory
     let new-memory-args []
     let new-memory-rel []
 		let to-add-argu []
-    set new-memory-args filter [not member? ? subjective-arguments]
+    set new-memory-args filter [ [?1] -> not member? ?1 subjective-arguments ]
       to-add-mem-argu
-    set new-memory-rel filter [not member? ? subjective-relations]
+    set new-memory-rel filter [ [?1] -> not member? ?1 subjective-relations ]
       to-add-mem-rel
     let comb-new sentence new-memory-args new-memory-rel
     ; every tick an researcher can obtain a maximum of 10 new entries
@@ -2300,8 +2300,8 @@ to compute-time-costs-test
     ][
     set communicating ((ceiling (length comb-new / max-learn)) + 1)
     ]
-    
-    ; every communication round an researcher can update a maximum of 
+
+    ; every communication round an researcher can update a maximum of
     ; 3 * max-learn new arguments/relations (corresponding to three ticks of
     ; communication) these new arguments and relations are added to the
     ; memory of the researcher
@@ -2312,8 +2312,8 @@ to compute-time-costs-test
       let repeats length comb-new - (3 * max-learn)
       while [length comb-new > repeats] [
         let cur-entr first comb-new
-        let new-mem-argargs filter [member? ? new-memory-args] comb-new
-        set new-mem-argargs map [first ?] new-mem-argargs
+        let new-mem-argargs filter [ [?1] -> member? ?1 new-memory-args ] comb-new
+        set new-mem-argargs map [ [?1] -> first ?1 ] new-mem-argargs
         ifelse member? cur-entr new-memory-args [
           set to-add-argu lput cur-entr to-add-argu
           set comb-new remove cur-entr comb-new
@@ -2322,28 +2322,28 @@ to compute-time-costs-test
         set comb-new remove cur-entr comb-new
         if member? item 1 cur-entr new-mem-argargs[
           let item-1-cur-entr item 1 cur-entr
-          foreach comb-new [
-            if item-1-cur-entr = item 0 ? [
-              set to-add-argu lput ? to-add-argu
-              set comb-new remove ? comb-new
+          foreach comb-new [ [?1] ->
+            if item-1-cur-entr = item 0 ?1 [
+              set to-add-argu lput ?1 to-add-argu
+              set comb-new remove ?1 comb-new
             ]
-          ] 
+          ]
         ]
         if member? item 2 cur-entr new-mem-argargs[
           let item-2-cur-entr item 2 cur-entr
-          foreach comb-new [
-            if item-2-cur-entr = item 0 ? [
-              set to-add-argu lput ? to-add-argu
-              set comb-new remove ? comb-new
+          foreach comb-new [ [?1] ->
+            if item-2-cur-entr = item 0 ?1 [
+              set to-add-argu lput ?1 to-add-argu
+              set comb-new remove ?1 comb-new
             ]
-          ] 
+          ]
         ]
         ]
       ]
 			set subjective-arguments (merge-arg-wo-duplicates subjective-arguments to-add-argu true)
     ][
 		set subjective-arguments (merge-arg-wo-duplicates subjective-arguments new-memory-args true)
-    set subjective-relations sentence subjective-relations new-memory-rel ;remove duplicates!? bug maybe -> probably no problem b/c remove duplicates for relations is run during "share-with-other-networks" 
+    set subjective-relations sentence subjective-relations new-memory-rel ;remove duplicates!? bug maybe -> probably no problem b/c remove duplicates for relations is run during "share-with-other-networks"
     ]
   ]
 end
@@ -2374,7 +2374,7 @@ to refresh-mem-before-move
 		; list of neighborhood arguments of the current argument
 		set neighborargs []
 		set neighborargs lput cur-argum neighborargs
-		
+
 		; for the current argument
 		; add the neighboring discovered arguments and relations
 		; (attacks and discovery) to a to-add list
@@ -2396,7 +2396,7 @@ to refresh-mem-before-move
 					set to-add-argu lput add-other to-add-argu
 				]
 			]
-			
+
 			; add the child argument of the discovery relation
 			if any? my-out-discoveries with [color != gray][
 				ask my-out-discoveries with [color != gray][
@@ -2415,7 +2415,7 @@ to refresh-mem-before-move
 					set to-add-argu lput add-other to-add-argu
 				]
 			]
-		 
+
 			; add the parent argument of the attack relation
 			if any? my-in-attacks with [color != gray][
 				ask my-in-attacks with [color != gray][
@@ -2434,7 +2434,7 @@ to refresh-mem-before-move
 					set to-add-argu lput add-other to-add-argu
 				]
 			]
-			
+
 			; add the child argument of the attack relation
 			if any? my-out-attacks with [color != gray][
 				ask my-out-attacks with [color != gray][
@@ -2454,11 +2454,11 @@ to refresh-mem-before-move
 				]
 			]
 		]
-	
+
 		; remove duplicates from the list
 		set subjective-relations remove-duplicates sentence
 			subjective-relations to-add
-		; show subjective-arguments	
+		; show subjective-arguments
 		; foreach to-add-argu [
 			; let argu first ?
 			; ; show ?
@@ -2473,9 +2473,9 @@ to refresh-mem-before-move
 					; ; show argument-position
 					; ; remove entries of arguments that are also present as
 					; ; better researched entries
-					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu 
+					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
 					; if argument-position != false [
-						
+
 						; ; show (word "replacing position " argument-position " with " ?)
 						; set subjective-arguments replace-item argument-position subjective-arguments ?
 					; ]
@@ -2496,7 +2496,7 @@ end
 to move-around-test
   ; variable to make sure that the procedure find-defense
   ; is only run once
-  let run-find-defense false 
+  let run-find-defense false
   ; at the beginning of the procedure no researcher has moved yet
   ask researchers [
     set moved false
@@ -2510,17 +2510,17 @@ to move-around-test
      ; the researcher itself
         let myargu one-of turtles with [(breed = starts or breed = arguments) and
         xcor = myx and ycor = myy]
-      
+
       ; a list of not-admissible arguments is created
       let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-        let info-not-admissible filter [not member? ? admissible-subj-argu]
+        let info-not-admissible filter [ [?1] -> not member? ?1 admissible-subj-argu ]
           subjective-arguments
-        foreach info-not-admissible [
-          set not-admissible lput item 0 ? not-admissible
+        foreach info-not-admissible [ [?1] ->
+          set not-admissible lput item 0 ?1 not-admissible
         ]
       ]
-   
+
       ; an researcher working on an attacked argument will try to find a defense for
       ; this attack, by working further on the attacked argument, unless it
       ; discoveres a child-argument that that has a defense for the attack
@@ -2528,16 +2528,16 @@ to move-around-test
       ; the find-defense runs immediately for all researchers working on a not
       ; fully researched not-admissible argument, hence it is only once executed
       if member? myargu not-admissible and not moved[
-      
+
         if not run-find-defense [
           find-defense-test
           set run-find-defense true
         ]
       ]
-    
-      if not moved and not member? myargu not-admissible or 
+
+      if not moved and not member? myargu not-admissible or
         (member? myargu not-admissible and [color] of myargu = red)[
-        
+
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
@@ -2549,7 +2549,7 @@ to move-around-test
 	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
 	  [collaborator-network] of curresearcher])] [
         let move-random random-float 1.0
-      
+
 
         ; every time step with small-movement of the move-probability
         ; the researcher moves
@@ -2562,7 +2562,7 @@ to move-around-test
   	    [collaborator-network] of curresearcher])]
           set moved true
         ][
-      
+
         ; every 5th time step the researcher mover with the full move-probability,
         ; that depends a bit on the color
         if ticks != 0 and ticks mod 5 = 0 and move-random <
@@ -2590,7 +2590,7 @@ to move-around-test
           [collaborator-network] of curresearcher]]
         set moved true
           ][
-      
+
         ; if moving back is not possible, it jumps to another argument in
         ; the same tree/theory that is discovered but not fully researched
         if [color] of myargu = red[
@@ -2611,13 +2611,13 @@ to move-around-test
           ]
             ]
       ]
-    ]	
+    ]
   ]
 end
 
 
 to find-defense-test
-  ask researchers with [not moved][    
+  ask researchers with [not moved][
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myx xcor
@@ -2626,20 +2626,20 @@ to find-defense-test
       ; for the researcher itself
       let myargu one-of turtles with [(breed = starts or breed = arguments) and
         xcor = myx and ycor = myy]
-    
+
       ; lists of arguments that are not admissible
       let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-        let info-not-admissible filter [not member? ? admissible-subj-argu]
+        let info-not-admissible filter [ [?1] -> not member? ?1 admissible-subj-argu ]
           subjective-arguments
-        foreach info-not-admissible [
-          set not-admissible lput item 0 ? not-admissible
+        foreach info-not-admissible [ [?1] ->
+          set not-admissible lput item 0 ?1 not-admissible
         ]
       ]
-    
+
       ; if the current argument is not fully researched and not admissible
       ; and it is a 5th time step or the researcher is not communicating
-      ; the researcher tries to move prospectively to a child-argument of the current 
+      ; the researcher tries to move prospectively to a child-argument of the current
       ; argument that provides a defense for the current argument
       if member? myargu not-admissible[
         ask myargu [
@@ -2680,26 +2680,26 @@ to act-on-strategy-researchers-test
     if not empty? cur-best-th and not member? nobody cur-best-th [
       let myx xcor
       let myy ycor
-      
+
       ; if the researcher is not currently working on the best theory
       ; it considers jumping
-      foreach subjective-arguments [
-        if [xcor] of item 0 ? = myx and [ycor] of item 0 ? = myy and
-        not member? [mytheory] of item 0 ? cur-best-th [
+      foreach subjective-arguments [ [?1] ->
+        if [xcor] of item 0 ?1 = myx and [ycor] of item 0 ?1 = myy and
+        not member? [mytheory] of item 0 ?1 cur-best-th [
           set theory-jump theory-jump + 1
         ]
       ]
-      
+
       ; if the researcher has considered jumping jump-threshold times
       ; it jumps to one of the theories it considers best, based
       ; on its memory and the computations
       if theory-jump >= jump-threshold [
         let ch-best one-of cur-best-th
         let subj-argus []
-        foreach subjective-arguments [
-          set subj-argus lput item 0 ? subj-argus
+        foreach subjective-arguments [ [?1] ->
+          set subj-argus lput item 0 ?1 subj-argus
         ]
-        
+
         ; if one of the arguments from the best theory is in its memory
         ; the researcher will jump there
         ifelse any? turtles with [(breed = starts or breed = arguments) and
@@ -2710,7 +2710,7 @@ to act-on-strategy-researchers-test
 					refresh-mem-before-move
           move-to ch-best
           ]
-        
+
         set times-jumped times-jumped + 1
         set theory-jump 0
       ]
@@ -2720,12 +2720,12 @@ end
 
 
 to compute-subj-attacked-test
-	foreach colla-networks [
+	foreach colla-networks [ [?1] ->
 		let calc-done false
 		let calc-researcher []
-		let cur-group ?
-		foreach cur-group [
-			let cur-researcher ?
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
 			if not [rep-researcher] of cur-researcher [
 				ifelse calc-done [
 					ask cur-researcher [
@@ -2740,53 +2740,53 @@ to compute-subj-attacked-test
 						; the current-theory-info with 0 admissible arguments; an updated number
 						; of admissible arguments during the recursive computation; the arguments
 						; that are not admissible; the arguments that the researchers knows about; and
-						; the arguments that are attacked by the current theory 
+						; the arguments that are attacked by the current theory
 						let new-info []
 						let new-cur-info []
 						let not-admissible []
 						let args-cur-arguments []
 						let attacked-by-me []
-						
+
 						; create a list of only the attacks
 						let attack-relations []
-						foreach subjective-relations [
-							if first ? = "a" [
-								set attack-relations lput ? attack-relations
+						foreach subjective-relations [ [???1] ->
+							if first ???1 = "a" [
+								set attack-relations lput ???1 attack-relations
 							]
-						]
+						 ]
 						; create lists of attacked and attacking arguments
 						let cur-attacked []
 						let cur-attacker []
-						foreach attack-relations [
-							set cur-attacked lput last ? cur-attacked
-							set cur-attacker lput first but-first ? cur-attacker
-						]
-						
-						; create a list of the arguments the researchers knows about and 
+						foreach attack-relations [ [???1] ->
+							set cur-attacked lput last ???1 cur-attacked
+							set cur-attacker lput first but-first ???1 cur-attacker
+						 ]
+
+						; create a list of the arguments the researchers knows about and
 						; set the number of admissible arguments for each theory to 0
-						foreach subjective-arguments [
-							set args-cur-arguments lput first ? args-cur-arguments
-						]
-						foreach current-theory-info [
-							set new-info lput replace-item 1 ? 0 new-info
-						]
+						foreach subjective-arguments [ [???1] ->
+							set args-cur-arguments lput first ???1 args-cur-arguments
+						 ]
+						foreach current-theory-info [ [???1] ->
+							set new-info lput replace-item 1 ???1 0 new-info
+						 ]
 						set current-theory-info new-info
-						
+
 						; the computation of the admissible arguments is done recursively
 						; a list of arguments that are currently considered attacked
 						let open-rec []
 						; variable that lets the loop run at least one time
 						let i 0
-						foreach current-theory-info [
+						foreach current-theory-info [ [???1] ->
 							; the theory that is considered in this loop
 							; and the root of that theory (the start)
-							let cur-theory ?
+							let cur-theory ???1
 							let askstart item 0 cur-theory
 							while [ i < 1 or not empty? open-rec][
 								set not-admissible sentence not-admissible open-rec
 								set open-rec []
 								set attacked-by-me []
-								
+
 								; create a list of arguments that are attacked by the current theory
 								; based on the memory of the current researcher
 								if not empty? attack-relations [
@@ -2797,15 +2797,15 @@ to compute-subj-attacked-test
 											; attacked by that argument
 											let cur-turtle self
 											let my-attacked []
-											foreach attack-relations [
-												if first but-first ? = cur-turtle [
-													set my-attacked lput last ? my-attacked
+											foreach attack-relations [ [????1] ->
+												if first but-first ????1 = cur-turtle [
+													set my-attacked lput last ????1 my-attacked
 												]
-											]
+											 ]
 											set attacked-by-me sentence my-attacked attacked-by-me
 										]
 									]
-									
+
 									; arguments that are attacked by arguments from another theory that are
 									; not attacked by non-attacked arguments from the current theory
 									; are added to the open-rec list, the list of attacked-arguments
@@ -2813,78 +2813,78 @@ to compute-subj-attacked-test
 										mytheory = askstart and not member? self not-admissible and
 										member? self cur-attacked][
 									let cur-turtle self
-									foreach attack-relations [
-										if last ? = cur-turtle [
-											if not member? last but-last ? attacked-by-me [
+									foreach attack-relations [ [????1] ->
+										if last ????1 = cur-turtle [
+											if not member? last but-last ????1 attacked-by-me [
 												set open-rec lput cur-turtle open-rec
 											]
 										]
-									]
+									 ]
 										]
 								]
 								set i i + 1
 							]
 							set i 0
-							
+
 							; for the update of the information in current-theory-info
 							set new-cur-info lput replace-item 1 cur-theory (count turtles with
 								[member? self args-cur-arguments and mytheory = askstart] -
 								count turtles with [member? self not-admissible and mytheory = askstart])
 									new-cur-info
-						]
-						
+						 ]
+
 						; arguments that are part of the not-admissible list
 						; are not part of the admissible subjective arguments and hence removed
 						set admissible-subj-argu subjective-arguments
-						foreach subjective-arguments [
-							let cur-argu ?
+						foreach subjective-arguments [ [???1] ->
+							let cur-argu ???1
 							if member? first cur-argu not-admissible [
 								set admissible-subj-argu remove cur-argu admissible-subj-argu
 							]
-						]
+						 ]
 						; update the current-theory-info
 						set current-theory-info new-cur-info
 					]
 				]
 			]
-		]
-	]
+		 ]
+	 ]
 end
 
 
 to compute-strategies-researchers-test
-  
+
   ; researchers start with figuring out which argument in their
   ; memory are admissible and which are attacked
   compute-subj-attacked-test
- 
+
   ask researchers with [not rep-researcher][
     set cur-best-th []
-    ; variables for the list that contains the number admissible arguments 
+    ; variables for the list that contains the number admissible arguments
     ; per theory and a sublist which contains only the numbers that are
     ; within the strategy-threshold
     let list-admissible-arguments []
     let threshold-admissible-arguments []
-    
+
     ; create a list with the number of admissible arguments
     ; of each of the theories
-    foreach current-theory-info [
-      set list-admissible-arguments lput item 1 ? list-admissible-arguments
+    foreach current-theory-info [ [?1] ->
+      set list-admissible-arguments lput item 1 ?1 list-admissible-arguments
     ]
     set list-admissible-arguments sort list-admissible-arguments
-    
+
     ; a list of theories with values within the strategy threshold is constructed
-    set threshold-admissible-arguments filter [? >=
-      ((max list-admissible-arguments) * strategy-threshold)]
+    set threshold-admissible-arguments filter [ [?1] -> ?1 >=
+      ((max list-admissible-arguments) * strategy-threshold) ]
         list-admissible-arguments
     set threshold-admissible-arguments sort threshold-admissible-arguments
-    
+
     ; computation of the current best theory
     ; theories with a number of admissible arguments that are
     ; within the threshold can be considered as current best theory
-    foreach current-theory-info [
-      if member? item 1 ? threshold-admissible-arguments [
-        set cur-best-th lput item 0 ? cur-best-th
+    foreach current-theory-info [ [?1] ->
+      if member? item 1 ?1 threshold-admissible-arguments [
+        set cur-best-th lput item 0 ?1 cur-best-th
       ]
     ]
   ]
@@ -2894,15 +2894,15 @@ end
 
 
 to share-with-others-test2
-	foreach colla-networks [
+	foreach colla-networks [ [?1] ->
 		let group-sharing-done false
 		let grp-share-researcher []
-		let cur-group ?
-		foreach cur-group [
-			let cur-researcher ?
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
 				ifelse group-sharing-done [
-					ask cur-researcher [			
-						set rep-researcher false 
+					ask cur-researcher [
+						set rep-researcher false
 						set subjective-arguments [subjective-arguments] of grp-share-researcher
 						set subjective-relations [subjective-relations] of grp-share-researcher
 					]
@@ -2911,10 +2911,10 @@ to share-with-others-test2
 					set grp-share-researcher cur-researcher
 					ask cur-researcher [
 						; reset the variables
-						set rep-researcher false 
+						set rep-researcher false
 						set to-add-mem-argu []
 						set to-add-mem-rel []
-						
+
 						; variables to keep track of the current researchers own memory
 						; and the combined memory of all the sharing researchers
 						; let own-memory-argu subjective-arguments
@@ -2923,33 +2923,33 @@ to share-with-others-test2
 						let comb-memory-rel []
 						; collaborator network of the current researcher
 						let cur-network collaborator-network
-						
+
 						; the information in the memories of the single researchers in the network
-						; are combined 
-						
-						foreach cur-group [
-							let input-researcher ?						
+						; are combined
+
+						foreach cur-group [ [???1] ->
+							let input-researcher ???1
 							set comb-memory-argu sentence [subjective-arguments] of input-researcher comb-memory-argu
 							set comb-memory-rel sentence [subjective-relations] of input-researcher comb-memory-rel
-						]	
-						
+						 ]
+
 						; each researcher adds the combined memory to its own
 						; then removing duplicates
 						set subjective-arguments (merge-arg-wo-duplicates subjective-arguments comb-memory-argu true)
 						set subjective-relations remove-duplicates sentence
 							subjective-relations comb-memory-rel
-							
+
 							]
 						]
-					]]
-  
-  ; then researchers can share some of their information with researchers 
+					 ] ]
+
+  ; then researchers can share some of their information with researchers
   ; from neighboring networks in the social structures
   create-share-memory-test
   share-with-other-networks-test
-  
 
-	
+
+
 end
 
 
@@ -2970,7 +2970,7 @@ to update-memories-test5
     ; list of neighborhood arguments of the current argument
     set neighborargs []
     set neighborargs lput cur-argum neighborargs
-    
+
     ; for the current argument
     ; add the neighboring discovered arguments and relations
     ; (attacks and discovery) to a to-add list
@@ -2992,7 +2992,7 @@ to update-memories-test5
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
@@ -3011,7 +3011,7 @@ to update-memories-test5
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-     
+
       ; add the parent argument of the attack relation
       if any? my-in-attacks with [color != gray][
         ask my-in-attacks with [color != gray][
@@ -3030,7 +3030,7 @@ to update-memories-test5
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the attack relation
       if any? my-out-attacks with [color != gray][
         ask my-out-attacks with [color != gray][
@@ -3050,11 +3050,11 @@ to update-memories-test5
         ]
       ]
     ]
-    
+
     ; remove duplicates from the list
     set subjective-relations remove-duplicates sentence
       subjective-relations to-add
-		; show subjective-arguments	
+		; show subjective-arguments
 		; foreach to-add-argu [
 			; let argu first ?
 			; ; show ?
@@ -3069,9 +3069,9 @@ to update-memories-test5
 					; ; show argument-position
 					; ; remove entries of arguments that are also present as
 					; ; better researched entries
-					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu 
+					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
 					; if argument-position != false [
-						
+
 						; ; show (word "replacing position " argument-position " with " ?)
 						; set subjective-arguments replace-item argument-position subjective-arguments ?
 					; ]
@@ -3087,23 +3087,23 @@ to update-memories-test5
 	set subjective-arguments (merge-arg-wo-duplicates subjective-arguments to-add-argu false)
 	set flag-updated-memory true
   ]
-  
+
   ; every 5 plus 4 time-steps the collected information
-  ; is shared with other researchers  
+  ; is shared with other researchers
 end
 
 
 
 to share-with-others-test5
-	foreach colla-networks [
+	foreach colla-networks [ [?1] ->
 		let group-sharing-done false
 		let grp-share-researcher []
-		let cur-group ?
-		foreach cur-group [
-			let cur-researcher ?
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
 				ifelse group-sharing-done [
-					ask cur-researcher [			
-						set rep-researcher false 
+					ask cur-researcher [
+						set rep-researcher false
 						set subjective-arguments [subjective-arguments] of grp-share-researcher
 						set subjective-relations [subjective-relations] of grp-share-researcher
 					]
@@ -3112,10 +3112,10 @@ to share-with-others-test5
 					set grp-share-researcher cur-researcher
 					ask cur-researcher [
 						; reset the variables
-						set rep-researcher false 
+						set rep-researcher false
 						set to-add-mem-argu []
 						set to-add-mem-rel []
-						
+
 						; variables to keep track of the current researchers own memory
 						; and the combined memory of all the sharing researchers
 						; let own-memory-argu subjective-arguments
@@ -3124,51 +3124,51 @@ to share-with-others-test5
 						let comb-memory-rel []
 						; collaborator network of the current researcher
 						let cur-network collaborator-network
-						
+
 						; the information in the memories of the single researchers in the network
-						; are combined 
-						
-						foreach cur-group [
-							let input-researcher ?						
+						; are combined
+
+						foreach cur-group [ [???1] ->
+							let input-researcher ???1
 							set comb-memory-argu sentence [subjective-arguments] of input-researcher comb-memory-argu
 							set comb-memory-rel sentence [subjective-relations] of input-researcher comb-memory-rel
-						]	
-						
+						 ]
+
 						; each researcher adds the combined memory to its own
 						; then removing duplicates
 						set subjective-arguments (merge-arg-wo-duplicates subjective-arguments comb-memory-argu true)
 						set subjective-relations remove-duplicates sentence
 							subjective-relations comb-memory-rel
-							
+
 							]
 						]
-		]
-	]
-  
-  ; then researchers can share some of their information with researchers 
+		 ]
+	 ]
+
+  ; then researchers can share some of their information with researchers
   ; from neighboring networks in the social structures
 end
 
 
 to create-share-memory-test5
-  
+
   ; for each collaborator-network one researcher is set to be
   ; the representative researcher
-  foreach colla-networks [
-    ifelse length ? > 1 [
-      ask one-of researchers with [member? self ?][
+  foreach colla-networks [ [?1] ->
+    ifelse length ?1 > 1 [
+      ask one-of researchers with [member? self ?1][
         set rep-researcher true
-      ] 	
+      ]
     ][
 			if ticks mod 25 = 4 [
-				ask one-of researchers with [member? self ?][
+				ask one-of researchers with [member? self ?1][
 					set rep-researcher true
       ]
     ]
     ]
   ]
-  
-  ; only the representative researchers create a memory 
+
+  ; only the representative researchers create a memory
   ; that they want to share with researchers from other networks
   ask researchers with [rep-researcher][
     let myx xcor
@@ -3177,7 +3177,7 @@ to create-share-memory-test5
     ; the researcher itself and the theory it is working on
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
-    let cur-researcher self 
+    let cur-researcher self
     let cur-th [mytheory] of cur-argum
     ; create a list of arguments and a list of relations that the researcher can
     ; share with researchers from other collaborative networks
@@ -3185,30 +3185,30 @@ to create-share-memory-test5
     ; from the interface
     set th-args []
     set th-relations []
-    
-    ; researchers share only information obtained in the neighborhood 
+
+    ; researchers share only information obtained in the neighborhood
     ; they are currently working on
     ; collect the arguments from the researcher's memory
     ; that belong also to the neighborargs
-    foreach subjective-arguments [
-      if member? item 0 ? [neighborargs] of cur-researcher [
-        set th-args lput ? th-args
+    foreach subjective-arguments [ [?1] ->
+      if member? item 0 ?1 [neighborargs] of cur-researcher [
+        set th-args lput ?1 th-args
       ]
     ]
     ; collect the relations from/to the current argument
     ; from the researcher's memory
-    foreach subjective-relations [
-      if item 1 ? = cur-argum or item 2 ? = cur-argum [
-        set th-relations lput ? th-relations
+    foreach subjective-relations [ [?1] ->
+      if item 1 ?1 = cur-argum or item 2 ?1 = cur-argum [
+        set th-relations lput ?1 th-relations
       ]
     ]
-    
+
     ; if the researcher behaves biased it does not share the attack relations that
     ; attack its current theory, these relations are removed
     if social-actions = "biased"[
-      foreach th-relations [
-        if item 0 ? = "a" and [mytheory] of item 2 ? = cur-th [
-          set th-relations remove ? th-relations
+      foreach th-relations [ [?1] ->
+        if item 0 ?1 = "a" and [mytheory] of item 2 ?1 = cur-th [
+          set th-relations remove ?1 th-relations
         ]
       ]
     ]
@@ -3218,73 +3218,73 @@ end
 
 
 ; we have the problem here that researchers which learn arguments with a older color than the one they already know in their subjective memory pay for them still although they never will include them in their memory
-to share-with-other-networks-test5 
+to share-with-other-networks-test5
   ask researchers with [rep-researcher][
 		if not conference-attended [
 			; let share-group-leader self
-		
+
 			; variables for the combined information (arguments and relations),
 			; the network of the current researcher and the theory it is working on
 			let comb-memory-argu th-args
 			let comb-memory-rel th-relations
 			let cur-network sort collaborator-network
 			let my-cur-theory [mytheory] of item 0 item 0 th-args
-			
-			; create a list of the neighboring networks and then a 
+
+			; create a list of the neighboring networks and then a
 			; list of the representative researchers of these networks
 			; which will be the researchers the current researcher shares with
 			let share-researchers []
 			let share-neighbors []
-			foreach share-structure [    
-				if first ? = cur-network [
-					set share-neighbors ?
+			foreach share-structure [ [?1] ->
+				if first ?1 = cur-network [
+					set share-neighbors ?1
 				]
-			]
+			 ]
 			ask researchers with [rep-researcher][
 				let cur-researcher self
-				foreach share-neighbors [
-					if member? cur-researcher ? [
+				foreach share-neighbors [ [?1] ->
+					if member? cur-researcher ?1 [
 						set share-researchers lput cur-researcher share-researchers
 					]
-				]
+				 ]
 			]
-			
+
 			; create a list of arguments and a list of relations that is
 			; shared among the share-researchers
-			foreach share-researchers [
+			foreach share-researchers [ [?1] ->
 				; the combined memory is updated to contain that of the sharing researcher
-				set comb-memory-argu remove-duplicates sentence comb-memory-argu [th-args] of ?
-				set comb-memory-rel remove-duplicates sentence comb-memory-rel [th-relations] of ?		
-			]
+				set comb-memory-argu remove-duplicates sentence comb-memory-argu [th-args] of ?1
+				set comb-memory-rel remove-duplicates sentence comb-memory-rel [th-relations] of ?1
+			 ]
 			; create lists of arguments/relations that have to be added
-			foreach share-researchers [
-				ask ? [
+			foreach share-researchers [ [?1] ->
+				ask ?1 [
 					set to-add-mem-argu comb-memory-argu
 					set to-add-mem-rel comb-memory-rel
 					set conference-attended true
 				]
-			]			
-		] 
-		
+			 ]
+		]
+
 		; to compute the time that researchers have to
 		; spend on communication
 	]
-	
+
 end
 
 
 
 
-to compute-time-costs-test5 
+to compute-time-costs-test5
 	ask researchers with [rep-researcher][
 		; variables that contain the arguments and relations the
 		; researcher has to update in its memory
 		let new-memory-args []
 		let new-memory-rel []
 		let to-add-argu []
-		set new-memory-args filter [not member? ? subjective-arguments]
+		set new-memory-args filter [ [?1] -> not member? ?1 subjective-arguments ]
 			to-add-mem-argu
-		set new-memory-rel filter [not member? ? subjective-relations]
+		set new-memory-rel filter [ [?1] -> not member? ?1 subjective-relations ]
 			to-add-mem-rel
 		let comb-new sentence new-memory-args new-memory-rel
 		; every tick an researcher can obtain a maximum of 10 new entries
@@ -3294,8 +3294,8 @@ to compute-time-costs-test5
 		][
 		set communicating ((ceiling (length comb-new / max-learn)) + 1)
 		]
-		
-		; every communication round an researcher can update a maximum of 
+
+		; every communication round an researcher can update a maximum of
 		; 3 * max-learn new arguments/relations (corresponding to three ticks of
 		; communication) these new arguments and relations are added to the
 		; memory of the researcher
@@ -3306,8 +3306,8 @@ to compute-time-costs-test5
 			let repeats length comb-new - (3 * max-learn)
 			while [length comb-new > repeats] [
 				let cur-entr first comb-new
-				let new-mem-argargs filter [member? ? new-memory-args] comb-new
-				set new-mem-argargs map [first ?] new-mem-argargs
+				let new-mem-argargs filter [ [?1] -> member? ?1 new-memory-args ] comb-new
+				set new-mem-argargs map [ [?1] -> first ?1 ] new-mem-argargs
 				ifelse member? cur-entr new-memory-args [
 					set to-add-argu lput cur-entr to-add-argu
 					set comb-new remove cur-entr comb-new
@@ -3316,29 +3316,29 @@ to compute-time-costs-test5
 				set comb-new remove cur-entr comb-new
 				if member? item 1 cur-entr new-mem-argargs[
 					let item-1-cur-entr item 1 cur-entr
-					foreach comb-new [
-						if item-1-cur-entr = item 0 ? [
-							set to-add-argu lput ? to-add-argu
-							set comb-new remove ? comb-new
+					foreach comb-new [ [?1] ->
+						if item-1-cur-entr = item 0 ?1 [
+							set to-add-argu lput ?1 to-add-argu
+							set comb-new remove ?1 comb-new
 						]
-					] 
+					 ]
 				]
 				if member? item 2 cur-entr new-mem-argargs[
 					let item-2-cur-entr item 2 cur-entr
-					foreach comb-new [
-						if item-2-cur-entr = item 0 ? [
-							set to-add-argu lput ? to-add-argu
-							set comb-new remove ? comb-new
+					foreach comb-new [ [?1] ->
+						if item-2-cur-entr = item 0 ?1 [
+							set to-add-argu lput ?1 to-add-argu
+							set comb-new remove ?1 comb-new
 						]
-					] 
+					 ]
 				]
 				]
 			]
 			set subjective-arguments (merge-arg-wo-duplicates subjective-arguments to-add-argu true)
 		][
 		set subjective-arguments (merge-arg-wo-duplicates subjective-arguments new-memory-args true)
-		set subjective-relations sentence subjective-relations new-memory-rel ;remove duplicates!? bug maybe -> probably no problem b/c remove duplicates for relations is run during "share-with-other-networks" 
-		]	
+		set subjective-relations sentence subjective-relations new-memory-rel ;remove duplicates!? bug maybe -> probably no problem b/c remove duplicates for relations is run during "share-with-other-networks"
+		]
 		set conference-attended false
 	]
 end
@@ -3359,7 +3359,7 @@ to-report non-admiss-args
 		; subjective-arguments
 	; foreach info-not-admissible [
 		; set not-admissible lput item 0 ? not-admissible
-	; ]	
+	; ]
 	report non-admiss-subj-argu
 end
 
@@ -3367,7 +3367,7 @@ end
 to move-around-test6
   ; variable to make sure that the procedure find-defense
   ; is only run once
-  let run-find-defense false 
+  let run-find-defense false
   ; at the beginning of the procedure no researcher has moved yet
   ask researchers [
     set moved false
@@ -3382,9 +3382,9 @@ to move-around-test6
      ; ; the researcher itself
         ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
         ; xcor = myx and ycor = myy]
-      
+
       ; a list of not-admissible arguments is created
-      let not-admissible []			
+      let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
 				set not-admissible non-admiss-args
         ; let info-not-admissible filter [not member? ? admissible-subj-argu]
@@ -3393,7 +3393,7 @@ to move-around-test6
           ; set not-admissible lput item 0 ? not-admissible
         ; ]
       ]
-   
+
       ; an researcher working on an attacked argument will try to find a defense for
       ; this attack, by working further on the attacked argument, unless it
       ; discoveres a child-argument that that has a defense for the attack
@@ -3401,16 +3401,16 @@ to move-around-test6
       ; the find-defense runs immediately for all researchers working on a not
       ; fully researched not-admissible argument, hence it is only once executed
       if member? myargu not-admissible and not moved[
-      
+
         if not run-find-defense [
           find-defense-test6
           set run-find-defense true
         ]
       ]
-    
-      if not moved and not member? myargu not-admissible or 
+
+      if not moved and not member? myargu not-admissible or
         (member? myargu not-admissible and [color] of myargu = red)[
-        
+
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
@@ -3422,7 +3422,7 @@ to move-around-test6
 	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
 	  [collaborator-network] of curresearcher])] [
         let move-random random-float 1.0
-      
+
 
         ; every time step with small-movement of the move-probability
         ; the researcher moves
@@ -3435,7 +3435,7 @@ to move-around-test6
   	    [collaborator-network] of curresearcher])]
           set moved true
         ][
-      
+
         ; every 5th time step the researcher mover with the full move-probability,
         ; that depends a bit on the color
         if ticks != 0 and ticks mod 5 = 0 and move-random <
@@ -3463,7 +3463,7 @@ to move-around-test6
           [collaborator-network] of curresearcher]]
         set moved true
           ][
-      
+
         ; if moving back is not possible, it jumps to another argument in
         ; the same tree/theory that is discovered but not fully researched
         if [color] of myargu = red[
@@ -3484,7 +3484,7 @@ to move-around-test6
           ]
             ]
       ]
-    ]	
+    ]
   ]
 end
 
@@ -3494,13 +3494,13 @@ end
 
 ; researchers working on a not fully researched attacked argument will try to find a
 ; defense for that attack, by staying on the current argument
-; if a child-argument is discovered that can provide a defense, the 
+; if a child-argument is discovered that can provide a defense, the
 ; researcher moves there
 ; once an argument is fully researched all its relations are discovered,
 ; then an researcher can move on and can try to find a defense in another branch,
 ; further away
 to find-defense-test6
-  ask researchers with [not moved][    
+  ask researchers with [not moved][
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
 			let myargu gps
@@ -3510,11 +3510,11 @@ to find-defense-test6
       ; ; for the researcher itself
       ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
         ; xcor = myx and ycor = myy]
-    
+
       ; lists of arguments that are not admissible
-			let not-admissible []			
+			let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-				set not-admissible non-admiss-args        
+				set not-admissible non-admiss-args
       ]
       ; let not-admissible []
       ; if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
@@ -3524,10 +3524,10 @@ to find-defense-test6
           ; set not-admissible lput item 0 ? not-admissible
         ; ]
       ; ]
-    
+
       ; if the current argument is not fully researched and not admissible
       ; and it is a 5th time step or the researcher is not communicating
-      ; the researcher tries to move prospectively to a child-argument of the current 
+      ; the researcher tries to move prospectively to a child-argument of the current
       ; argument that provides a defense for the current argument
       if member? myargu not-admissible[
         ask myargu [
@@ -3564,12 +3564,12 @@ end
 
 
 to compute-subj-attacked-test6
-	foreach colla-networks [
+	foreach colla-networks [ [?1] ->
 		let calc-done false
 		let calc-researcher []
-		let cur-group ?
-		foreach cur-group [
-			let cur-researcher ?
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
 			if not [rep-researcher] of cur-researcher [
 				ifelse calc-done [
 					ask cur-researcher [
@@ -3585,53 +3585,53 @@ to compute-subj-attacked-test6
 						; the current-theory-info with 0 admissible arguments; an updated number
 						; of admissible arguments during the recursive computation; the arguments
 						; that are not admissible; the arguments that the researchers knows about; and
-						; the arguments that are attacked by the current theory 
+						; the arguments that are attacked by the current theory
 						let new-info []
 						let new-cur-info []
 						let not-admissible []
 						let args-cur-arguments []
 						let attacked-by-me []
-						
+
 						; create a list of only the attacks
 						let attack-relations []
-						foreach subjective-relations [
-							if first ? = "a" [
-								set attack-relations lput ? attack-relations
+						foreach subjective-relations [ [???1] ->
+							if first ???1 = "a" [
+								set attack-relations lput ???1 attack-relations
 							]
-						]
+						 ]
 						; create lists of attacked and attacking arguments
 						let cur-attacked []
 						let cur-attacker []
-						foreach attack-relations [
-							set cur-attacked lput last ? cur-attacked
-							set cur-attacker lput first but-first ? cur-attacker
-						]
-						
-						; create a list of the arguments the researchers knows about and 
+						foreach attack-relations [ [???1] ->
+							set cur-attacked lput last ???1 cur-attacked
+							set cur-attacker lput first but-first ???1 cur-attacker
+						 ]
+
+						; create a list of the arguments the researchers knows about and
 						; set the number of admissible arguments for each theory to 0
-						foreach subjective-arguments [
-							set args-cur-arguments lput first ? args-cur-arguments
-						]
-						foreach current-theory-info [
-							set new-info lput replace-item 1 ? 0 new-info
-						]
+						foreach subjective-arguments [ [???1] ->
+							set args-cur-arguments lput first ???1 args-cur-arguments
+						 ]
+						foreach current-theory-info [ [???1] ->
+							set new-info lput replace-item 1 ???1 0 new-info
+						 ]
 						set current-theory-info new-info
-						
+
 						; the computation of the admissible arguments is done recursively
 						; a list of arguments that are currently considered attacked
 						let open-rec []
 						; variable that lets the loop run at least one time
 						let i 0
-						foreach current-theory-info [
+						foreach current-theory-info [ [???1] ->
 							; the theory that is considered in this loop
 							; and the root of that theory (the start)
-							let cur-theory ?
+							let cur-theory ???1
 							let askstart item 0 cur-theory
 							while [ i < 1 or not empty? open-rec][
 								set not-admissible sentence not-admissible open-rec
 								set open-rec []
 								set attacked-by-me []
-								
+
 								; create a list of arguments that are attacked by the current theory
 								; based on the memory of the current researcher
 								if not empty? attack-relations [
@@ -3642,15 +3642,15 @@ to compute-subj-attacked-test6
 											; attacked by that argument
 											let cur-turtle self
 											let my-attacked []
-											foreach attack-relations [
-												if first but-first ? = cur-turtle [
-													set my-attacked lput last ? my-attacked
+											foreach attack-relations [ [????1] ->
+												if first but-first ????1 = cur-turtle [
+													set my-attacked lput last ????1 my-attacked
 												]
-											]
+											 ]
 											set attacked-by-me sentence my-attacked attacked-by-me
 										]
 									]
-									
+
 									; arguments that are attacked by arguments from another theory that are
 									; not attacked by non-attacked arguments from the current theory
 									; are added to the open-rec list, the list of attacked-arguments
@@ -3658,80 +3658,80 @@ to compute-subj-attacked-test6
 										mytheory = askstart and not member? self not-admissible and
 										member? self cur-attacked][
 									let cur-turtle self
-									foreach attack-relations [
-										if last ? = cur-turtle [
-											if not member? last but-last ? attacked-by-me [
+									foreach attack-relations [ [????1] ->
+										if last ????1 = cur-turtle [
+											if not member? last but-last ????1 attacked-by-me [
 												set open-rec lput cur-turtle open-rec
 											]
 										]
-									]
+									 ]
 										]
 								]
 								set i i + 1
 							]
 							set i 0
-							
+
 							; for the update of the information in current-theory-info
 							set new-cur-info lput replace-item 1 cur-theory (count turtles with
 								[member? self args-cur-arguments and mytheory = askstart] -
 								count turtles with [member? self not-admissible and mytheory = askstart])
 									new-cur-info
-						]
-						
+						 ]
+
 						; arguments that are part of the not-admissible list
 						; are not part of the admissible subjective arguments and hence removed
 						set admissible-subj-argu subjective-arguments
 						set non-admiss-subj-argu []
-						foreach subjective-arguments [
-							let cur-argu ?
+						foreach subjective-arguments [ [???1] ->
+							let cur-argu ???1
 							if member? first cur-argu not-admissible [
-								set admissible-subj-argu remove cur-argu admissible-subj-argu								
+								set admissible-subj-argu remove cur-argu admissible-subj-argu
 								set non-admiss-subj-argu lput item 0 cur-argu non-admiss-subj-argu
 							]
-						]
+						 ]
 						; update the current-theory-info
 						set current-theory-info new-cur-info
 					]
 				]
 			]
-		]
-	]
+		 ]
+	 ]
 end
 
 
 to compute-strategies-researchers-test6
-  
+
   ; researchers start with figuring out which argument in their
   ; memory are admissible and which are attacked
   ; compute-subj-attacked-test
- 
+
   ask researchers with [not rep-researcher][
     set cur-best-th []
-    ; variables for the list that contains the number admissible arguments 
+    ; variables for the list that contains the number admissible arguments
     ; per theory and a sublist which contains only the numbers that are
     ; within the strategy-threshold
     let list-admissible-arguments []
     let threshold-admissible-arguments []
-    
+
     ; create a list with the number of admissible arguments
     ; of each of the theories
-    foreach current-theory-info [
-      set list-admissible-arguments lput item 1 ? list-admissible-arguments
+    foreach current-theory-info [ [?1] ->
+      set list-admissible-arguments lput item 1 ?1 list-admissible-arguments
     ]
     set list-admissible-arguments sort list-admissible-arguments
-    
+
     ; a list of theories with values within the strategy threshold is constructed
-    set threshold-admissible-arguments filter [? >=
-      ((max list-admissible-arguments) * strategy-threshold)]
+    set threshold-admissible-arguments filter [ [?1] -> ?1 >=
+      ((max list-admissible-arguments) * strategy-threshold) ]
         list-admissible-arguments
     set threshold-admissible-arguments sort threshold-admissible-arguments
-    
+
     ; computation of the current best theory
     ; theories with a number of admissible arguments that are
     ; within the threshold can be considered as current best theory
-    foreach current-theory-info [
-      if member? item 1 ? threshold-admissible-arguments [
-        set cur-best-th lput item 0 ? cur-best-th
+    foreach current-theory-info [ [?1] ->
+      if member? item 1 ?1 threshold-admissible-arguments [
+        set cur-best-th lput item 0 ?1 cur-best-th
       ]
     ]
   ]
@@ -3756,7 +3756,7 @@ to update-memories-test7
     ; list of neighborhood arguments of the current argument
     set neighborargs []
     set neighborargs lput cur-argum neighborargs
-    
+
     ; for the current argument
     ; add the neighboring discovered arguments and relations
     ; (attacks and discovery) to a to-add list
@@ -3778,7 +3778,7 @@ to update-memories-test7
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
@@ -3797,7 +3797,7 @@ to update-memories-test7
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-     
+
       ; add the parent argument of the attack relation
       if any? my-in-attacks with [color != gray][
         ask my-in-attacks with [color != gray][
@@ -3816,7 +3816,7 @@ to update-memories-test7
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the attack relation
       if any? my-out-attacks with [color != gray][
         ask my-out-attacks with [color != gray][
@@ -3836,11 +3836,11 @@ to update-memories-test7
         ]
       ]
     ]
-    
+
     ; remove duplicates from the list
     set subjective-relations remove-duplicates sentence
       subjective-relations to-add
-		; show subjective-arguments	
+		; show subjective-arguments
 		; foreach to-add-argu [
 			; let argu first ?
 			; ; show ?
@@ -3855,9 +3855,9 @@ to update-memories-test7
 					; ; show argument-position
 					; ; remove entries of arguments that are also present as
 					; ; better researched entries
-					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu 
+					; ; set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
 					; if argument-position != false [
-						
+
 						; ; show (word "replacing position " argument-position " with " ?)
 						; set subjective-arguments replace-item argument-position subjective-arguments ?
 					; ]
@@ -3873,32 +3873,32 @@ to update-memories-test7
 	set subjective-arguments (merge-arg-wo-duplicates subjective-arguments to-add-argu false)
 	set flag-updated-memory true
   ]
-  
+
   ; every 5 plus 4 time-steps the collected information
-  ; is shared with other researchers  
+  ; is shared with other researchers
 end
 
 
 
 to create-share-memory-test7
-  
+
   ; for each collaborator-network one researcher is set to be
   ; the representative researcher
-  foreach colla-networks [
-    ifelse length ? > 1 [
-      ask one-of researchers with [member? self ?][
+  foreach colla-networks [ [?1] ->
+    ifelse length ?1 > 1 [
+      ask one-of researchers with [member? self ?1][
         set rep-researcher true
-      ] 	
+      ]
     ][
 			if ticks mod 25 = 4 [
-				ask one-of researchers with [member? self ?][
+				ask one-of researchers with [member? self ?1][
 					set rep-researcher true
       ]
     ]
     ]
   ]
-  
-  ; only the representative researchers create a memory 
+
+  ; only the representative researchers create a memory
   ; that they want to share with researchers from other networks
   ask researchers with [rep-researcher][
 		let cur-argum gps
@@ -3908,7 +3908,7 @@ to create-share-memory-test7
     ; ; the researcher itself and the theory it is working on
     ; let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       ; and xcor = myx and ycor = myy]
-    let cur-researcher self 
+    let cur-researcher self
     let cur-th [mytheory] of cur-argum
     ; create a list of arguments and a list of relations that the researcher can
     ; share with researchers from other collaborative networks
@@ -3916,30 +3916,30 @@ to create-share-memory-test7
     ; from the interface
     set th-args []
     set th-relations []
-    
-    ; researchers share only information obtained in the neighborhood 
+
+    ; researchers share only information obtained in the neighborhood
     ; they are currently working on
     ; collect the arguments from the researcher's memory
     ; that belong also to the neighborargs
-    foreach subjective-arguments [
-      if member? item 0 ? [neighborargs] of cur-researcher [
-        set th-args lput ? th-args
+    foreach subjective-arguments [ [?1] ->
+      if member? item 0 ?1 [neighborargs] of cur-researcher [
+        set th-args lput ?1 th-args
       ]
     ]
     ; collect the relations from/to the current argument
     ; from the researcher's memory
-    foreach subjective-relations [
-      if item 1 ? = cur-argum or item 2 ? = cur-argum [
-        set th-relations lput ? th-relations
+    foreach subjective-relations [ [?1] ->
+      if item 1 ?1 = cur-argum or item 2 ?1 = cur-argum [
+        set th-relations lput ?1 th-relations
       ]
     ]
-    
+
     ; if the researcher behaves biased it does not share the attack relations that
     ; attack its current theory, these relations are removed
     if social-actions = "biased"[
-      foreach th-relations [
-        if item 0 ? = "a" and [mytheory] of item 2 ? = cur-th [
-          set th-relations remove ? th-relations
+      foreach th-relations [ [?1] ->
+        if item 0 ?1 = "a" and [mytheory] of item 2 ?1 = cur-th [
+          set th-relations remove ?1 th-relations
         ]
       ]
     ]
@@ -3955,11 +3955,11 @@ to act-on-strat-ag-tst7
 			let myargu gps
       ; let myx xcor
       ; let myy ycor
-      
+
       ; if the researcher is not currently working on the best theory
       ; it considers jumping
-      foreach subjective-arguments [
-				let cur-subj-argu item 0 ?
+      foreach subjective-arguments [ [?1] ->
+				let cur-subj-argu item 0 ?1
 				if cur-subj-argu = myargu and not member? [mytheory] of cur-subj-argu cur-best-th [
           set theory-jump theory-jump + 1
 				]
@@ -3968,17 +3968,17 @@ to act-on-strat-ag-tst7
           ; set theory-jump theory-jump + 1
         ; ]
       ]
-      
+
       ; if the researcher has considered jumping jump-threshold times
       ; it jumps to one of the theories it considers best, based
       ; on its memory and the computations
       if theory-jump >= jump-threshold [
         let ch-best one-of cur-best-th
         let subj-argus []
-        foreach subjective-arguments [
-          set subj-argus lput item 0 ? subj-argus
+        foreach subjective-arguments [ [?1] ->
+          set subj-argus lput item 0 ?1 subj-argus
         ]
-        
+
         ; if one of the arguments from the best theory is in its memory
         ; the researcher will jump there
         ifelse any? startsargum with [
@@ -3988,7 +3988,7 @@ to act-on-strat-ag-tst7
           ][ ; otherwise the researcher jumps to the root of the theory
           move-to ch-best
           ]
-        
+
         set times-jumped times-jumped + 1
         set theory-jump 0
       ]
@@ -3998,11 +3998,11 @@ end
 
 
 to compute-popularity-tst7
-  ; initialize the variable at 0 
-  ask starts [ set myscientists 0 ]  
+  ; initialize the variable at 0
+  ask starts [ set myscientists 0 ]
   ask researchers [
     ; variables for x and y coordinate of the current researcher,
-    ; the argument it is currently working on and the 
+    ; the argument it is currently working on and the
     ; theory this argument belongs to
 		let myargu gps
     ; let myx xcor
@@ -4010,7 +4010,7 @@ to compute-popularity-tst7
     ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
       ; xcor = myx and ycor = myy]
     let mystart [mytheory] of myargu
-    
+
     ; the myscientists variable of the theory the researcher
     ; is working on is increased by one
     ask mystart [
@@ -4023,7 +4023,7 @@ end
 to move-around-test7
   ; variable to make sure that the procedure find-defense
   ; is only run once
-  let run-find-defense false 
+  let run-find-defense false
   ; at the beginning of the procedure no researcher has moved yet
   ask researchers [
     set moved false
@@ -4038,9 +4038,9 @@ to move-around-test7
      ; ; the researcher itself
         ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
         ; xcor = myx and ycor = myy]
-      
+
       ; a list of not-admissible arguments is created
-      let not-admissible []			
+      let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
 				set not-admissible non-admiss-args
         ; let info-not-admissible filter [not member? ? admissible-subj-argu]
@@ -4049,7 +4049,7 @@ to move-around-test7
           ; set not-admissible lput item 0 ? not-admissible
         ; ]
       ]
-   
+
       ; an researcher working on an attacked argument will try to find a defense for
       ; this attack, by working further on the attacked argument, unless it
       ; discoveres a child-argument that that has a defense for the attack
@@ -4057,31 +4057,31 @@ to move-around-test7
       ; the find-defense runs immediately for all researchers working on a not
       ; fully researched not-admissible argument, hence it is only once executed
       if member? myargu not-admissible and not moved[
-      
+
         if not run-find-defense [
           find-defense-test7
           set run-find-defense true
         ]
       ]
-    
-      if not moved and not member? myargu not-admissible or 
+
+      if not moved and not member? myargu not-admissible or
         (member? myargu not-admissible and [color] of myargu = red)[
-        
+
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
         ; c) no researcher from the same collaborator-network is working on it
         ; the researcher moves there, with certain probability
-        ifelse any? startsargum with [in-discovery-neighbor? myargu 
-				and [not member? color [gray red turquoise]] of self 
-					; and color != gray and color != red and color != turquoise 
+        ifelse any? startsargum with [in-discovery-neighbor? myargu
+				and [not member? color [gray red turquoise]] of self
+					; and color != gray and color != red and color != turquoise
 					and not group-member-here curresearcher
 					; (any? turtles with [breed = researchers and
 	  ; xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
 	  ; [collaborator-network] of curresearcher])
 		] [
         let move-random random-float 1.0
-      
+
 
         ; every time step with small-movement of the move-probability
         ; the researcher moves
@@ -4091,7 +4091,7 @@ to move-around-test7
             in-discovery-neighbor? myargu
 						and [not member? color [gray red turquoise]] of self
 						; and color != gray and color != red and
-            ; color != turquoise 
+            ; color != turquoise
 						and not group-member-here curresearcher
 						; ( any? turtles with [breed = researchers and
             ; xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
@@ -4099,7 +4099,7 @@ to move-around-test7
 				]
           set moved true
         ][
-      
+
         ; every 5th time step the researcher mover with the full move-probability,
         ; that depends a bit on the color
         if ticks != 0 and ticks mod 5 = 0 and move-random <
@@ -4108,7 +4108,7 @@ to move-around-test7
             in-discovery-neighbor? myargu
 						and [not member? color [gray red turquoise]] of self
 						; and color != gray and color != red and
-	    ; color != turquoise 
+	    ; color != turquoise
 			and not group-member-here curresearcher
 			; ( any? turtles with [breed = researchers
 	    ; and xcor = [xcor] of myself and ycor = [ycor] of myself and
@@ -4124,7 +4124,7 @@ to move-around-test7
         ifelse [color] of myargu = red and any? startsargum with [
 				[not member? color [gray turquoise]] of self
 				; color != gray and
-          ; color != turquoise 
+          ; color != turquoise
 					and out-discovery-neighbor? myargu and not group-member-here curresearcher
 					; any?
 	  ; turtles with [breed = researchers and xcor = [xcor] of myself and
@@ -4133,7 +4133,7 @@ to move-around-test7
 		][
         move-to one-of startsargum with [
 				[not member? color [gray turquoise]] of self
-				; color != gray 
+				; color != gray
 				and out-discovery-neighbor?
           myargu and not group-member-here curresearcher
 					; any? turtles with [breed = researchers and xcor = [xcor] of
@@ -4142,14 +4142,14 @@ to move-around-test7
 					]
         set moved true
           ][
-      
+
         ; if moving back is not possible, it jumps to another argument in
         ; the same tree/theory that is discovered but not fully researched
         if [color] of myargu = red[
           let askstart [mytheory] of myargu
           if any? startsargum with [
 					[not member? color [gray red turquoise]] of self
-	    ; color != gray and color != turquoise and color != red 
+	    ; color != gray and color != turquoise and color != red
 			and
 	    mytheory = askstart and not group-member-here curresearcher
 			; any? turtles with [breed = researchers and
@@ -4158,7 +4158,7 @@ to move-around-test7
 			][
           move-to one-of startsargum with [
 					[not member? color [gray red turquoise]] of self
-					; and color != turquoise and color != gray and color != red 
+					; and color != turquoise and color != gray and color != red
 		 and
   	   mytheory = askstart and not group-member-here curresearcher
 			 ; any? turtles with [breed = researchers and
@@ -4171,11 +4171,11 @@ to move-around-test7
           ]
             ]
       ]
-    ]	
+    ]
   ]
 end
 
-to-report group-member-here [curresearcher] ;aargu = the argument which is asking whether a group member researcher is her 
+to-report group-member-here [curresearcher] ;aargu = the argument which is asking whether a group member researcher is her
 	ifelse any? researchers with [
 	   xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
            [collaborator-network] of curresearcher]
@@ -4184,12 +4184,12 @@ to-report group-member-here [curresearcher] ;aargu = the argument which is askin
 	][
 		report false
 	]
-	
+
 end
 
 
 to find-defense-test7
-  ask researchers with [not moved][    
+  ask researchers with [not moved][
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
 			let myargu gps
@@ -4199,11 +4199,11 @@ to find-defense-test7
       ; ; for the researcher itself
       ; let myargu one-of turtles with [(breed = starts or breed = arguments) and
         ; xcor = myx and ycor = myy]
-    
+
       ; lists of arguments that are not admissible
-			let not-admissible []			
+			let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-				set not-admissible non-admiss-args        
+				set not-admissible non-admiss-args
       ]
       ; let not-admissible []
       ; if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
@@ -4213,10 +4213,10 @@ to find-defense-test7
           ; set not-admissible lput item 0 ? not-admissible
         ; ]
       ; ]
-    
+
       ; if the current argument is not fully researched and not admissible
       ; and it is a 5th time step or the researcher is not communicating
-      ; the researcher tries to move prospectively to a child-argument of the current 
+      ; the researcher tries to move prospectively to a child-argument of the current
       ; argument that provides a defense for the current argument
       if member? myargu not-admissible[
         ask myargu [
@@ -4229,9 +4229,9 @@ to find-defense-test7
               ; c) are discovered; and
 	      ; d) no researcher from the same network is working on it
               let nextargu in-attack-neighbors with [in-discovery-neighbor?
-	        myargu and 
+	        myargu and
 					[not member? color [gray turquoise]] of self
-					; color != gray and color != turquoise 
+					; color != gray and color != turquoise
 					and not group-member-here curresearcher
 					; (any?
 		; researchers with [xcor = [xcor] of myself and ycor = [ycor] of myself
@@ -4254,7 +4254,7 @@ to find-defense-test7
 end
 
 to-report non-comm-scientists-here [myx myy]
-	ifelse any? researchers with [xcor = myx and ycor = myy and 
+	ifelse any? researchers with [xcor = myx and ycor = myy and
       communicating = 0] or (ticks mod 5 = 0 and any? researchers with [xcor = myx and ycor = myy])
 	[
 		report true
@@ -4268,24 +4268,24 @@ to update-landscape-test7
   ask startsargum [
     let myx xcor
     let myy ycor
-    ; discoveries only occur when an researcher is working on that argument, 
+    ; discoveries only occur when an researcher is working on that argument,
     ; it is the 5th time step or the researcher does not communicate
-    ; working on an argument means that the researcher did 
+    ; working on an argument means that the researcher did
     ; not communicate in that round
     if non-comm-scientists-here myx myy
-		; any? researchers with [xcor = myx and ycor = myy and 
-      ; communicating = 0] or (any? researchers with [ 
+		; any? researchers with [xcor = myx and ycor = myy and
+      ; communicating = 0] or (any? researchers with [
       ; xcor = myx and ycor = myy] and ticks mod 5 = 0)
 		[
       set researcher-ticks researcher-ticks + 1
-      
+
       ; the color of an argument is changed if researchers have been working
       ; on that argument for research-speed time steps
       if researcher-ticks mod research-speed = 0 and color != red[
         set color color - 10
         if color = red [set full-research true]
       ]
-        
+
       ; depending on the color a new child-argument is discovered, until all
       ; child-arguments are discovered
       if color = yellow and count out-discovery-neighbors with
@@ -4333,7 +4333,7 @@ to update-landscape-test7
       ; not fully researched
       if ticks mod 5 = 0 and color != red [
         let attack-random random-float 1.00
-        
+
         ; with visibility-probability a new attacked/attacking argument is
         ; discovered
         if attack-random < visibility-probability [
@@ -4346,24 +4346,24 @@ to update-landscape-test7
         ]
       ]
     ]
-    
+
     ; once an argument is fully researched all its relations to other arguments
     ; are discovered as well
     ; full-discovery-test7
-    
+
     ; if both ends of a discovery relation are discovered
     ; by research, the relation is discovered as well
     if color != gray [
       ask my-out-discoveries with [color = gray][
         if [not member? color [gray turquoise]] of other-end
-				; [color] of other-end != gray and [color] of other-end != turquoise 
+				; [color] of other-end != gray and [color] of other-end != turquoise
 				[
           set color cyan
         ]
       ]
     ]
   ]
-  
+
   ; at the end of the time steps 1, 2, 3 and 4 communicating researchers
   ; decrease their communicating value by 1
   ; if ticks mod 5 != 0 [
@@ -4381,18 +4381,18 @@ end
 
 
 
-; procedure that makes sure that fully researched arguments have a fully 
+; procedure that makes sure that fully researched arguments have a fully
 ; discovered neighborhood
-to full-discovery-test7 
+to full-discovery-test7
   ask startsargum with [full-research][
     let myx xcor
     let myy ycor
     if non-comm-scientists-here myx myy
-		; any? researchers with [xcor = myx and ycor = myy and 
-      ; communicating = 0] or (ticks mod 5 = 0 and any? researchers with 
+		; any? researchers with [xcor = myx and ycor = myy and
+      ; communicating = 0] or (ticks mod 5 = 0 and any? researchers with
       ; [xcor = myx and ycor = myy])
 			[
-      
+
       ; once an argument is fully researched all its relations,
       ; attack and discovery, are discovered
       if any? out-discovery-neighbors with [color = gray or color = turquoise][
@@ -4403,7 +4403,7 @@ to full-discovery-test7
           ]
         ]
       ]
-     
+
       ; note that in the case of an attack relation the other argument
       ; is not really discovered: it needs to be discovered by a discovery
       ; relation in the other theory to become lime
@@ -4428,12 +4428,12 @@ end
 
 
 to compute-subj-attacked-test7
-	foreach colla-networks [
+	foreach colla-networks [ [?1] ->
 		let calc-done false
 		let calc-researcher []
-		let cur-group ?
-		foreach cur-group [
-			let cur-researcher ?
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
 			if not [rep-researcher] of cur-researcher [
 				ifelse calc-done [
 					ask cur-researcher [
@@ -4449,53 +4449,53 @@ to compute-subj-attacked-test7
 						; the current-theory-info with 0 admissible arguments; an updated number
 						; of admissible arguments during the recursive computation; the arguments
 						; that are not admissible; the arguments that the researchers knows about; and
-						; the arguments that are attacked by the current theory 
+						; the arguments that are attacked by the current theory
 						let new-info []
 						let new-cur-info []
 						let not-admissible []
 						let args-cur-arguments []
 						let attacked-by-me []
-						
+
 						; create a list of only the attacks
 						let attack-relations []
-						foreach subjective-relations [
-							if first ? = "a" [
-								set attack-relations lput ? attack-relations
+						foreach subjective-relations [ [???1] ->
+							if first ???1 = "a" [
+								set attack-relations lput ???1 attack-relations
 							]
-						]
+						 ]
 						; create lists of attacked and attacking arguments
 						let cur-attacked []
 						let cur-attacker []
-						foreach attack-relations [
-							set cur-attacked lput last ? cur-attacked
-							set cur-attacker lput first but-first ? cur-attacker
-						]
-						
-						; create a list of the arguments the researchers knows about and 
+						foreach attack-relations [ [???1] ->
+							set cur-attacked lput last ???1 cur-attacked
+							set cur-attacker lput first but-first ???1 cur-attacker
+						 ]
+
+						; create a list of the arguments the researchers knows about and
 						; set the number of admissible arguments for each theory to 0
-						foreach subjective-arguments [
-							set args-cur-arguments lput first ? args-cur-arguments
-						]
-						foreach current-theory-info [
-							set new-info lput replace-item 1 ? 0 new-info
-						]
+						foreach subjective-arguments [ [???1] ->
+							set args-cur-arguments lput first ???1 args-cur-arguments
+						 ]
+						foreach current-theory-info [ [???1] ->
+							set new-info lput replace-item 1 ???1 0 new-info
+						 ]
 						set current-theory-info new-info
-						
+
 						; the computation of the admissible arguments is done recursively
 						; a list of arguments that are currently considered attacked
 						let open-rec []
 						; variable that lets the loop run at least one time
 						let i 0
-						foreach current-theory-info [
+						foreach current-theory-info [ [???1] ->
 							; the theory that is considered in this loop
 							; and the root of that theory (the start)
-							let cur-theory ?
+							let cur-theory ???1
 							let askstart item 0 cur-theory
 							while [ i < 1 or not empty? open-rec][
 								set not-admissible sentence not-admissible open-rec
 								set open-rec []
 								set attacked-by-me []
-								
+
 								; create a list of arguments that are attacked by the current theory
 								; based on the memory of the current researcher
 								if not empty? attack-relations [
@@ -4506,15 +4506,15 @@ to compute-subj-attacked-test7
 											; attacked by that argument
 											let cur-turtle self
 											let my-attacked []
-											foreach attack-relations [
-												if first but-first ? = cur-turtle [
-													set my-attacked lput last ? my-attacked
+											foreach attack-relations [ [????1] ->
+												if first but-first ????1 = cur-turtle [
+													set my-attacked lput last ????1 my-attacked
 												]
-											]
+											 ]
 											set attacked-by-me sentence my-attacked attacked-by-me
 										]
 									]
-									
+
 									; arguments that are attacked by arguments from another theory that are
 									; not attacked by non-attacked arguments from the current theory
 									; are added to the open-rec list, the list of attacked-arguments
@@ -4522,44 +4522,44 @@ to compute-subj-attacked-test7
 										mytheory = askstart and not member? self not-admissible and
 										member? self cur-attacked][
 									let cur-turtle self
-									foreach attack-relations [
-										if last ? = cur-turtle [
-											if not member? last but-last ? attacked-by-me [
+									foreach attack-relations [ [????1] ->
+										if last ????1 = cur-turtle [
+											if not member? last but-last ????1 attacked-by-me [
 												set open-rec lput cur-turtle open-rec
 											]
 										]
-									]
+									 ]
 										]
 								]
 								set i i + 1
 							]
 							set i 0
-							
+
 							; for the update of the information in current-theory-info
 							set new-cur-info lput replace-item 1 cur-theory (count startsargum with
 								[member? self args-cur-arguments and mytheory = askstart] -
 								count startsargum with [member? self not-admissible and mytheory = askstart])
 									new-cur-info
-						]
-						
+						 ]
+
 						; arguments that are part of the not-admissible list
 						; are not part of the admissible subjective arguments and hence removed
 						set admissible-subj-argu subjective-arguments
 						set non-admiss-subj-argu []
-						foreach subjective-arguments [
-							let cur-argu ?
+						foreach subjective-arguments [ [???1] ->
+							let cur-argu ???1
 							if member? first cur-argu not-admissible [
-								set admissible-subj-argu remove cur-argu admissible-subj-argu								
+								set admissible-subj-argu remove cur-argu admissible-subj-argu
 								set non-admiss-subj-argu lput item 0 cur-argu non-admiss-subj-argu
 							]
-						]
+						 ]
 						; update the current-theory-info
 						set current-theory-info new-cur-info
 					]
 				]
 			]
-		]
-	]
+		 ]
+	 ]
 end
 ; testprocedures.nls ends here
 
@@ -4595,7 +4595,7 @@ to update-memories
     ; list of neighborhood arguments of the current argument
     set neighborargs []
     set neighborargs lput cur-argum neighborargs
-    
+
     ; for the current argument
     ; add the neighboring discovered arguments and relations
     ; (attacks and discovery) to a to-add list
@@ -4617,7 +4617,7 @@ to update-memories
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
@@ -4636,7 +4636,7 @@ to update-memories
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-     
+
       ; add the parent argument of the attack relation
       if any? my-in-attacks with [color != gray][
         ask my-in-attacks with [color != gray][
@@ -4655,7 +4655,7 @@ to update-memories
           set to-add-argu lput add-other to-add-argu
         ]
       ]
-      
+
       ; add the child argument of the attack relation
       if any? my-out-attacks with [color != gray][
         ask my-out-attacks with [color != gray][
@@ -4675,20 +4675,20 @@ to update-memories
         ]
       ]
     ]
-    
+
     ; remove duplicates from the list
     set subjective-relations remove-duplicates sentence
       subjective-relations to-add
     set subjective-arguments remove-duplicates sentence
       subjective-arguments to-add-argu
   ]
-  
+
   ; every 5 plus 4 time-steps the collected information
   ; is shared with other researchers
   if ticks mod 5 = 4 [
     share-with-others
-  ] 
-  
+  ]
+
 end
 
 
@@ -4702,10 +4702,10 @@ end
 to share-with-others
   ask researchers [
     ; reset the variables
-    set rep-researcher false 
+    set rep-researcher false
     set to-add-mem-argu []
     set to-add-mem-rel []
-    
+
     ; variables to keep track of the current researchers own memory
     ; and the combined memory of all the sharing researchers
     let own-memory-argu subjective-arguments
@@ -4714,30 +4714,30 @@ to share-with-others
     let comb-memory-rel []
     ; collaborator network of the current researcher
     let cur-network collaborator-network
-    
+
     ; the information in the memories of the single researchers in the network
-    ; are combined 
+    ; are combined
     ask turtles with [member? self cur-network] [
       set comb-memory-argu sentence subjective-arguments comb-memory-argu
       set comb-memory-rel sentence subjective-relations comb-memory-rel
     ]
-    
+
     ; each researcher adds the combined memory to its own
     ; then removing duplicates
     set subjective-arguments remove-duplicates sentence
       own-memory-argu comb-memory-argu
     set subjective-relations remove-duplicates sentence
       own-memory-rel comb-memory-rel
-    
-    foreach subjective-arguments [
+
+    foreach subjective-arguments [ [?1] ->
       ; the argument of the current subjective-arguments entry
-      let argu first ?
+      let argu first ?1
       ; the color of the current subjective-arguments entry
-      let my-color first but-first ?
+      let my-color first but-first ?1
       ; a list of subjective-arguments entries that concern
       ; the same argument
-      let color-argu filter [first ? = argu] subjective-arguments
-      set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
+      let color-argu filter [ [??1] -> first ??1 = argu ] subjective-arguments
+      set color-argu sort-by [ [??1 ??2] -> first but-first ??1 < first but-first ??2 ] color-argu
       ; keep only the argument-entry that is researched the most
       ; entries from the same argument but with higher color-value are deleted
       while [length color-argu != 1] [
@@ -4746,12 +4746,12 @@ to share-with-others
       ]
     ]
   ]
-  
-  ; then researchers can share some of their information with researchers 
+
+  ; then researchers can share some of their information with researchers
   ; from neighboring networks in the social structures
   create-share-memory
   share-with-other-networks
-  
+
 end
 
 
@@ -4759,27 +4759,27 @@ end
 
 
 ; procedure in which researchers collect the information from their
-; memory that they want to share with researchers that do not 
+; memory that they want to share with researchers that do not
 ; belong to their own collaborator-network
 to create-share-memory
-  
+
   ; for each collaborator-network one researcher is set to be
   ; the representative researcher
-  foreach colla-networks [
-    ifelse length ? > 1 [
-      ask one-of researchers with [member? self ?][
+  foreach colla-networks [ [?1] ->
+    ifelse length ?1 > 1 [
+      ask one-of researchers with [member? self ?1][
         set rep-researcher true
-      ] 	
+      ]
     ][
     if ticks mod 25 = 4 [
-      ask one-of researchers with [member? self ?][
+      ask one-of researchers with [member? self ?1][
         set rep-researcher true
       ]
     ]
     ]
   ]
-  
-  ; only the representative researchers create a memory 
+
+  ; only the representative researchers create a memory
   ; that they want to share with researchers from other networks
   ask researchers with [rep-researcher][
     let myx xcor
@@ -4788,7 +4788,7 @@ to create-share-memory
     ; the researcher itself and the theory it is working on
     let cur-argum one-of turtles with [(breed = starts or breed = arguments)
       and xcor = myx and ycor = myy]
-    let cur-researcher self 
+    let cur-researcher self
     let cur-th [mytheory] of cur-argum
     ; create a list of arguments and a list of relations that the researcher can
     ; share with researchers from other collaborative networks
@@ -4796,30 +4796,30 @@ to create-share-memory
     ; from the interface
     set th-args []
     set th-relations []
-    
-    ; researchers share only information obtained in the neighborhood 
+
+    ; researchers share only information obtained in the neighborhood
     ; they are currently working on
     ; collect the arguments from the researcher's memory
     ; that belong also to the neighborargs
-    foreach subjective-arguments [
-      if member? item 0 ? [neighborargs] of cur-researcher [
-        set th-args lput ? th-args
+    foreach subjective-arguments [ [?1] ->
+      if member? item 0 ?1 [neighborargs] of cur-researcher [
+        set th-args lput ?1 th-args
       ]
     ]
     ; collect the relations from/to the current argument
     ; from the researcher's memory
-    foreach subjective-relations [
-      if item 1 ? = cur-argum or item 2 ? = cur-argum [
-        set th-relations lput ? th-relations
+    foreach subjective-relations [ [?1] ->
+      if item 1 ?1 = cur-argum or item 2 ?1 = cur-argum [
+        set th-relations lput ?1 th-relations
       ]
     ]
-    
+
     ; if the researcher behaves biased it does not share the attack relations that
     ; attack its current theory, these relations are removed
     if social-actions = "biased"[
-      foreach th-relations [
-        if item 0 ? = "a" and [mytheory] of item 2 ? = cur-th [
-          set th-relations remove ? th-relations
+      foreach th-relations [ [?1] ->
+        if item 0 ?1 = "a" and [mytheory] of item 2 ?1 = cur-th [
+          set th-relations remove ?1 th-relations
         ]
       ]
     ]
@@ -4832,7 +4832,7 @@ end
 
 ; procedure in which the representative researchers of the networks
 ; share information according to the social structure
-to share-with-other-networks 
+to share-with-other-networks
   ask researchers with [rep-researcher][
     ; variables for the combined information (arguments and relations),
     ; the network of the current researcher and the theory it is working on
@@ -4840,32 +4840,32 @@ to share-with-other-networks
     let comb-memory-rel th-relations
     let cur-network sort collaborator-network
     let my-cur-theory [mytheory] of item 0 item 0 th-args
-    
-    ; create a list of the neighboring networks and then a 
+
+    ; create a list of the neighboring networks and then a
     ; list of the representative researchers of these networks
     ; which will be the researchers the current researcher shares with
     let share-researchers []
     let share-neighbors []
-    foreach share-structure [    
-      if first ? = cur-network [
-        set share-neighbors ?
+    foreach share-structure [ [?1] ->
+      if first ?1 = cur-network [
+        set share-neighbors ?1
       ]
     ]
     ask researchers with [rep-researcher][
       let cur-researcher self
-      foreach share-neighbors [
-        if member? cur-researcher ? [
+      foreach share-neighbors [ [?1] ->
+        if member? cur-researcher ?1 [
           set share-researchers lput cur-researcher share-researchers
         ]
       ]
     ]
-    
+
     ; create a list of arguments and a list of relations that is
     ; shared among the share-researchers
-    foreach share-researchers [
+    foreach share-researchers [ [?1] ->
       ; the combined memory is updated to contain that of the sharing researcher
-      set comb-memory-argu sentence comb-memory-argu [th-args] of ?
-      set comb-memory-rel sentence comb-memory-rel [th-relations] of ?
+      set comb-memory-argu sentence comb-memory-argu [th-args] of ?1
+      set comb-memory-rel sentence comb-memory-rel [th-relations] of ?1
     ]
     ; create lists of arguments/relations that have to be added
     foreach share-researchers [
@@ -4874,30 +4874,30 @@ to share-with-other-networks
       set to-add-mem-rel remove-duplicates sentence subjective-relations
         comb-memory-rel
     ]
-  ] 
-  
+  ]
+
   ; to compute the time that researchers have to
   ; spend on communication
-  compute-time-costs 
+  compute-time-costs
 end
 
 
 
 
 
-; procedure that adds the new information to the memory of the 
+; procedure that adds the new information to the memory of the
 ; representative researchers and computes the time they have lost by
 ; communicating
 to compute-time-costs
   ask researchers with [rep-researcher][
-    
+
     ; variables that contain the arguments and relations the
     ; researcher has to update in its memory
     let new-memory-args []
     let new-memory-rel []
-    set new-memory-args filter [not member? ? subjective-arguments]
+    set new-memory-args filter [ [?1] -> not member? ?1 subjective-arguments ]
       to-add-mem-argu
-    set new-memory-rel filter [not member? ? subjective-relations]
+    set new-memory-rel filter [ [?1] -> not member? ?1 subjective-relations ]
       to-add-mem-rel
     let comb-new sentence new-memory-args new-memory-rel
     ; every tick an researcher can obtain a maximum of 10 new entries
@@ -4907,8 +4907,8 @@ to compute-time-costs
     ][
     set communicating ((ceiling (length comb-new / max-learn)) + 1)
     ]
-    
-    ; every communication round an researcher can update a maximum of 
+
+    ; every communication round an researcher can update a maximum of
     ; 3 * max-learn new arguments/relations (corresponding to three ticks of
     ; communication) these new arguments and relations are added to the
     ; memory of the researcher
@@ -4919,8 +4919,8 @@ to compute-time-costs
       let repeats length comb-new - (3 * max-learn)
       while [length comb-new > repeats] [
         let cur-entr first comb-new
-        let new-mem-argargs filter [member? ? new-memory-args] comb-new
-        set new-mem-argargs map [first ?] new-mem-argargs
+        let new-mem-argargs filter [ [?1] -> member? ?1 new-memory-args ] comb-new
+        set new-mem-argargs map [ [?1] -> first ?1 ] new-mem-argargs
         ifelse member? cur-entr new-memory-args [
           set subjective-arguments lput cur-entr subjective-arguments
           set comb-new remove cur-entr comb-new
@@ -4929,21 +4929,21 @@ to compute-time-costs
         set comb-new remove cur-entr comb-new
         if member? item 1 cur-entr new-mem-argargs[
           let item-1-cur-entr item 1 cur-entr
-          foreach comb-new [
-            if item-1-cur-entr = item 0 ? [
-              set subjective-arguments lput ? subjective-arguments
-              set comb-new remove ? comb-new
+          foreach comb-new [ [?1] ->
+            if item-1-cur-entr = item 0 ?1 [
+              set subjective-arguments lput ?1 subjective-arguments
+              set comb-new remove ?1 comb-new
             ]
-          ] 
+          ]
         ]
         if member? item 2 cur-entr new-mem-argargs[
           let item-2-cur-entr item 2 cur-entr
-          foreach comb-new [
-            if item-2-cur-entr = item 0 ? [
-              set subjective-arguments lput ? subjective-arguments
-              set comb-new remove ? comb-new
+          foreach comb-new [ [?1] ->
+            if item-2-cur-entr = item 0 ?1 [
+              set subjective-arguments lput ?1 subjective-arguments
+              set comb-new remove ?1 comb-new
             ]
-          ] 
+          ]
         ]
         ]
       ]
@@ -4966,15 +4966,15 @@ to duplicate-remover
   ask researchers [
     ; list of arguments of which the duplicates will be removed
     let new-args subjective-arguments
-    foreach new-args [
+    foreach new-args [ [?1] ->
       ; the argument of the current entry and its color
-      let argu first ?
-      let my-color first but-first ?
+      let argu first ?1
+      let my-color first but-first ?1
       ; list of entries with the same argument, but maybe different color
-      let color-argu filter [first ? = argu] new-args
+      let color-argu filter [ [??1] -> first ??1 = argu ] new-args
       ; remove entries of arguments that are also present as
       ; better researched entries
-      set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
+      set color-argu sort-by [ [??1 ??2] -> first but-first ??1 < first but-first ??2 ] color-argu
       while [length color-argu != 1] [
         set new-args remove last color-argu new-args
         set color-argu but-last color-argu
@@ -4997,7 +4997,7 @@ end
 to move-around
   ; variable to make sure that the procedure find-defense
   ; is only run once
-  let run-find-defense false 
+  let run-find-defense false
   ; at the beginning of the procedure no researcher has moved yet
   ask researchers [
     set moved false
@@ -5011,17 +5011,17 @@ to move-around
      ; the researcher itself
         let myargu one-of turtles with [(breed = starts or breed = arguments) and
         xcor = myx and ycor = myy]
-      
+
       ; a list of not-admissible arguments is created
       let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-        let info-not-admissible filter [not member? ? admissible-subj-argu]
+        let info-not-admissible filter [ [?1] -> not member? ?1 admissible-subj-argu ]
           subjective-arguments
-        foreach info-not-admissible [
-          set not-admissible lput item 0 ? not-admissible
+        foreach info-not-admissible [ [?1] ->
+          set not-admissible lput item 0 ?1 not-admissible
         ]
       ]
-   
+
       ; an researcher working on an attacked argument will try to find a defense for
       ; this attack, by working further on the attacked argument, unless it
       ; discoveres a child-argument that that has a defense for the attack
@@ -5029,16 +5029,16 @@ to move-around
       ; the find-defense runs immediately for all researchers working on a not
       ; fully researched not-admissible argument, hence it is only once executed
       if member? myargu not-admissible and not moved[
-      
+
         if not run-find-defense [
           find-defense
           set run-find-defense true
         ]
       ]
-    
-      if not moved and not member? myargu not-admissible or 
+
+      if not moved and not member? myargu not-admissible or
         (member? myargu not-admissible and [color] of myargu = red)[
-        
+
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
@@ -5050,7 +5050,7 @@ to move-around
 	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
 	  [collaborator-network] of curresearcher])] [
         let move-random random-float 1.0
-      
+
 
         ; every time step with small-movement of the move-probability
         ; the researcher moves
@@ -5063,7 +5063,7 @@ to move-around
   	    [collaborator-network] of curresearcher])]
           set moved true
         ][
-      
+
         ; every 5th time step the researcher mover with the full move-probability,
         ; that depends a bit on the color
         if ticks != 0 and ticks mod 5 = 0 and move-random <
@@ -5091,7 +5091,7 @@ to move-around
           [collaborator-network] of curresearcher]]
         set moved true
           ][
-      
+
         ; if moving back is not possible, it jumps to another argument in
         ; the same tree/theory that is discovered but not fully researched
         if [color] of myargu = red[
@@ -5112,7 +5112,7 @@ to move-around
           ]
             ]
       ]
-    ]	
+    ]
   ]
 end
 
@@ -5122,13 +5122,13 @@ end
 
 ; researchers working on a not fully researched attacked argument will try to find a
 ; defense for that attack, by staying on the current argument
-; if a child-argument is discovered that can provide a defense, the 
+; if a child-argument is discovered that can provide a defense, the
 ; researcher moves there
 ; once an argument is fully researched all its relations are discovered,
 ; then an researcher can move on and can try to find a defense in another branch,
 ; further away
 to find-defense
-  ask researchers with [not moved][    
+  ask researchers with [not moved][
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myx xcor
@@ -5137,20 +5137,20 @@ to find-defense
       ; for the researcher itself
       let myargu one-of turtles with [(breed = starts or breed = arguments) and
         xcor = myx and ycor = myy]
-    
+
       ; lists of arguments that are not admissible
       let not-admissible []
       if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-        let info-not-admissible filter [not member? ? admissible-subj-argu]
+        let info-not-admissible filter [ [?1] -> not member? ?1 admissible-subj-argu ]
           subjective-arguments
-        foreach info-not-admissible [
-          set not-admissible lput item 0 ? not-admissible
+        foreach info-not-admissible [ [?1] ->
+          set not-admissible lput item 0 ?1 not-admissible
         ]
       ]
-    
+
       ; if the current argument is not fully researched and not admissible
       ; and it is a 5th time step or the researcher is not communicating
-      ; the researcher tries to move prospectively to a child-argument of the current 
+      ; the researcher tries to move prospectively to a child-argument of the current
       ; argument that provides a defense for the current argument
       if member? myargu not-admissible[
         ask myargu [
@@ -5192,22 +5192,22 @@ to update-landscape
   ask turtles with [breed = arguments or breed = starts][
     let myx xcor
     let myy ycor
-    ; discoveries only occur when an researcher is working on that argument, 
+    ; discoveries only occur when an researcher is working on that argument,
     ; it is the 5th time step or the researcher does not communicate
-    ; working on an argument means that the researcher did 
+    ; working on an argument means that the researcher did
     ; not communicate in that round
-    if any? turtles with [breed = researchers and xcor = myx and ycor = myy and 
-      communicating = 0] or (any? turtles with [breed = researchers and 
+    if any? turtles with [breed = researchers and xcor = myx and ycor = myy and
+      communicating = 0] or (any? turtles with [breed = researchers and
       xcor = myx and ycor = myy] and ticks mod 5 = 0)[
       set researcher-ticks researcher-ticks + 1
-      
+
       ; the color of an argument is changed if researchers have been working
       ; on that argument for research-speed time steps
       if researcher-ticks mod research-speed = 0 and color != red[
         set color color - 10
         if color = red [set full-research true]
       ]
-        
+
       ; depending on the color a new child-argument is discovered, until all
       ; child-arguments are discovered
       if color = yellow and count out-discovery-neighbors with
@@ -5255,7 +5255,7 @@ to update-landscape
       ; not fully researched
       if ticks mod 5 = 0 and color != red [
         let attack-random random-float 1.00
-        
+
         ; with visibility-probability a new attacked/attacking argument is
         ; discovered
         if attack-random < visibility-probability [
@@ -5268,11 +5268,11 @@ to update-landscape
         ]
       ]
     ]
-    
+
     ; once an argument is fully researched all its relations to other arguments
     ; are discovered as well
     full-discovery
-    
+
     ; if both ends of a discovery relation are discovered
     ; by research, the relation is discovered as well
     if color != gray [
@@ -5283,7 +5283,7 @@ to update-landscape
       ]
     ]
   ]
-  
+
   ; at the end of the time steps 1, 2, 3 and 4 communicating researchers
   ; decrease their communicating value by 1
   if ticks mod 5 != 0 [
@@ -5297,16 +5297,16 @@ end
 
 
 
-; procedure that makes sure that fully researched arguments have a fully 
+; procedure that makes sure that fully researched arguments have a fully
 ; discovered neighborhood
-to full-discovery 
+to full-discovery
   ask turtles with [breed = arguments or breed = starts and full-research][
     let myx xcor
     let myy ycor
-    if any? turtles with [breed = researchers and xcor = myx and ycor = myy and 
-      communicating = 0] or (ticks mod 5 = 0 and any? turtles with 
+    if any? turtles with [breed = researchers and xcor = myx and ycor = myy and
+      communicating = 0] or (ticks mod 5 = 0 and any? turtles with
       [breed = researchers and xcor = myx and ycor = myy])[
-      
+
       ; once an argument is fully researched all its relations,
       ; attack and discovery, are discovered
       if any? out-discovery-neighbors with [color = gray or color = turquoise][
@@ -5317,7 +5317,7 @@ to full-discovery
           ]
         ]
       ]
-     
+
       ; note that in the case of an attack relation the other argument
       ; is not really discovered: it needs to be discovered by a discovery
       ; relation in the other theory to become lime
@@ -5348,7 +5348,7 @@ end
 ; the procedures that are involved in
 ; calculating the best theory for an researcher
 ; to work on:
-; 1. computing the arguments in the memory 
+; 1. computing the arguments in the memory
 ;    that are not admissible
 ; 2. computing the best theory based on the
 ;    number of non-admissible arguments
@@ -5362,38 +5362,38 @@ end
 ; based on their memory researchers compute lists of attacked arguments
 ; with these lists the current best theory is computed
 to compute-strategies-researchers
-  
+
   ; researchers start with figuring out which argument in their
   ; memory are admissible and which are attacked
   compute-subjective-attacked
- 
+
   ask researchers with [not rep-researcher][
     set cur-best-th []
-    ; variables for the list that contains the number admissible arguments 
+    ; variables for the list that contains the number admissible arguments
     ; per theory and a sublist which contains only the numbers that are
     ; within the strategy-threshold
     let list-admissible-arguments []
     let threshold-admissible-arguments []
-    
+
     ; create a list with the number of admissible arguments
     ; of each of the theories
-    foreach current-theory-info [
-      set list-admissible-arguments lput item 1 ? list-admissible-arguments
+    foreach current-theory-info [ [?1] ->
+      set list-admissible-arguments lput item 1 ?1 list-admissible-arguments
     ]
     set list-admissible-arguments sort list-admissible-arguments
-    
+
     ; a list of theories with values within the strategy threshold is constructed
-    set threshold-admissible-arguments filter [? >=
-      ((max list-admissible-arguments) * strategy-threshold)]
+    set threshold-admissible-arguments filter [ [?1] -> ?1 >=
+      ((max list-admissible-arguments) * strategy-threshold) ]
         list-admissible-arguments
     set threshold-admissible-arguments sort threshold-admissible-arguments
-    
+
     ; computation of the current best theory
     ; theories with a number of admissible arguments that are
     ; within the threshold can be considered as current best theory
-    foreach current-theory-info [
-      if member? item 1 ? threshold-admissible-arguments [
-        set cur-best-th lput item 0 ? cur-best-th
+    foreach current-theory-info [ [?1] ->
+      if member? item 1 ?1 threshold-admissible-arguments [
+        set cur-best-th lput item 0 ?1 cur-best-th
       ]
     ]
   ]
@@ -5411,53 +5411,53 @@ to compute-subjective-attacked
     ; the current-theory-info with 0 admissible arguments; an updated number
     ; of admissible arguments during the recursive computation; the arguments
     ; that are not admissible; the arguments that the researchers knows about; and
-    ; the arguments that are attacked by the current theory 
+    ; the arguments that are attacked by the current theory
     let new-info []
     let new-cur-info []
     let not-admissible []
     let args-cur-arguments []
     let attacked-by-me []
-    
+
     ; create a list of only the attacks
     let attack-relations []
-    foreach subjective-relations [
-      if first ? = "a" [
-        set attack-relations lput ? attack-relations
+    foreach subjective-relations [ [?1] ->
+      if first ?1 = "a" [
+        set attack-relations lput ?1 attack-relations
       ]
     ]
     ; create lists of attacked and attacking arguments
     let cur-attacked []
     let cur-attacker []
-    foreach attack-relations [
-      set cur-attacked lput last ? cur-attacked
-      set cur-attacker lput first but-first ? cur-attacker
+    foreach attack-relations [ [?1] ->
+      set cur-attacked lput last ?1 cur-attacked
+      set cur-attacker lput first but-first ?1 cur-attacker
     ]
-    
-    ; create a list of the arguments the researchers knows about and 
+
+    ; create a list of the arguments the researchers knows about and
     ; set the number of admissible arguments for each theory to 0
-    foreach subjective-arguments [
-      set args-cur-arguments lput first ? args-cur-arguments
+    foreach subjective-arguments [ [?1] ->
+      set args-cur-arguments lput first ?1 args-cur-arguments
     ]
-    foreach current-theory-info [
-      set new-info lput replace-item 1 ? 0 new-info
+    foreach current-theory-info [ [?1] ->
+      set new-info lput replace-item 1 ?1 0 new-info
     ]
     set current-theory-info new-info
-    
+
     ; the computation of the admissible arguments is done recursively
     ; a list of arguments that are currently considered attacked
     let open-rec []
     ; variable that lets the loop run at least one time
     let i 0
-    foreach current-theory-info [
+    foreach current-theory-info [ [?1] ->
       ; the theory that is considered in this loop
       ; and the root of that theory (the start)
-      let cur-theory ?
+      let cur-theory ?1
       let askstart item 0 cur-theory
       while [ i < 1 or not empty? open-rec][
         set not-admissible sentence not-admissible open-rec
         set open-rec []
         set attacked-by-me []
-        
+
         ; create a list of arguments that are attacked by the current theory
         ; based on the memory of the current researcher
         if not empty? attack-relations [
@@ -5468,15 +5468,15 @@ to compute-subjective-attacked
               ; attacked by that argument
               let cur-turtle self
               let my-attacked []
-              foreach attack-relations [
-                if first but-first ? = cur-turtle [
-                  set my-attacked lput last ? my-attacked
+              foreach attack-relations [ [??1] ->
+                if first but-first ??1 = cur-turtle [
+                  set my-attacked lput last ??1 my-attacked
                 ]
               ]
               set attacked-by-me sentence my-attacked attacked-by-me
             ]
           ]
-          
+
           ; arguments that are attacked by arguments from another theory that are
           ; not attacked by non-attacked arguments from the current theory
           ; are added to the open-rec list, the list of attacked-arguments
@@ -5484,9 +5484,9 @@ to compute-subjective-attacked
 	          mytheory = askstart and not member? self not-admissible and
 	          member? self cur-attacked][
           let cur-turtle self
-          foreach attack-relations [
-            if last ? = cur-turtle [
-              if not member? last but-last ? attacked-by-me [
+          foreach attack-relations [ [??1] ->
+            if last ??1 = cur-turtle [
+              if not member? last but-last ??1 attacked-by-me [
                 set open-rec lput cur-turtle open-rec
               ]
             ]
@@ -5496,19 +5496,19 @@ to compute-subjective-attacked
         set i i + 1
       ]
       set i 0
-      
+
       ; for the update of the information in current-theory-info
       set new-cur-info lput replace-item 1 cur-theory (count turtles with
         [member? self args-cur-arguments and mytheory = askstart] -
 	      count turtles with [member? self not-admissible and mytheory = askstart])
 	        new-cur-info
     ]
-    
+
     ; arguments that are part of the not-admissible list
     ; are not part of the admissible subjective arguments and hence removed
     set admissible-subj-argu subjective-arguments
-    foreach subjective-arguments [
-      let cur-argu ?
+    foreach subjective-arguments [ [?1] ->
+      let cur-argu ?1
       if member? first cur-argu not-admissible [
         set admissible-subj-argu remove cur-argu admissible-subj-argu
       ]
@@ -5531,26 +5531,26 @@ to act-on-strategy-researchers
     if not empty? cur-best-th and not member? nobody cur-best-th [
       let myx xcor
       let myy ycor
-      
+
       ; if the researcher is not currently working on the best theory
       ; it considers jumping
-      foreach subjective-arguments [
-        if [xcor] of item 0 ? = myx and [ycor] of item 0 ? = myy and
-        not member? [mytheory] of item 0 ? cur-best-th [
+      foreach subjective-arguments [ [?1] ->
+        if [xcor] of item 0 ?1 = myx and [ycor] of item 0 ?1 = myy and
+        not member? [mytheory] of item 0 ?1 cur-best-th [
           set theory-jump theory-jump + 1
         ]
       ]
-      
+
       ; if the researcher has considered jumping jump-threshold times
       ; it jumps to one of the theories it considers best, based
       ; on its memory and the computations
       if theory-jump >= jump-threshold [
         let ch-best one-of cur-best-th
         let subj-argus []
-        foreach subjective-arguments [
-          set subj-argus lput item 0 ? subj-argus
+        foreach subjective-arguments [ [?1] ->
+          set subj-argus lput item 0 ?1 subj-argus
         ]
-        
+
         ; if one of the arguments from the best theory is in its memory
         ; the researcher will jump there
         ifelse any? turtles with [(breed = starts or breed = arguments) and
@@ -5560,7 +5560,7 @@ to act-on-strategy-researchers
           ][ ; otherwise the researcher jumps to the root of the theory
           move-to ch-best
           ]
-        
+
         set times-jumped times-jumped + 1
         set theory-jump 0
       ]
@@ -5573,10 +5573,10 @@ end
 GRAPHICS-WINDOW
 210
 135
-883
-829
-25
-25
+881
+807
+-1
+-1
 13.0
 1
 10
@@ -5657,7 +5657,7 @@ number-of-theories
 number-of-theories
 2
 3
-3
+3.0
 1
 1
 NIL
@@ -5672,7 +5672,7 @@ theory-depth
 theory-depth
 1
 5
-3
+3.0
 1
 1
 NIL
@@ -5687,7 +5687,7 @@ scientists
 scientists
 5
 100
-50
+50.0
 5
 1
 NIL
@@ -5767,7 +5767,7 @@ research-speed
 research-speed
 0
 50
-5
+5.0
 5
 1
 NIL
@@ -5807,7 +5807,7 @@ jump-threshold
 jump-threshold
 1
 25
-10
+10.0
 1
 1
 NIL
@@ -5847,7 +5847,7 @@ PENS
 "best theory" 1.0 0 -2674135 true "" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 1[\nplotxy ticks [myscientists] of first all-theories]"
 "start 2" 1.0 0 -955883 true "" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 2[\nplot [myscientists] of first (but-first all-theories)\n]"
 "start 3" 1.0 0 -1184463 true "" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 3 [\nplot [myscientists] of first (but-first (but-first all-theories))\n]"
-"start 4" 1.0 0 -10899396 true "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 4 [ \nplot [myscientists] of last all-theories\n]"
+"start 4" 1.0 0 -10899396 true "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 4 [\nplot [myscientists] of last all-theories\n]"
 
 TEXTBOX
 10
@@ -5911,7 +5911,7 @@ BUTTON
 185
 43
 NIL
-run-many\n
+run-many
 NIL
 1
 T
@@ -5938,7 +5938,7 @@ BUTTON
 125
 43
 go-stop
-setup\ngo\nwhile [any? arguments with \n  [color != red and \n    [myscientists] of mytheory !=  0]][\n  go\n]
+setup\ngo\nwhile [any? arguments with\n  [color != red and\n    [myscientists] of mytheory !=  0]][\n  go\n]
 NIL
 1
 T
@@ -6422,9 +6422,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -6459,7 +6458,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@
