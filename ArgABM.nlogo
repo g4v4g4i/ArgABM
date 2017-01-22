@@ -46,8 +46,7 @@ arguments-own [mytheory current-argument researcher-ticks full-research]
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   admissible-subj-argu th-args th-relations communicating neighborargs moved
-  rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
-	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu]
+  rep-researcher to-add-mem-argu to-add-mem-rel conference-attended non-admiss-subj-argu]
 
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables
@@ -59,8 +58,7 @@ globals [times-right number-of-theories-many theory-depth-many
 	startsargum]
 
 ; includes
-__includes ["setup.nls" "behavior.nls" "strategies.nls" "setup-old.nls"
- "behavior-old.nls" "strategies-old.nls" "run-many.nls" "testprocedures.nls"]
+__includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
 
