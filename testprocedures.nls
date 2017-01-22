@@ -441,6 +441,8 @@ to profile [repetitions version]
 	if version = "v51" [set go-version [ [] -> go-test-v51 ]]
 	if version = "v61" [set go-version [ [] -> go-test-v61 ]]
 	if version = "v71" [set go-version [ [] -> go-test-v71 ]]
+	if version = "go" [set go-version [ [] -> go ]]
+	if version = "v81" [set go-version [ [] -> go-test-v81 ]]
 	profilecore repetitions go-version
 end
 
@@ -841,6 +843,59 @@ end
 
 
 
+to-report merge-arg-wo-duplicates2 [alist blist flag]
+	if flag [
+		set blist remove-duplicates blist
+		foreach blist [ [?1] ->
+			let argu first ?1
+			let my-color item 1 ?1		
+			let duplicate-check filter [ [??1] -> first ??1 = argu ] blist
+			foreach duplicate-check [ [??1] ->
+				if item 1 ??1 > my-color [
+					set blist remove ??1 blist
+				]
+			]			
+		]
+	]
+	foreach blist [ [?1] ->
+		let argu first ?1
+		let my-color item 1 ?1
+		; if flag [
+			; let duplicate-check filter [ [??1] -> first ??1 = argu ] blist
+			; foreach duplicate-check [ [??1] ->
+				; if item 1 ??1 > my-color [
+					; set blist remove ??1 blist
+				; ]
+			; ]
+		; ]
+		; argu-old will contain the current argument (argu) from blist if this
+		; argument also is present in alist. argu-old is a nested list:
+		; lists [[(argu) color-argu-in-alist]]
+		let argu-old filter [ [??1] -> first ??1 = argu ] alist
+		if not empty? argu-old [
+			; item 0 will reduce the degree of nestedness of the argu-old by one i.e.
+			; argu-old will now now be [(argu) color-argu-in-alist]	
+			set argu-old item 0 argu-old
+			if my-color < item 1 argu-old [
+			let argument-position position argu-old alist
+				if argument-position != false [
+					set alist replace-item argument-position alist ?1
+				]
+			]
+			if my-color >= item 1 argu-old [
+				set blist remove ?1 blist
+			]
+		]
+	]
+	; finally the lists which had their respective duplicates removed are merged
+	; and identical entries are removed. The result is then reported
+  set alist remove-duplicates sentence alist blist
+	report alist
+end
+
+
+
+
 to test-test [argu blist]
 	let duplicate-check filter [ [?1] -> first ?1 = argu ] blist
 end
@@ -1046,6 +1101,35 @@ to go-test-v71
   compute-popularity-tst7
   tick
 end
+
+
+
+to go-test-v81
+  update-memories-test7
+
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+		share-with-others-test8
+		create-share-memory-test7
+		share-with-other-networks-test5
+		compute-time-costs-test5
+    ; update-memories-test
+		compute-subj-attacked-test7
+		compute-strategies-researchers-test6
+    act-on-strat-ag-tst7
+  ]
+  move-around-test7
+  update-landscape-test7
+	full-discovery-test7
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-tst7
+  tick
+end
+
 
 
 to go-test
@@ -3501,5 +3585,63 @@ to compute-subj-attacked-test7
 			]
 		 ]
 	 ]
+end
+
+
+
+
+to share-with-others-test8
+	foreach colla-networks [ [?1] ->
+		let group-sharing-done false
+		let grp-share-researcher []
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
+				ifelse group-sharing-done [
+					ask cur-researcher [
+						set rep-researcher false
+						set subjective-arguments [subjective-arguments] of grp-share-researcher
+						set subjective-relations [subjective-relations] of grp-share-researcher
+					]
+				][
+					set group-sharing-done true
+					set grp-share-researcher cur-researcher
+					ask cur-researcher [
+						; reset the variables
+						set rep-researcher false
+						set to-add-mem-argu []
+						set to-add-mem-rel []
+
+						; variables to keep track of the current researchers own memory
+						; and the combined memory of all the sharing researchers
+						; let own-memory-argu subjective-arguments
+						; let own-memory-rel subjective-relations
+						let comb-memory-argu []
+						let comb-memory-rel []
+						; collaborator network of the current researcher
+						let cur-network collaborator-network
+
+						; the information in the memories of the single researchers in the network
+						; are combined
+
+						foreach cur-group [ [???1] ->
+							let input-researcher ???1
+							set comb-memory-argu sentence [subjective-arguments] of input-researcher comb-memory-argu
+							set comb-memory-rel sentence [subjective-relations] of input-researcher comb-memory-rel
+						 ]
+
+						; each researcher adds the combined memory to its own
+						; then removing duplicates
+						set subjective-arguments (merge-arg-wo-duplicates2 subjective-arguments comb-memory-argu true)
+						set subjective-relations remove-duplicates sentence
+							subjective-relations comb-memory-rel
+
+							]
+						]
+		 ]
+	 ]
+
+  ; then researchers can share some of their information with researchers
+  ; from neighboring networks in the social structures
 end
 
