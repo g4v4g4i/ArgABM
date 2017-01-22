@@ -18,10 +18,12 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
   define-attack-relation
   distribute-researchers scientistsno
   reset-ticks
+	set startsargum turtles with [breed = starts or breed = arguments]
 	ask researchers [
-		set lastalist []
-		set lastblist []
-		set lastalistafter []
+		set conference-attended false
+		set to-add-mem-argu []
+		set to-add-mem-rel []
+		set non-admiss-subj-argu []
 	]
 end
 
@@ -381,8 +383,8 @@ to distribute-researchers-within-theory-on
       empty? collaborator-network][
       while [count researchers with [xcor = myx and ycor = myy and
         empty? collaborator-network] > 5][
-        ; five researchers are added to the list cur-col
-        ; which is then set as the collaborator-network of each of these researchers
+        ; five researchers are added to the list cur-col which is then set as
+				; the collaborator-network of each of these researchers
         ask n-of 5 researchers with [xcor = myx and ycor = myy and
 	        empty? collaborator-network] [
           set cur-col lput self cur-col
@@ -434,15 +436,9 @@ end
 to compute-popularity
   ; initialize the variable at 0
   ask starts [ set myscientists 0 ]
-
   ask researchers [
-    ; variables for x and y coordinate of the current researcher,
-    ; the argument it is currently working on and the
-    ; theory this argument belongs to
-    let myx xcor
-    let myy ycor
-    let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]
+    ; set myargu to the the argument the current researcher is investigating
+		let myargu gps
     let mystart [mytheory] of myargu
 
     ; the myscientists variable of the theory the researcher
@@ -493,11 +489,13 @@ to create-networks
         let to-add-structure1 []
         let to-add-structure2 []
         set to-add-structure1 lput first connect-networks to-add-structure1
-        set to-add-structure1 lput first but-first connect-networks to-add-structure1
+        set to-add-structure1 lput first but-first connect-networks
+				to-add-structure1
         set to-add-structure1 lput last connect-networks to-add-structure1
         set to-add-structure2 lput last connect-networks to-add-structure2
         set to-add-structure2 lput first connect-networks to-add-structure2
-        set to-add-structure2 lput last but-last connect-networks to-add-structure2
+        set to-add-structure2 lput last but-last connect-networks
+				to-add-structure2
         set share-structure lput to-add-structure1 share-structure
         set share-structure lput to-add-structure2 share-structure
       ][
@@ -524,7 +522,8 @@ to create-networks
       set share-structure lput reverse colla-networks share-structure
       if length colla-networks = 3 [
         let add-colla-networks []
-        set add-colla-networks lput first but-first colla-networks add-colla-networks
+        set add-colla-networks lput first but-first colla-networks
+				add-colla-networks
         set add-colla-networks lput first colla-networks add-colla-networks
         set add-colla-networks lput last colla-networks add-colla-networks
         set share-structure lput add-colla-networks share-structure
@@ -549,12 +548,14 @@ to create-networks
         let to-add-structure1 []
         let to-add-structure2 []
         set to-add-structure1 lput first connect-networks to-add-structure1
-        set to-add-structure1 lput first but-first connect-networks to-add-structure1
+        set to-add-structure1 lput first but-first connect-networks
+				to-add-structure1
         set to-add-structure1 lput last connect-networks to-add-structure1
         set to-add-structure1 lput middle to-add-structure1
         set to-add-structure2 lput last connect-networks to-add-structure2
         set to-add-structure2 lput first connect-networks to-add-structure2
-        set to-add-structure2 lput last but-last connect-networks to-add-structure2
+        set to-add-structure2 lput last but-last connect-networks
+				to-add-structure2
         set to-add-structure2 lput middle to-add-structure2
         set share-structure lput to-add-structure1 share-structure
         set share-structure lput to-add-structure2 share-structure

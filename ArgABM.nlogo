@@ -40,39 +40,52 @@ arguments-own [mytheory current-argument researcher-ticks full-research]
 ; that it should jump to another theory, how many times it jumped,
 ; the social network it belongs to, its current subjective landscape,
 ; the current best theory, if it received information at the current time
-; the information in its neighborhood, whether it moved, if it is the representative
-; researcher of its network and the new arguments/relations that are to be added
+; the information in its neighborhood, whether it moved, if it is the
+; representative researcher of its network and the new arguments/relations
+; that are to be added
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   admissible-subj-argu th-args th-relations communicating neighborargs moved
-  rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu]
+  rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
+	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu]
 
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables
+; startsargum is an agentset which contains all arguments (including starts)
 globals [times-right number-of-theories-many theory-depth-many
   scientists-many setup-successful-m setup-successful-p setup-time
   setup-discovered setup-discovered-best setup-jumps
-  max-learn small-movement color-move colla-networks share-structure]
+  max-learn small-movement color-move colla-networks share-structure
+	startsargum]
 
 ; includes
-__includes ["setup.nls" "behavior.nls" "strategies.nls" "setup-old.nls" "behavior-old.nls" "strategies-old.nls" "run-many.nls" "testprocedures.nls"]
+__includes ["setup.nls" "behavior.nls" "strategies.nls" "setup-old.nls"
+ "behavior-old.nls" "strategies-old.nls" "run-many.nls" "testprocedures.nls"]
 
 
 
 ; procedure that lets the program run, after the landscape was setup
 ; every five time steps researchers update their memory and compute the
 ; best strategy
-; researchers always move around and update the landscape (with the probabilities
-; as set in the interface)
+; researchers always move around and update the landscape (with the
+; probabilities as set in the interface)
 to go
   update-memories
-  duplicate-remover
   if ticks mod 5 = 4 [
-    compute-strategies-researchers
-    act-on-strategy-researchers
+		share-with-others
+		create-share-memory
+		share-with-other-networks
+		compute-time-costs
+		compute-subjective-attacked
+		compute-strategies
+    act-on-strategies
   ]
   move-around
   update-landscape
+	full-discovery
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
   compute-popularity
   tick
 end

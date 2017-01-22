@@ -4,7 +4,7 @@ extensions [profiler]
 ; experimental: this file is not properly commented
 
 
-globals [ctiho startsargum] ;current-theory(2)-info-hand-over (sorted)
+globals [ctiho] ;current-theory(2)-info-hand-over (sorted)
 
 to calc-global-admiss-core [vis] ;vis for visibility
 	let new-info []
@@ -773,7 +773,7 @@ to update-memories-test2
 end
 
 
-to-report merge-arg-wo-duplicates [alist blist flag]
+to-report merge-arg-wo-duplicates-backup [alist blist flag]
 
 	if flag [
 		set blist remove-duplicates blist
@@ -838,6 +838,8 @@ to-report merge-arg-wo-duplicates [alist blist flag]
 	; ]
 	report alist
 end
+
+
 
 to test-test [argu blist]
 	let duplicate-check filter [ [?1] -> first ?1 = argu ] blist
@@ -1073,6 +1075,7 @@ to setuprs [rs]
   initialize-hidden-variables
   create-discovery-landscape number-of-theories theory-depth
   define-attack-relation
+	; scientists is the chooser for the number of researchers from the interface
   distribute-researchers scientists
   reset-ticks
 	set startsargum turtles with [breed = starts or breed = arguments]
@@ -1084,7 +1087,7 @@ to setuprs [rs]
 		set conference-attended false
 		set to-add-mem-argu []
 		set to-add-mem-rel []
-
+		set non-admiss-subj-argu []
 	]
 end
 
@@ -2313,15 +2316,6 @@ to compute-time-costs-test5
 	]
 end
 
-to-report gps
-	let myx xcor
-	let myy ycor
-	; variable for the argument the researcher is currently working on and
- ; the researcher itself
-	let myargu one-of startsargum with [xcor = myx and ycor = myy]
-	; let myargu one-of turtles with [xcor = myx and ycor = myy and (breed = starts or breed = arguments)]
-	report myargu
-end
 
 to-report non-admiss-args
 	; let not-admissible []
@@ -2332,6 +2326,7 @@ to-report non-admiss-args
 	; ]
 	report non-admiss-subj-argu
 end
+
 
 ; move, but not both
 to move-around-test6
@@ -2989,6 +2984,7 @@ to compute-popularity-tst7
   ]
 end
 
+
 ; move, but not both
 to move-around-test7
   ; variable to make sure that the procedure find-defense
@@ -3145,18 +3141,6 @@ to move-around-test7
   ]
 end
 
-to-report group-member-here [curresearcher] ;aargu = the argument which is asking whether a group member researcher is her
-	ifelse any? researchers with [
-	   xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-           [collaborator-network] of curresearcher]
-	[
-		report true
-	][
-		report false
-	]
-
-end
-
 
 to find-defense-test7
   ask researchers with [not moved][
@@ -3223,17 +3207,10 @@ to find-defense-test7
   ]
 end
 
-to-report non-comm-scientists-here [myx myy]
-	ifelse any? researchers with [xcor = myx and ycor = myy and
-      communicating = 0] or (ticks mod 5 = 0 and any? researchers with [xcor = myx and ycor = myy])
-	[
-		report true
-	][
-		report false
-	]
-end
+
 ; every five time steps the landscape is updated:
 ; new arguments become visible and attacks are discovered
+
 to update-landscape-test7
   ask startsargum [
     let myx xcor
@@ -3341,12 +3318,6 @@ to update-landscape-test7
       ; set communicating communicating - 1
     ; ]
   ; ]
-end
-
-to communication-regress
-    ask researchers with [communicating > 0][
-      set communicating communicating - 1
-    ]
 end
 
 
@@ -3531,3 +3502,4 @@ to compute-subj-attacked-test7
 		 ]
 	 ]
 end
+
