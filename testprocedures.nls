@@ -431,7 +431,7 @@ end
 
 to profile [repetitions version]
 	let go-version 0
-	if version = "old" [set go-version [ [] -> go ]]
+	if version = "old" [set go-version [ [] -> go-old ]]
 	if version = "v1" [set go-version [ [] -> go-test-v1 ]]
 	if version = "v2" [set go-version [ [] -> go-test-v2 ]]
 	if version = "v31" [set go-version [ [] -> go-test-v31 ]]
@@ -883,15 +883,15 @@ to go-test-v2
 	; ]
   if ticks mod 5 = 4 [
     update-memories-test
-		compute-strategies-researchers
+		compute-strategies-researchers-old
     act-on-strategy-researchers-test
   ]
   move-around-test
-  update-landscape
+  update-landscape-old
 	ask researchers [
 		set flag-updated-memory false
 	]
-  compute-popularity
+  compute-popularity-old
   tick
 end
 
@@ -906,11 +906,11 @@ to go-test-v32
     act-on-strategy-researchers-test
   ]
   move-around-test
-  update-landscape
+  update-landscape-old
 	ask researchers [
 		set flag-updated-memory false
 	]
-  compute-popularity
+  compute-popularity-old
   tick
 end
 
@@ -921,12 +921,12 @@ to go-test-v1
 	; ]
   if ticks mod 5 = 4 [
     ; update-memories-test
-		compute-strategies-researchers
-    act-on-strategy-researchers
+		compute-strategies-researchers-old
+    act-on-strategy-researchers-old
   ]
-  move-around
-  update-landscape
-  compute-popularity
+  move-around-old
+  update-landscape-old
+  compute-popularity-old
   tick
 end
 
@@ -938,24 +938,24 @@ to go-test-v31
   if ticks mod 5 = 4 [
     ; update-memories-test
 		compute-strategies-researchers-test
-    act-on-strategy-researchers
+    act-on-strategy-researchers-old
   ]
-  move-around
-  update-landscape
-  compute-popularity
+  move-around-old
+  update-landscape-old
+  compute-popularity-old
   tick
 end
 
 to go-test-oldv3
-	update-memories
-  duplicate-remover
+	update-memories-old
+  duplicate-remover-old
   if ticks mod 5 = 4 [
     compute-strategies-researchers-test
-    act-on-strategy-researchers
+    act-on-strategy-researchers-old
   ]
-  move-around
-  update-landscape
-  compute-popularity
+  move-around-old
+  update-landscape-old
+  compute-popularity-old
   tick
 end
 
@@ -967,11 +967,11 @@ to go-test-v41
   if ticks mod 5 = 4 [
     ; update-memories-test
 		compute-strategies-researchers-test
-    act-on-strategy-researchers
+    act-on-strategy-researchers-old
   ]
-  move-around
-  update-landscape
-  compute-popularity
+  move-around-old
+  update-landscape-old
+  compute-popularity-old
   tick
 end
 
@@ -988,11 +988,11 @@ to go-test-v51
 		compute-time-costs-test5
     ; update-memories-test
 		compute-strategies-researchers-test
-    act-on-strategy-researchers
+    act-on-strategy-researchers-old
   ]
-  move-around
-  update-landscape
-  compute-popularity
+  move-around-old
+  update-landscape-old
+  compute-popularity-old
   tick
 end
 
@@ -1011,11 +1011,11 @@ to go-test-v61
     ; update-memories-test
 		compute-subj-attacked-test6
 		compute-strategies-researchers-test6
-    act-on-strategy-researchers
+    act-on-strategy-researchers-old
   ]
   move-around-test6
-  update-landscape
-  compute-popularity
+  update-landscape-old
+  compute-popularity-old
   tick
 end
 

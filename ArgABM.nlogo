@@ -55,7 +55,7 @@ globals [times-right number-of-theories-many theory-depth-many
   max-learn small-movement color-move colla-networks share-structure]
 
 ; includes
-__includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls" "testprocedures.nls"]
+__includes ["setup.nls" "behavior.nls" "strategies.nls" "setup-old.nls" "behavior-old.nls" "strategies-old.nls" "run-many.nls" "testprocedures.nls"]
 
 
 
