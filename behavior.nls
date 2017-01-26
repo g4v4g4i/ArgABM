@@ -77,6 +77,120 @@ end
 
 
 
+; a new duplicate remover for lists with arguments + colors it takes a list
+; as input and will report the same list back with each argument only
+; contained once with the the arguments most researched color (i.e. the
+; lowest color value). It is specificially designed for the share-with-others
+; procedure as the merge-arg-wo-duplicates procedure is unfortunately still a
+; bit slow in this regard. 
+to-report arg-list-dupl-remover [alist]
+	set alist remove-duplicates alist
+	let widearglist convert-arglist-long-to-wide alist
+	set alist convert-arglist-wide-to-long widearglist
+	report alist
+end
+
+
+
+; procedure which transforms a argulist with colors of the format
+; [[(argu-1) color-1]...[(argu-i) color-i]] (the long format) and transforms
+; it to [[(argu-1)...(argu-i)] [(argu-j)...] ... [(argu-k)...] [(argu-1) ...
+; (argu-n)]] (the wide format).
+; Here the first nested list [(argu-1) ... (argu-i)] corresponds to all
+; arguments with the color red (redargs) the next is orange (orangeargs),
+; all the way till turquoise and then the last list (argulist):
+; [(argu-i)... (argu-n)] will be a list of all arguments.
+to-report convert-arglist-long-to-wide [longarglist]
+	let redargs []
+	let orangeargs []
+	let brownargs []
+	let yellowargs []
+	let greenargs []
+	let limeargs []
+	let turquoiseargs []
+	let argulist []
+	foreach longarglist	[ [colorarg] ->
+		let curargu item 0 colorarg
+		let curcolor item 1 colorarg
+		set argulist lput curargu argulist
+		if curcolor = 15 [
+			set redargs lput curargu redargs
+		]
+		if curcolor = 25 [
+			set orangeargs lput curargu orangeargs
+		]
+		if curcolor = 35 [
+			set brownargs lput curargu brownargs
+		]
+		if curcolor = 45 [
+			set yellowargs lput curargu yellowargs
+		]
+		if curcolor = 55 [
+			set greenargs lput curargu greenargs
+		]
+		if curcolor = 65 [
+			set limeargs lput curargu limeargs
+		]
+		if curcolor = 75 [
+			set turquoiseargs lput curargu turquoiseargs
+		]
+	]
+	set argulist remove-duplicates argulist
+	let widearglist (list redargs orangeargs brownargs yellowargs greenargs limeargs turquoiseargs argulist)
+	report widearglist
+end
+
+
+; this procedure is the reverse procedure to convert-arglist-long-to-wide.
+; It takes a argument list in the wide format as produced by the long-to-wide
+; procedure and transforms it back into a long-list i.e. the format where
+; each argument has it's color right with it's entry: 
+; [[(argu-1) color-1] ... [(argu-n) color-n]]
+; The output will contain each argument only once with the the most
+; researched color (i.e. the lowest color value)
+to-report convert-arglist-wide-to-long [widearglist]
+	let redargs item 0 widearglist
+	let orangeargs item 1 widearglist
+	let brownargs item 2 widearglist
+	let yellowargs item 3 widearglist
+	let greenargs item 4 widearglist
+	let limeargs item 5 widearglist
+	let turquoiseargs item 6 widearglist
+	let argulist item 7 widearglist
+	let longarglist []
+	foreach argulist
+	[ [argu] ->
+		ifelse member? argu redargs [
+			set longarglist lput list argu 15 longarglist
+		][
+			ifelse member? argu orangeargs [
+				set longarglist lput list argu 25 longarglist
+			][
+				ifelse member? argu orangeargs [
+					set longarglist lput list argu 35 longarglist
+				][
+					ifelse member? argu orangeargs [
+						set longarglist lput list argu 45 longarglist
+					][
+						ifelse member? argu orangeargs [
+							set longarglist lput list argu 55 longarglist
+						][
+							ifelse member? argu orangeargs [
+								set longarglist lput list argu 65 longarglist
+							][
+								set longarglist lput list argu 75 longarglist
+							]
+						]
+					]
+				]
+			]
+		]
+	]	
+	report longarglist
+end
+
+
+
 
 
 
@@ -178,12 +292,8 @@ to update-memories
         ]
       ]
     ]
-
-    ; remove duplicates from the list
-    set subjective-relations remove-duplicates sentence
-      subjective-relations to-add
-		set subjective-arguments (merge-arg-wo-duplicates subjective-arguments
-		to-add-argu false)
+    set subjective-relations sentence subjective-relations to-add
+		set subjective-arguments sentence subjective-arguments to-add-argu
   ]
 end
 
@@ -191,9 +301,8 @@ end
 
 
 
-; procedure in which researchers share (part of) their memory with other researchers
-; first they share their whole memory with researchers from their
-; collaborator-network
+; procedure in which researchers share their memory with other researchers
+; from their collaborator-network (=group)
 to share-with-others
 	foreach colla-networks [ [?1] ->
 		let group-sharing-done false
@@ -229,22 +338,16 @@ to share-with-others
 
 					; the information in the memories of the single researchers in
 					; the network are combined
-
 					foreach cur-group [ [???1] ->
 						let input-researcher ???1
-						set comb-memory-argu sentence [subjective-arguments] of
-						input-researcher comb-memory-argu
-						set comb-memory-rel sentence [subjective-relations] of
-						input-researcher comb-memory-rel
-					 ]
-
-					; each researcher adds the combined memory to its own
-					; then removing duplicates
-					set subjective-arguments (merge-arg-wo-duplicates
-					subjective-arguments comb-memory-argu true)
-					set subjective-relations remove-duplicates sentence
-						subjective-relations comb-memory-rel
-
+						set comb-memory-argu remove-duplicates sentence
+							[subjective-arguments] of input-researcher comb-memory-argu
+						set comb-memory-rel remove-duplicates sentence 
+							[subjective-relations] of	input-researcher comb-memory-rel
+					]
+					; the group-share-researcher adds the combined memory to its own
+					set subjective-arguments (arg-list-dupl-remover comb-memory-argu)
+					set subjective-relations comb-memory-rel
 				]
 			]
 		]
