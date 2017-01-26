@@ -93,6 +93,7 @@ to compute-subjective-attacked
 						let new-cur-info []
 						let not-admissible []
 						let args-cur-arguments []
+						let args-cur-arguments-as 0
 						let attacked-by-me []
 
 						; create a list of only the attacks
@@ -114,10 +115,13 @@ to compute-subjective-attacked
 						; set the number of admissible arguments for each theory to 0
 						foreach subjective-arguments [ [???1] ->
 							set args-cur-arguments lput first ???1 args-cur-arguments
-						 ]
+						]
+						; create an agentset which contains all subjective-arguments
+						set args-cur-arguments-as startsargum with [member? self
+						args-cur-arguments]
 						foreach current-theory-info [ [???1] ->
 							set new-info lput replace-item 1 ???1 0 new-info
-						 ]
+						]
 						set current-theory-info new-info
 
 						; the computation of the admissible arguments is done recursively
@@ -138,8 +142,7 @@ to compute-subjective-attacked
 								; create a list of arguments that are attacked by the current
 								; theory based on the memory of the current researcher
 								if not empty? attack-relations [
-									ask startsargum with [member? self args-cur-arguments and
-									mytheory = askstart][
+									ask args-cur-arguments-as with [mytheory = askstart][
 										if member? self cur-attacker and not member? self
 										not-admissible [
 											; the argument considered and a list of arguments
@@ -147,7 +150,7 @@ to compute-subjective-attacked
 											let cur-turtle self
 											let my-attacked []
 											foreach attack-relations [ [????1] ->
-												if first but-first ????1 = cur-turtle [
+												if item 1 ????1 = cur-turtle [
 													set my-attacked lput last ????1 my-attacked
 												]
 											]
@@ -159,13 +162,13 @@ to compute-subjective-attacked
 									; theory that are not attacked by non-attacked arguments
 									; from the current theory are added to the open-rec list:
 									; the list of attacked-arguments
-									ask startsargum with [member? self args-cur-arguments and
-										mytheory = askstart and not member? self not-admissible and
+									ask args-cur-arguments-as with [mytheory = askstart and
+										not member? self not-admissible and
 										member? self cur-attacked][
 										let cur-turtle self
 										foreach attack-relations [ [????1] ->
 											if last ????1 = cur-turtle [
-												if not member? last but-last ????1 attacked-by-me [
+												if not member? item 1 ????1 attacked-by-me [
 													set open-rec lput cur-turtle open-rec
 												]
 											]
@@ -178,9 +181,8 @@ to compute-subjective-attacked
 
 							; update of the information in current-theory-info
 							set new-cur-info lput replace-item 1 cur-theory (count
-							startsargum with
-								[member? self args-cur-arguments and mytheory = askstart] -
-								count startsargum with 
+								args-cur-arguments-as with [mytheory = askstart] -
+								count args-cur-arguments-as with 
 								[member? self not-admissible and mytheory = askstart])
 									new-cur-info
 						]
@@ -209,7 +211,6 @@ to compute-subjective-attacked
 		]
 	]
 end
-
 
 
 
