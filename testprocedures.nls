@@ -443,6 +443,7 @@ to profile [repetitions version]
 	if version = "v71" [set go-version [ [] -> go-test-v71 ]]
 	if version = "go" [set go-version [ [] -> go ]]
 	if version = "v81" [set go-version [ [] -> go-test-v81 ]]
+	if version = "v91" [set go-version [ [] -> go-test-v91 ]]
 	profilecore repetitions go-version
 end
 
@@ -886,56 +887,6 @@ end
 
 
 
-; to-report merge-arg-wo-duplicates3 [alist blist flag]
-	; if flag [
-		; set blist remove-duplicates blist
-		; foreach blist [ [?1] ->
-			; let argu first ?1
-			; let my-color item 1 ?1		
-			; let duplicate-check filter [ [??1] -> first ??1 = argu ] blist
-			; foreach duplicate-check [ [??1] ->
-				; if item 1 ??1 > my-color [
-					; set blist remove ??1 blist
-				; ]
-			; ]			
-		; ]
-	; ]
-	; foreach blist [ [?1] ->
-		; let argu first ?1
-		; let my-color item 1 ?1
-		; ; if flag [
-			; ; let duplicate-check filter [ [??1] -> first ??1 = argu ] blist
-			; ; foreach duplicate-check [ [??1] ->
-				; ; if item 1 ??1 > my-color [
-					; ; set blist remove ??1 blist
-				; ; ]
-			; ; ]
-		; ; ]
-		; ; argu-old will contain the current argument (argu) from blist if this
-		; ; argument also is present in alist. argu-old is a nested list:
-		; ; lists [[(argu) color-argu-in-alist]]
-		; let argu-old filter [ [??1] -> first ??1 = argu ] alist
-		; if not empty? argu-old [
-			; ; item 0 will reduce the degree of nestedness of the argu-old by one i.e.
-			; ; argu-old will now now be [(argu) color-argu-in-alist]	
-			; set argu-old item 0 argu-old
-			; if my-color < item 1 argu-old [
-			; let argument-position position argu-old alist
-				; if argument-position != false [
-					; set alist replace-item argument-position alist ?1
-				; ]
-			; ]
-			; if my-color >= item 1 argu-old [
-				; set blist remove ?1 blist
-			; ]
-		; ]
-	; ]
-	; ; finally the lists which had their respective duplicates removed are merged
-	; ; and identical entries are removed. The result is then reported
-  ; set alist remove-duplicates sentence alist blist
-	; report alist
-; end
-
 
 to-report merge-arg-wo-duplicates2 [alist blist flag]
 	if flag [
@@ -1236,8 +1187,37 @@ end
 
 
 
+to go-test-v91
+  update-memories-test8
+
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+		share-with-others-test8
+		create-share-memory-test7
+		share-with-other-networks-test5
+		compute-time-costs-test5
+    ; update-memories-test
+		compute-subj-attacked-test9
+		compute-strategies-researchers-test6
+    act-on-strat-ag-tst7
+  ]
+  move-around-test7
+  update-landscape-test7
+	full-discovery-test7
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-tst7
+  tick
+end
+
+
+
+
 to go-test
-	go-test-v81
+	go-test-v91
 end
 
 to go-stop-test
@@ -4063,6 +4043,162 @@ to compute-time-costs-test8
 		set subjective-relations sentence subjective-relations new-memory-rel ;remove duplicates!? not needed b/c of running filter on new-memory-rel in the beginning of this procedure
 		]
 		set conference-attended false
+	]
+end
+
+
+
+
+to compute-subj-attacked-test9
+	foreach colla-networks [ [?1] ->
+		let calc-done false
+		let calc-researcher []
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
+			if not [rep-researcher] of cur-researcher [
+				; if a researcher of the group already calculated defensibility other
+				; group members can copy the results into their memory
+				ifelse calc-done [
+					ask cur-researcher [
+						set admissible-subj-argu [admissible-subj-argu] of calc-researcher
+						set current-theory-info [current-theory-info] of calc-researcher
+						set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
+					]
+				][
+					; if no group member has done the defensibility calculations, the
+					; current researcher does the calculations i.e. she becomes the
+					; groups calc-researcher
+					set calc-done true
+					set calc-researcher cur-researcher
+					ask cur-researcher [
+						; variables for lists that contain:
+						; the current-theory-info with 0 admissible arguments
+						; an updated number of admissible arguments during the recursive
+						; computation 
+						; the arguments that are not admissible
+						; the arguments that the researchers knows about
+						; and the arguments that are attacked by the current theory
+						let new-info []
+						let new-cur-info []
+						let not-admissible []
+						let args-cur-arguments []
+						let args-cur-arguments-as 0
+						let attacked-by-me []
+
+						; create a list of only the attacks
+						let attack-relations []
+						foreach subjective-relations [ [???1] ->
+							if first ???1 = "a" [
+								set attack-relations lput ???1 attack-relations
+							]
+						 ]
+						; create lists of attacked and attacking arguments
+						let cur-attacked []
+						let cur-attacker []
+						foreach attack-relations [ [???1] ->
+							set cur-attacked lput last ???1 cur-attacked
+							set cur-attacker lput first but-first ???1 cur-attacker
+						 ]
+
+						; create a list of the arguments the researchers knows about and
+						; set the number of admissible arguments for each theory to 0
+						foreach subjective-arguments [ [???1] ->
+							set args-cur-arguments lput first ???1 args-cur-arguments
+						]
+						; create an agentset which contains all subjective-arguments
+						set args-cur-arguments-as startsargum with [member? self
+						args-cur-arguments]
+						foreach current-theory-info [ [???1] ->
+							set new-info lput replace-item 1 ???1 0 new-info
+						]
+						set current-theory-info new-info
+
+						; the computation of the admissible arguments is done recursively
+						; a list of arguments that are currently consideredto be attacked
+						let open-rec []
+						; variable that lets the loop run at least one time
+						let i 0
+						foreach current-theory-info [ [???1] ->
+							; the theory that is considered in this loop
+							; and the root of that theory (the start)
+							let cur-theory ???1
+							let askstart item 0 cur-theory
+							while [ i < 1 or not empty? open-rec][
+								set not-admissible sentence not-admissible open-rec
+								set open-rec []
+								set attacked-by-me []
+
+								; create a list of arguments that are attacked by the current
+								; theory based on the memory of the current researcher
+								if not empty? attack-relations [
+									ask args-cur-arguments-as with [mytheory = askstart][
+										if member? self cur-attacker and not member? self
+										not-admissible [
+											; the argument considered and a list of arguments
+											; attacked by that argument
+											let cur-turtle self
+											let my-attacked []
+											foreach attack-relations [ [????1] ->
+												if item 1 ????1 = cur-turtle [
+													set my-attacked lput last ????1 my-attacked
+												]
+											]
+											set attacked-by-me sentence my-attacked attacked-by-me
+										]
+									]
+
+									; arguments that are attacked by arguments from another
+									; theory that are not attacked by non-attacked arguments
+									; from the current theory are added to the open-rec list:
+									; the list of attacked-arguments
+									ask args-cur-arguments-as with [mytheory = askstart and
+										not member? self not-admissible and
+										member? self cur-attacked][
+										let cur-turtle self
+										foreach attack-relations [ [????1] ->
+											if last ????1 = cur-turtle [
+												if not member? item 1 ????1 attacked-by-me [
+													set open-rec lput cur-turtle open-rec
+												]
+											]
+										]
+									]
+								]
+								set i i + 1
+							]
+							set i 0
+
+							; update of the information in current-theory-info
+							set new-cur-info lput replace-item 1 cur-theory (count
+								args-cur-arguments-as with [mytheory = askstart] -
+								count args-cur-arguments-as with 
+								[member? self not-admissible and mytheory = askstart])
+									new-cur-info
+						]
+
+						; arguments that are part of the not-admissible list
+						; are not part of the admissible subjective arguments and hence
+						; removed
+						; this non-admissible arguments are written into the
+						; researcher owned variable non-admiss-subj-argu which will only
+						; contain these arguments as a list without their respective colors
+						set admissible-subj-argu subjective-arguments
+						set non-admiss-subj-argu []
+						foreach subjective-arguments [ [???1] ->
+							let cur-argu ???1
+							if member? first cur-argu not-admissible [
+								set admissible-subj-argu remove cur-argu admissible-subj-argu
+								set non-admiss-subj-argu lput item 0 cur-argu
+								non-admiss-subj-argu
+							]
+						]
+						; update the current-theory-info
+						set current-theory-info new-cur-info
+					]
+				]
+			]
+		]
 	]
 end
 
