@@ -444,6 +444,7 @@ to profile [repetitions version]
 	if version = "go" [set go-version [ [] -> go ]]
 	if version = "v81" [set go-version [ [] -> go-test-v81 ]]
 	if version = "v91" [set go-version [ [] -> go-test-v91 ]]
+	if version = "v101" [set go-version [ [] -> go-test-v101 ]]
 	profilecore repetitions go-version
 end
 
@@ -1216,8 +1217,38 @@ end
 
 
 
+
+to go-test-v101
+  update-memories-test8
+
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+		share-with-others-test8
+		create-share-memory-test7
+		share-w-other-netw-test10
+		compute-time-costs-test10
+    ; update-memories-test
+		compute-subj-attacked-test9
+		compute-strategies-researchers-test6
+    act-on-strat-ag-tst7
+  ]
+  move-around-test7
+  update-landscape-test7
+	full-discovery-test7
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-tst7
+  tick
+end
+
+
+
+
 to go-test
-	go-test-v91
+	go-test-v101
 end
 
 to go-stop-test
@@ -2359,56 +2390,63 @@ end
 
 
 ; we have the problem here that researchers which learn arguments with a older color than the one they already know in their subjective memory pay for them still although they never will include them in their memory
+
+; procedure in which the representative researchers of the networks
+; share information according to the social structure
+; if a rep-researcher already exchanged information researchers in her
+; sharing network i.e. if she attended the conference she will set her
+; agent-owned variable "conference-attended" to true in order to not add 
+; the same information multiple times
 to share-with-other-networks-test5
   ask researchers with [rep-researcher][
 		if not conference-attended [
-			; let share-group-leader self
-
 			; variables for the combined information (arguments and relations),
-			; the network of the current researcher and the theory it is working on
+			; the network of the current researcher and the theory she is working on
 			let comb-memory-argu th-args
 			let comb-memory-rel th-relations
 			let cur-network sort collaborator-network
-			let my-cur-theory [mytheory] of item 0 item 0 th-args
 
 			; create a list of the neighboring networks and then a
-			; list of the representative researchers of these networks
-			; which will be the researchers the current researcher shares with
+			; list of the representative researchers (share-researchers) of these
+			; networks which will be the researchers the current researcher 
+			; shares with
 			let share-researchers []
 			let share-neighbors []
 			foreach share-structure [ [?1] ->
 				if first ?1 = cur-network [
 					set share-neighbors ?1
 				]
-			 ]
+			]
 			ask researchers with [rep-researcher][
 				let cur-researcher self
 				foreach share-neighbors [ [?1] ->
 					if member? cur-researcher ?1 [
 						set share-researchers lput cur-researcher share-researchers
 					]
-				 ]
+				]
 			]
 
 			; create a list of arguments and a list of relations that is
 			; shared among the share-researchers
 			foreach share-researchers [ [?1] ->
-				; the combined memory is updated to contain that of the sharing researcher
-				set comb-memory-argu remove-duplicates sentence comb-memory-argu [th-args] of ?1
-				set comb-memory-rel remove-duplicates sentence comb-memory-rel [th-relations] of ?1
-			 ]
-			; create lists of arguments/relations that have to be added
+				; the combined memory is updated to contain the information
+				; of all the share researchers				
+				set comb-memory-argu remove-duplicates sentence comb-memory-argu 
+				[th-args] of ?1
+				set comb-memory-rel remove-duplicates sentence comb-memory-rel 
+				[th-relations] of ?1
+			]			
+			; the combined memory is written into the memory of all the current
+			; share researchers which means they obtained all the information by 
+			; attending the conference
 			foreach share-researchers [ [?1] ->
 				ask ?1 [
 					set to-add-mem-argu comb-memory-argu
 					set to-add-mem-rel comb-memory-rel
 					set conference-attended true
 				]
-			 ]
+			]
 		]
-
-		; to compute the time that researchers have to
-		; spend on communication
 	]
 
 end
@@ -4198,6 +4236,136 @@ to compute-subj-attacked-test9
 					]
 				]
 			]
+		]
+	]
+end
+
+
+; the procedure was in version "test5" is unfortunately buggy (Issue #34)
+; this has been fixed in the main procedures and is now applied to the 
+;testprocedures
+; procedure in which the representative researchers of the networks
+; share information according to the social structure
+to share-w-other-netw-test10
+	let rep-researchers researchers with [rep-researcher]
+  ask rep-researchers [
+		; variables for the combined information (arguments and relations),
+		; the network of the current researcher and the theory she is working on
+		let askresearcher self
+		let comb-memory-argu []
+		let comb-memory-rel []
+		let cur-network sort collaborator-network
+
+		; create a list of the neighboring networks and then a
+		; list of the representative researchers (share-researchers) of these
+		; networks which will be the researchers the current researcher 
+		; shares with
+		let share-researchers []
+		let share-neighbors []
+		foreach share-structure [ [?1] ->
+			if first ?1 = cur-network [
+				set share-neighbors ?1
+			]
+		]
+		ask rep-researchers [
+			let cur-researcher self
+			foreach share-neighbors [ [cur-share-group] ->
+				if cur-researcher != askresearcher 
+					and member? cur-researcher cur-share-group [
+					set share-researchers lput cur-researcher share-researchers
+				]
+			]
+		]
+
+		; create a list of arguments and a list of relations that is
+		; shared among the share-researchers
+		foreach share-researchers [ [cur-share-researcher] ->
+			; the combined memory is updated to contain the information
+			; of all the share researchers				
+			set comb-memory-argu sentence comb-memory-argu 
+			[th-args] of cur-share-researcher
+			set comb-memory-rel sentence comb-memory-rel 
+			[th-relations] of cur-share-researcher
+		]
+		; finally the askresearcher inputs the information given to her  
+		;- by the rep. researchers from her share-neighbors groups - into her
+		; respective (researcher owned) variables and removes the duplicates
+		set to-add-mem-argu remove-duplicates comb-memory-argu
+		set to-add-mem-rel remove-duplicates comb-memory-rel
+	]
+
+end
+
+
+
+
+to compute-time-costs-test10
+	ask researchers with [rep-researcher][
+		; variables that contain the arguments and relations the
+		; researcher has to update in its memory
+		let new-memory-args []
+		let new-memory-rel []
+		let to-add-argu []
+		set new-memory-args filter [ [?1] -> not member? ?1 subjective-arguments ]
+			to-add-mem-argu
+		set new-memory-rel filter [ [?1] -> not member? ?1 subjective-relations ]
+			to-add-mem-rel
+		let comb-new sentence new-memory-args new-memory-rel
+		; every tick an researcher can obtain a maximum of 10 new entries
+		; the day that they received information is also lost
+		ifelse length comb-new >= (3 * max-learn) [
+			set communicating 4
+		][
+		set communicating ((ceiling (length comb-new / max-learn)) + 1)
+		]
+
+		; every communication round an researcher can update a maximum of
+		; 3 * max-learn new arguments/relations (corresponding to three ticks of
+		; communication) these new arguments and relations are added to the
+		; memory of the researcher
+		; when a new relation is added and the arguments are not part of the
+		; memory of the researcher, these arguments are added as well
+		ifelse length comb-new > (3 * max-learn) [
+			set comb-new shuffle comb-new
+			let repeats length comb-new - (3 * max-learn)
+			while [length comb-new > repeats] [
+				let cur-entr first comb-new
+				let new-mem-argargs filter [ [?1] -> member? ?1 new-memory-args ] comb-new
+				set new-mem-argargs map [ [?1] -> first ?1 ] new-mem-argargs
+				ifelse member? cur-entr new-memory-args [
+					set to-add-argu lput cur-entr to-add-argu
+					set comb-new remove cur-entr comb-new
+				][
+				set subjective-relations lput cur-entr subjective-relations
+				set comb-new remove cur-entr comb-new
+				if member? item 1 cur-entr new-mem-argargs[
+					let item-1-cur-entr item 1 cur-entr
+					foreach comb-new [ [?1] ->
+						if item-1-cur-entr = item 0 ?1 [
+							set to-add-argu lput ?1 to-add-argu
+							set comb-new remove ?1 comb-new
+						]
+					 ]
+				]
+				if member? item 2 cur-entr new-mem-argargs[
+					let item-2-cur-entr item 2 cur-entr
+					foreach comb-new [ [?1] ->
+						if item-2-cur-entr = item 0 ?1 [
+							set to-add-argu lput ?1 to-add-argu
+							set comb-new remove ?1 comb-new
+						]
+					 ]
+				]
+				]
+			]
+			set to-add-argu remove-duplicates sentence subjective-arguments to-add-argu
+			set subjective-arguments (list-cleaner3 to-add-argu)
+			; set subjective-arguments (merge-arg-wo-dupl-tst subjective-arguments to-add-argu true)
+		][
+		set new-memory-args remove-duplicates sentence subjective-arguments new-memory-args
+		set subjective-arguments (list-cleaner3 new-memory-args)
+		;set subjective-arguments (merge-arg-wo-dupl-tst subjective-arguments new-memory-args true)
+		set subjective-relations sentence subjective-relations new-memory-rel ;remove duplicates!? not needed b/c of running filter on new-memory-rel in the beginning of this procedure
 		]
 	]
 end
