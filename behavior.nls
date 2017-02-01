@@ -77,7 +77,7 @@ end
 
 
 
-; a new duplicate remover for lists with arguments + colors it takes a list
+; a new duplicate remover for lists with arguments + colors. It takes a list
 ; as input and will report the same list back with each argument only
 ; contained once with the the arguments most researched color (i.e. the
 ; lowest color value). It is specificially designed for the share-with-others
@@ -92,7 +92,7 @@ end
 
 
 
-; procedure which transforms a argulist with colors of the format
+; procedure which takes a argulist with colors of the format
 ; [[(argu-1) color-1]...[(argu-i) color-i]] (the long format) and transforms
 ; it to [[(argu-1)...(argu-i)] [(argu-j)...] ... [(argu-k)...] [(argu-1) ...
 ; (argu-n)]] (the wide format).
@@ -426,61 +426,52 @@ end
 
 ; procedure in which the representative researchers of the networks
 ; share information according to the social structure
-; if a rep-researcher already exchanged information researchers in her
-; sharing network i.e. if she attended the conference she will set her
-; agent-owned variable "conference-attended" to true in order to not add 
-; the same information multiple times
 to share-with-other-networks
-  ask researchers with [rep-researcher][
-		if not conference-attended [
-			; variables for the combined information (arguments and relations),
-			; the network of the current researcher and the theory she is working on
-			let comb-memory-argu th-args
-			let comb-memory-rel th-relations
-			let cur-network sort collaborator-network
-			let my-cur-theory [mytheory] of item 0 item 0 th-args
+	let rep-researchers researchers with [rep-researcher]
+  ask rep-researchers [
+		; variables for the combined information (arguments and relations),
+		; the network of the current researcher and the theory she is working on
+		let askresearcher self
+		let comb-memory-argu []
+		let comb-memory-rel []
+		let cur-network sort collaborator-network
 
-			; create a list of the neighboring networks and then a
-			; list of the representative researchers (share-researchers) of these
-			; networks which will be the researchers the current researcher 
-			; shares with
-			let share-researchers []
-			let share-neighbors []
-			foreach share-structure [ [?1] ->
-				if first ?1 = cur-network [
-					set share-neighbors ?1
-				]
+		; create a list of the neighboring networks and then a
+		; list of the representative researchers (share-researchers) of these
+		; networks which will be the researchers the current researcher 
+		; shares with
+		let share-researchers []
+		let share-neighbors []
+		foreach share-structure [ [?1] ->
+			if first ?1 = cur-network [
+				set share-neighbors ?1
 			]
-			ask researchers with [rep-researcher][
-				let cur-researcher self
-				foreach share-neighbors [ [?1] ->
-					if member? cur-researcher ?1 [
-						set share-researchers lput cur-researcher share-researchers
-					]
-				]
-			]
-
-			; create a list of arguments and a list of relations that is
-			; shared among the share-researchers
-			foreach share-researchers [ [?1] ->
-				; the combined memory is updated to contain the information
-				; of all the share researchers				
-				set comb-memory-argu remove-duplicates sentence comb-memory-argu 
-				[th-args] of ?1
-				set comb-memory-rel remove-duplicates sentence comb-memory-rel 
-				[th-relations] of ?1
-			]			
-			; the combined memory is written into the memory of all the current
-			; share researchers which means they obtained all the information by 
-			; attending the conference
-			foreach share-researchers [ [?1] ->
-				ask ?1 [
-					set to-add-mem-argu comb-memory-argu
-					set to-add-mem-rel comb-memory-rel
-					set conference-attended true
+		]
+		ask rep-researchers [
+			let cur-researcher self
+			foreach share-neighbors [ [cur-share-group] ->
+				if cur-researcher != askresearcher 
+					and member? cur-researcher cur-share-group [
+					set share-researchers lput cur-researcher share-researchers
 				]
 			]
 		]
+
+		; create a list of arguments and a list of relations that is
+		; shared among the share-researchers
+		foreach share-researchers [ [cur-share-researcher] ->
+			; the combined memory is updated to contain the information
+			; of all the share researchers				
+			set comb-memory-argu sentence comb-memory-argu 
+			[th-args] of cur-share-researcher
+			set comb-memory-rel sentence comb-memory-rel 
+			[th-relations] of cur-share-researcher
+		]
+		; finally the askresearcher inputs the information given to her  
+		;- by the rep. researchers from her share-neighbors groups - into her
+		; respective (researcher owned) variables and removes the duplicates
+		set to-add-mem-argu remove-duplicates comb-memory-argu
+		set to-add-mem-rel remove-duplicates comb-memory-rel
 	]
 
 end
@@ -560,9 +551,6 @@ to compute-time-costs
 			new-memory-args true)
 			set subjective-relations sentence subjective-relations new-memory-rel
 		]
-		; the researcher owned "conference-attended" variable is reset for the
-		; next round
-		set conference-attended false
 	]
 end
 

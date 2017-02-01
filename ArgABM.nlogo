@@ -30,18 +30,18 @@ undirected-link-breed [collaborators collaborator]
 
 ; properties of the arguments, each argument "knows":
 ; the theory it belongs to, during the setup if it should
-; be considered, how many ticks an researcher was working on it
+; be considered, how many ticks a researcher was working on it
 ; and when it was fully researched (when it turned red)
 ; the roots also know how many researchers are working on that theory
 starts-own [mytheory current-start myscientists researcher-ticks full-research]
 arguments-own [mytheory current-argument researcher-ticks full-research]
 
-; every researcher keeps track of how often it thinks
-; that it should jump to another theory, how many times it jumped,
-; the social network it belongs to, its current subjective landscape,
-; the current best theory, if it received information at the current time
-; the information in its neighborhood, whether it moved, if it is the
-; representative researcher of its network and the new arguments/relations
+; every researcher keeps track of how often she thinks
+; that she should jump to another theory, how many times she jumped,
+; the social network she belongs to, her current subjective landscape,
+; the current best theory, if she received information at the current time
+; the information in her neighborhood, whether she moved, if she is the
+; representative researcher of her network and the new arguments/relations
 ; that are to be added
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th

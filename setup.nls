@@ -16,15 +16,14 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
   initialize-hidden-variables
   create-discovery-landscape numberoftheories theorydepth
   define-attack-relation
-  distribute-researchers scientistsno
-  reset-ticks
+  distribute-researchers scientistsno 
 	set startsargum turtles with [breed = starts or breed = arguments]
 	ask researchers [
-		set conference-attended false
 		set to-add-mem-argu []
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
 	]
+	reset-ticks
 end
 
 ; the setup for a normal run
