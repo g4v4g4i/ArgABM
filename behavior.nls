@@ -619,8 +619,8 @@ to move-around
         ]
       ]
 
-      if not moved and not member? myargu not-admissible or
-        (member? myargu not-admissible and [color] of myargu = red)[
+      if not moved and (not member? myargu not-admissible or
+        (member? myargu not-admissible and [color] of myargu = red))[
 
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
@@ -720,23 +720,27 @@ to find-defense
 			if member? myargu not-admissible [
 				ask myargu [
 					ask my-in-attacks [
-						ask end1 [
-						; create a set of arguments that provide a defense for the current
-						; argument, these:
-						; a) attack the attacker of the current argument;
-						; b) are a child-argument of the current argument;
-						; c) are discovered; and
-						; d) no researcher from the same group is working on it
-							let nextargu in-attack-neighbors with [in-discovery-neighbor?
-								myargu
-								and	[not member? color [gray turquoise]] of self
-								and not group-member-here curresearcher]
-							; if such an argument exists the researcher moves there
-							; and cannot move anymore this time step
-							if any? nextargu [
-								ask curresearcher [
-									move-to one-of nextargu
-									set moved true
+						; check to prevent the researcher from searching for further
+						; defender-childs (nextargu) when she already has moved to one
+						if not [moved] of curresearcher [
+							ask end1 [
+							; create a set of arguments that provide a defense for the 
+							; current argument, these:
+							; a) attack the attacker of the current argument;
+							; b) are a child-argument of the current argument;
+							; c) are discovered; and
+							; d) no researcher from the same group is working on it
+								let nextargu in-attack-neighbors with [in-discovery-neighbor?
+									myargu
+									and	[not member? color [gray red turquoise]] of self
+									and not group-member-here curresearcher]
+								; if such an argument exists the researcher moves there
+								; and cannot move anymore this time step
+								if any? nextargu [
+									ask curresearcher [
+										move-to one-of nextargu
+										set moved true
+									]
 								]
 							]
 						]
