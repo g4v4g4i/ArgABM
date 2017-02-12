@@ -1,7 +1,7 @@
 extensions [matrix]
 
 to-report adm-calc-core [amat]
-  let replacevec (list -1 -1)
+  let replacevec [-1 -1]
   ; let sucattacks [] ; maybe this variable is not even needed, left in for debugging purposes currently
   ; let sucattacker [] ; not really needed, just here for debugging purposes
   let sucattacked []
@@ -176,11 +176,14 @@ end
 ; of compute-subj-attacked-test11 before I separated it
 to set-researcher-variables-rest
   set-res-var-rest-sub1
-  let cur-th-info-cache []
+  ; let cur-th-info-cache []
+  let i 0
   foreach current-theory-info [ [curtheory ] ->              
-    set cur-th-info-cache lput (list item 0 curtheory length filter [[curitem] -> [mytheory] of item 0 curitem = item 0 curtheory ] admissible-subj-argu) cur-th-info-cache             
+    set current-theory-info replace-subitem i 1 current-theory-info length filter [[curitem] -> 
+      [mytheory] of item 0 curitem = item 0 curtheory ] admissible-subj-argu          
+    set i i + 1
   ]
-  set current-theory-info cur-th-info-cache
+  ; set current-theory-info cur-th-info-cache
 end
 
 to set-researcher-variables-rest2
@@ -204,4 +207,23 @@ end
 to set-res-var-rest-sub1
   set admissible-subj-argu filter [[curargu] -> 
     not member? item 0 curargu non-admiss-subj-argu] subjective-arguments
+end
+
+to set-researcher-variables-rest3
+  set-res-var-rest-sub1
+  let subj-argu-wo-color turtle-set map [[curargu] -> item 0 curargu] subjective-arguments
+  ; let number-adm-argu [[curtheory subj-argu non-adm-argu] -> ]
+  let non-admiss-subj-argu-cache non-admiss-subj-argu
+  let i 0
+  foreach current-theory-info [[curitem] ->
+    let curtheory item 0 curitem
+    let number-adm-argu count subj-argu-wo-color with [mytheory = curtheory and not member? self non-admiss-subj-argu-cache]
+    set current-theory-info replace-subitem i 1 current-theory-info number-adm-argu
+    set i i + 1
+  ]
+end
+
+to-report replace-subitem [index1 index2 lists value]
+  let old-sublist item index1 lists
+  report replace-item index1 lists (replace-item index2 old-sublist value)
 end
