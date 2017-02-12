@@ -4,7 +4,11 @@ extensions [profiler]
 ; experimental: this file is not properly commented
 
 
-globals [ctiho] ;current-theory(2)-info-hand-over (sorted)
+globals [ctiho ctiho2 ctiho-old ctiho-new ctiho-diff rndseed] ;current-theory(2)-info-hand-over (sorted)
+
+to startup
+  set rndseed []
+end
 
 to calc-global-admiss-core [vis] ;vis for visibility
 	let new-info []
@@ -30,10 +34,13 @@ to calc-global-admiss-core [vis] ;vis for visibility
     set cur-attacked lput end2 cur-attacked
     set cur-attacker lput end1 cur-attacker
   ]
-  ask turtles with [(breed = starts or breed = arguments) and runresult vis][
-   set args-cur-arguments lput self args-cur-arguments
-	 set subjective-arguments2 lput self subjective-arguments2
-  ]
+  ; ask startsargum with [runresult vis][
+   ; set args-cur-arguments lput self args-cur-arguments
+	 ; set subjective-arguments2 lput self subjective-arguments2
+  ; ]
+  let args-cur-arguments-as startsargum with [runresult vis]
+  set subjective-arguments2 sort args-cur-arguments-as
+  set args-cur-arguments subjective-arguments2 ; not really needed anymore
   foreach current-theory-info2 [ [?1] ->
    set new-info lput replace-item 1 ?1 0 new-info
   ]
@@ -57,7 +64,7 @@ to calc-global-admiss-core [vis] ;vis for visibility
       ; create a list of arguments that are attacked by the current theory
       ; based on the memory of the current researcher
       if not empty? attack-relations [
-				ask turtles with [member? self args-cur-arguments and mytheory = askstart][
+				ask args-cur-arguments-as with [mytheory = askstart][
 					if member? self cur-attacker and not member? self not-admissible [
 					; the argument considered and a list of arguments
 					; attacked by that argument
@@ -75,7 +82,7 @@ to calc-global-admiss-core [vis] ;vis for visibility
         ; arguments that are attacked by arguments from another theory that are
         ; not attacked by non-attacked arguments from the current theory
         ; are added to the open-rec list, the list of attacked-arguments
-        ask turtles with [member? self args-cur-arguments and mytheory = askstart and not member? self not-admissible and member? self cur-attacked][
+        ask args-cur-arguments-as with [mytheory = askstart and not member? self not-admissible and member? self cur-attacked][
           let cur-turtle self
           foreach attack-relations [ [??1] ->
             if [end2] of ??1 = cur-turtle [
@@ -91,7 +98,7 @@ to calc-global-admiss-core [vis] ;vis for visibility
     set i 0
 
     ; for the update of the information in current-theory-info
-    set new-cur-info lput replace-item 1 cur-theory (count turtles with [member? self args-cur-arguments and mytheory = askstart] - count turtles with [member? self not-admissible and mytheory = askstart]) new-cur-info
+    set new-cur-info lput replace-item 1 cur-theory (count args-cur-arguments-as with [mytheory = askstart] - count args-cur-arguments-as with [mytheory = askstart and member? self not-admissible]) new-cur-info
   ]
 
     ; arguments that are part of the not-admissible list
@@ -445,6 +452,7 @@ to profile [repetitions version]
 	if version = "v81" [set go-version [ [] -> go-test-v81 ]]
 	if version = "v91" [set go-version [ [] -> go-test-v91 ]]
 	if version = "v101" [set go-version [ [] -> go-test-v101 ]]
+  if version = "v111" [set go-version [ [] -> go-test-v111 ]]
 	profilecore repetitions go-version
 end
 
@@ -1245,10 +1253,36 @@ to go-test-v101
 end
 
 
+to go-test-v111
+  update-memories-test8
+
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+		share-with-others-test8
+		create-share-memory-test7
+		share-w-other-netw-test10
+		compute-time-costs-test10
+    ; update-memories-test
+		compute-subj-attacked-test11
+		compute-strategies-researchers-test6
+    act-on-strat-ag-tst7
+  ]
+  move-around-test10
+  update-landscape-test7
+	full-discovery-test7
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-tst7
+  tick
+end
+
 
 
 to go-test
-	go-test-v101
+	go-test-v111
 end
 
 to go-stop-test
@@ -1276,7 +1310,6 @@ to setuprs [rs]
   define-attack-relation
 	; scientists is the chooser for the number of researchers from the interface
   distribute-researchers scientists
-  reset-ticks
 	set startsargum turtles with [breed = starts or breed = arguments]
 	ask researchers [
 		set lastalist []
@@ -1288,8 +1321,37 @@ to setuprs [rs]
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
 	]
+  reset-ticks
 end
 
+
+to setuprs-auto
+  clear-turtles
+  clear-patches
+  clear-drawing
+  clear-all-plots
+  clear-output
+  set rndseed lput new-seed rndseed
+  random-seed last rndseed
+  initialize-hidden-variables
+  create-discovery-landscape number-of-theories theory-depth
+  define-attack-relation
+	; scientists is the chooser for the number of researchers from the interface
+  distribute-researchers scientists
+
+	set startsargum turtles with [breed = arguments or breed = starts]
+	ask researchers [
+		set lastalist []
+		set lastblist []
+		set lastalistafter []
+		set flag-updated-memory false
+		set conference-attended false
+		set to-add-mem-argu []
+		set to-add-mem-rel []
+		set non-admiss-subj-argu []
+	]
+  reset-ticks
+end
 
 
 

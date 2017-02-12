@@ -1,0 +1,207 @@
+extensions [matrix]
+
+to-report adm-calc-core [amat]
+  let replacevec (list -1 -1)
+  ; let sucattacks [] ; maybe this variable is not even needed, left in for debugging purposes currently
+  ; let sucattacker [] ; not really needed, just here for debugging purposes
+  let sucattacked []
+  let any-del-in-alist? true
+  while [any-del-in-alist?] [
+    let amatlist matrix:to-column-list amat
+    let alist item 0 amatlist
+    let blist item 1 amatlist
+    let sucattacked-tmp []
+    let i 0
+    foreach alist [ [curitem] ->
+      if curitem != -1 and not member? curitem blist [
+        ; let currow matrix:get-row amat i
+        ; set sucattacks lput currow sucattacks ; probably not needed, currently left for debugging
+        ; set sucattacked-tmp lput item 1 currow sucattacked-tmp
+        set sucattacked-tmp lput matrix:get amat i 1 sucattacked-tmp
+        ; set sucattacker lput item 0 currow sucattacker ; not really needed, just here for debugging purposes
+        matrix:set-row amat i replacevec    
+      ]
+      set i i + 1
+    ]
+    
+    set any-del-in-alist? false
+    if not empty? sucattacked-tmp [
+      set alist matrix:get-column amat 0
+      set i 0
+      foreach alist [[curitem] ->
+        if curitem != -1 and member? curitem sucattacked-tmp [
+          matrix:set-row amat i replacevec
+          set any-del-in-alist? true
+        ]
+        set i i + 1
+      ]      
+    ]
+    set sucattacked sentence sucattacked sucattacked-tmp
+  ]
+  report sucattacked 
+end
+
+to-report provide-testmat1
+  let amatlist (list (list 0 0 0 1 2 5 7 6) (list 3 4 6 5 3 0 0 2))
+  let amat matrix:from-column-list amatlist
+  report amat
+end
+
+to test-amat-base
+  let amat provide-testmat1
+  print amat
+  show adm-calc-core amat
+end
+
+to-report attack-set-to-matrix [vis] ; vis for visibility
+  let dim-amat count attacks with [runresult vis]
+  let amat matrix:make-constant dim-amat 2 0
+  let i 0
+  ask attacks with [runresult vis] [
+    matrix:set-row amat i (list [who] of end1 [who] of end2 )
+    set i i + 1
+  ]
+  report amat
+end
+
+
+
+to test-amat-real
+  let amat attack-set-to-matrix [ [] -> true ]
+  show length adm-calc-core amat
+end
+
+to calc-admiss-new [vis]
+  let amat attack-set-to-matrix vis
+  set ctiho2 length (adm-calc-core amat)
+end
+
+to profile-cadmis-compare-old-with-new [repetitions input number]
+  ca
+  set rndseed []
+  set ctiho-diff []
+  set ctiho-new []
+  set ctiho-old []
+  let vis 0
+  ifelse input = red [
+		set vis [ [] -> color != gray ]
+	][
+		set vis [ [] -> true ]
+	]
+  profilecore repetitions [ [] ->
+    setuprs-auto
+    if input = red [
+      simulate-exploration number
+    ]    
+    repeat 10 [
+    calc-global-admiss-core vis
+    let number-non-adm-old count startsargum with [runresult vis] - item 1 item 1 ctiho - item 1 item 0 ctiho
+    set ctiho-old lput number-non-adm-old ctiho-old
+    calc-admiss-new vis
+    set ctiho-new lput ctiho2 ctiho-new
+    set ctiho-diff lput ( number-non-adm-old - ctiho2) ctiho-diff
+    ]
+  ]
+  
+end
+
+to simulate-exploration [number]
+  ask n-of number attacks [
+    set color red
+    ask both-ends [set color red]
+  ]
+end
+
+; this procedure is currently only designed to work for landscapes with two theories
+to-report researcher-attack-mem-to-amat
+  let attack-relations filter [[currelation] -> first currelation = "a" ] subjective-relations
+  let amat matrix:make-constant length attack-relations 2 0
+  let i 0
+  foreach attack-relations [ [currelation] ->
+    matrix:set-row amat i (list [who] of item 1 currelation [who] of item 2 currelation )
+    set i i + 1
+  ]
+  report amat
+end
+
+to compute-subj-attacked-test11
+  	foreach colla-networks [ [?1] ->
+      let calc-done false
+      let calc-researcher []
+      let cur-group ?1
+      foreach cur-group [ [??1] ->
+        let cur-researcher ??1
+        if not [rep-researcher] of cur-researcher [
+          ; if a researcher of the group already calculated defensibility other
+          ; group members can copy the results into their memory
+          ifelse calc-done [
+            ask cur-researcher [
+              set admissible-subj-argu [admissible-subj-argu] of calc-researcher
+              set current-theory-info [current-theory-info] of calc-researcher
+              set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
+            ]
+          ][
+            ; if no group member has done the defensibility calculations, the
+            ; current researcher does the calculations i.e. she becomes the
+            ; groups calc-researcher
+            set calc-done true
+            set calc-researcher cur-researcher
+            ask cur-researcher [
+              let amat researcher-attack-mem-to-amat
+              let not-admissible-whos adm-calc-core amat
+              set non-admiss-subj-argu map turtle not-admissible-whos
+              set-researcher-variables-rest
+              ; set admissible-subj-argu filter [[curargu] -> 
+                ; not member? item 0 curargu non-admiss-subj-argu] subjective-arguments
+              ; ; show admissible-subj-argu
+              ; ; let number-adm-argu [[curtheory adm-subj-argu] -> 
+                ; ; length filter [[] -> [mytheory] of item 0 item 0 adm-subj-argu = item 0 curtheory ] adm-subj-argu
+              ; ; ]
+              ; let cur-th-info-cache []
+              ; foreach current-theory-info [ [curtheory ] ->              
+                ; set cur-th-info-cache lput (list item 0 curtheory length filter [[curitem] -> [mytheory] of item 0 curitem = item 0 curtheory ] admissible-subj-argu) cur-th-info-cache             
+              ; ]
+              ; set current-theory-info cur-th-info-cache
+            ]
+          ]
+        ]
+      ]
+    ]
+end
+
+
+; strangely this variable setting cost massive amounts of time, maybe this is related to the "let bug" ?
+; currently this alone costs as much time as the adm-calc + the transformation of the attacks to matrix
+; strangely this part of the code was also not recognized by the profiler as part of the exclusive time
+; of compute-subj-attacked-test11 before I separated it
+to set-researcher-variables-rest
+  set-res-var-rest-sub1
+  let cur-th-info-cache []
+  foreach current-theory-info [ [curtheory ] ->              
+    set cur-th-info-cache lput (list item 0 curtheory length filter [[curitem] -> [mytheory] of item 0 curitem = item 0 curtheory ] admissible-subj-argu) cur-th-info-cache             
+  ]
+  set current-theory-info cur-th-info-cache
+end
+
+to set-researcher-variables-rest2
+  let subj-argu-wo-color []
+  set-res-var-rest-sub1
+  foreach subjective-arguments [[curargu] ->
+    set subj-argu-wo-color lput item 0 curargu subj-argu-wo-color
+  ]
+  let non-admiss non-admiss-subj-argu
+  let subj-argu-wo-color-as turtle-set subj-argu-wo-color
+  let cur-th-info-cache []
+  foreach current-theory-info [ [curtheory ] -> 
+    let curstart item 0 curtheory
+    set cur-th-info-cache lput (list curstart 
+    count subj-argu-wo-color-as with [mytheory = curstart 
+      and not member? self non-admiss]) cur-th-info-cache       
+  ]
+  set current-theory-info cur-th-info-cache
+end
+
+to set-res-var-rest-sub1
+  set admissible-subj-argu filter [[curargu] -> 
+    not member? item 0 curargu non-admiss-subj-argu] subjective-arguments
+end
