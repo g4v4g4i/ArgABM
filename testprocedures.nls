@@ -1269,7 +1269,7 @@ to go-test-v111
 		compute-strategies-researchers-test6
     act-on-strat-ag-tst7
   ]
-  move-around-test10
+  move-around-test11
   update-landscape-test7
 	full-discovery-test7
 	if ticks mod 5 != 0 [
@@ -1320,6 +1320,7 @@ to setuprs [rs]
 		set to-add-mem-argu []
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
+    set mygps gps-setup
 	]
   reset-ticks
 end
@@ -1349,8 +1350,17 @@ to setuprs-auto
 		set to-add-mem-argu []
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
+    set mygps gps-setup
 	]
   reset-ticks
+end
+
+
+to-report gps-setup
+	let myx xcor
+	let myy ycor
+	let myargu one-of starts with [xcor = myx and ycor = myy]
+	report myargu
 end
 
 

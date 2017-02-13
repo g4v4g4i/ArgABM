@@ -4,7 +4,7 @@ researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   admissible-subj-argu th-args th-relations communicating neighborargs moved
   rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
-	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as]
+	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as mygps]
 
 to-report adm-calc-core [amat]
   let replacevec [-1 -1]
@@ -493,9 +493,9 @@ to share-with-others-test11
 					foreach cur-group [ [???1] ->
 						let input-researcher ???1
 						set comb-memory-argu remove-duplicates sentence
-							[subjective-arguments] of input-researcher comb-memory-argu
+							comb-memory-argu [subjective-arguments] of input-researcher 
 						set comb-memory-rel remove-duplicates sentence 
-							[subjective-relations] of	input-researcher comb-memory-rel
+							comb-memory-rel [subjective-relations] of	input-researcher 
 					]
 					; the group-share-researcher adds the combined memory to its own
 					set subjective-arguments (arg-list-dupl-remover-test comb-memory-argu)
@@ -505,3 +505,213 @@ to share-with-others-test11
 		]
 	]
 end
+
+
+
+to move-around-test11
+  ; variable to make sure that the procedure find-defense
+  ; is only run once
+  let run-find-defense false
+  ; at the beginning of the procedure no researcher has moved yet
+  ask researchers [
+    set moved false
+  ]
+  ask researchers [
+    let curresearcher self
+    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+			let myargu gps     
+      ; the researcher owned variable which contains all the non defensible
+			; arguments as a list is written to not-admissible
+      let not-admissible non-admiss-subj-argu
+			
+      ; an researcher working on a non defensible argument will try to find a
+			; defense for this attack, by working further on the attacked argument,
+			; unless she discoveres a child-argument that that has a defense for
+			; the attack (it is not necessarily the case that this defense is
+			; already discovered) or until she has fully researched the argument
+      ; the find-defense runs immediately for all researchers working on 
+			; a not fully researched non defensible argument,
+			; hence it is only once executed
+      if member? myargu not-admissible and not moved [
+
+        if not run-find-defense [
+          find-defense
+          set run-find-defense true
+        ]
+      ]
+
+      if not moved and (not member? myargu not-admissible or
+        (member? myargu not-admissible and [color] of myargu = red))[
+
+        ; when an argument exists that:
+        ; a) is a child-argument of the current argument;
+        ; b) is not gray, red or turquoise; and
+        ; c) no researcher from the same collaborator-network is working on it
+        ; the researcher moves there, with certain probability
+        let nextargu 0
+        ask myargu [set nextargu out-discovery-neighbors with [[not member? color [gray red turquoise]] of self
+					and not group-member-here curresearcher]]
+        ifelse any? nextargu [
+					let move-random random-float 1.0
+
+
+					; every time step with small-movement of the move-probability
+					; the researcher moves
+					ifelse move-random < (small-movement * move-probability *
+						(1 - (color / color-move))) [
+            set mygps one-of nextargu
+						move-to mygps            
+						set moved true
+					][
+
+						; every 5th time step the researcher mover with the full
+						; move-probability, that depends a bit on the color
+						if ticks != 0 and ticks mod 5 = 0 and move-random <
+							move-probability * (1 - (color / color-move)) [
+              set mygps one-of nextargu
+              move-to mygps            
+              set moved true
+						]
+					]
+				][
+
+					; if there is no next argument and the current argument is
+					; fully researched, the researcher moves a step back
+          ask myargu [set nextargu in-discovery-neighbors with [
+						[not member? color [gray turquoise]] of self
+						and not group-member-here curresearcher]]
+					ifelse [color] of myargu = red and any? nextargu [
+						set mygps one-of nextargu
+						move-to mygps    
+						set moved true
+					][
+
+						; if moving back is not possible, she jumps to another argument in
+						; the same tree/theory that is discovered but not fully researched
+						if [color] of myargu = red [
+							let askstart [mytheory] of myargu
+              set nextargu startsargum with [
+								[not member? color [gray red turquoise]] of self
+								and mytheory = askstart 
+								and not group-member-here curresearcher]
+              if any? nextargu [ 
+                set mygps one-of nextargu
+                move-to mygps 
+                set moved true              
+              ]
+            ]
+					]
+				]
+      ]
+    ]
+  ]
+end
+
+
+
+
+
+; researchers working on a not fully researched non defensible argument will
+; try to find a defense for that attack, by staying on the current argument
+; if a child-argument is discovered that can potentially provide a defense
+; (it is not necessarily the case that this defense is already discovered),
+; the researcher moves there
+; once an argument is fully researched all its relations are discovered,
+; so the researcher can move on and can try to find a defense in another
+; branch further away
+to find-defense-test11
+  ask researchers with [not moved][
+    let curresearcher self
+		if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+			let myargu gps
+			; lists of arguments that are not admissible
+			let not-admissible non-admiss-subj-argu
+			
+			; if the current argument is not fully researched and not admissible
+			; and it is a 5th time step or the researcher is not communicating
+			; the researcher tries to move prospectively to a child-argument of the
+			; current argument that provides a defense for the current argument
+			if member? myargu not-admissible [
+				ask myargu [
+					ask my-in-attacks [
+						; check to prevent the researcher from searching for further
+						; defender-childs (nextargu) when she already has moved to one
+						if not [moved] of curresearcher [
+							ask end1 [
+							; create a set of arguments that provide a defense for the 
+							; current argument, these:
+							; a) attack the attacker of the current argument;
+							; b) are a child-argument of the current argument;
+							; c) are discovered; and
+							; d) no researcher from the same group is working on it
+								let nextargu in-attack-neighbors with [in-discovery-neighbor?
+									myargu
+									and	[not member? color [gray red turquoise]] of self
+									and not group-member-here curresearcher]
+								; if such an argument exists the researcher moves there
+								; and cannot move anymore this time step
+								if any? nextargu [
+									ask curresearcher [
+                    set mygps one-of nextargu
+										move-to mygps
+										set moved true
+									]
+								]
+							]
+						]
+					]
+				]
+			]
+		]			
+  ]
+end
+
+to act-on-strategies-test11
+  ask researchers with [not rep-researcher][
+    ; only when there is a current best theory
+    ; it makes sense for the researchers to want to work on that theory
+    if not empty? cur-best-th and not member? nobody cur-best-th [
+			let myargu gps
+      ; let myx xcor
+      ; let myy ycor
+
+      ; if the researcher is not currently working on the best theory
+      ; it considers jumping
+      foreach subjective-arguments [ [?1] ->
+				let cur-subj-argu item 0 ?1
+				if cur-subj-argu = myargu and not member? [mytheory] of cur-subj-argu
+				cur-best-th [
+          set theory-jump theory-jump + 1
+				]        
+      ]
+
+      ; if the researcher has considered jumping jump-threshold times
+      ; it jumps to one of the theories it considers best, based
+      ; on its memory and the computations
+      if theory-jump >= jump-threshold [
+        let ch-best one-of cur-best-th
+        let subj-argus []
+        ; foreach subjective-arguments [ [?1] ->
+          ; set subj-argus lput item 0 ?1 subj-argus
+        ; ]
+
+        ; if one of the arguments from the best theory is in its memory
+        ; the researcher will jump there
+        let nextargu subj-argu-as with [
+          mytheory = ch-best 
+					and color != turquoise]
+        ifelse any? nextargu [
+          set mygps one-of nextargu
+          move-to mygps
+        ][ ; otherwise the researcher jumps to the root of the theory
+          set mygps ch-best
+          move-to mygps
+          ]
+
+        set times-jumped times-jumped + 1
+        set theory-jump 0
+      ]
+    ]
+  ]
+end
+
