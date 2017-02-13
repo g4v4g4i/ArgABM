@@ -1,15 +1,26 @@
 extensions [matrix]
 
+researchers-own [theory-jump times-jumped collaborator-network
+  subjective-arguments subjective-relations current-theory-info cur-best-th
+  admissible-subj-argu th-args th-relations communicating neighborargs moved
+  rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
+	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as]
+
 to-report adm-calc-core [amat]
   let replacevec [-1 -1]
   ; let sucattacks [] ; maybe this variable is not even needed, left in for debugging purposes currently
   ; let sucattacker [] ; not really needed, just here for debugging purposes
   let sucattacked []
+  let amatlist matrix:to-column-list amat
+  let alist item 0 amatlist
+  let blist item 1 amatlist
   let any-del-in-alist? true
-  while [any-del-in-alist?] [
-    let amatlist matrix:to-column-list amat
-    let alist item 0 amatlist
-    let blist item 1 amatlist
+  while [any-del-in-alist? and amat != false] [
+    ; let amatlist matrix:to-column-list amat
+    ; let alist item 0 amatlist
+    ; let blist item 1 amatlist
+    ; ; let alist matrix:get-column amat 0
+    ; let blist matrix:get-column amat 1
     let sucattacked-tmp []
     let i 0
     foreach alist [ [curitem] ->
@@ -37,8 +48,30 @@ to-report adm-calc-core [amat]
       ]      
     ]
     set sucattacked sentence sucattacked sucattacked-tmp
+    if any-del-in-alist? [
+      let cleaned-entries amat-cleaner amat
+      ifelse cleaned-entries != false [
+        set alist item 0 cleaned-entries
+        set blist item 1 cleaned-entries
+        set amat item 2 cleaned-entries        
+      ][
+        set amat false
+      ]
+    ]
   ]
   report sucattacked 
+end
+
+to-report amat-cleaner [amat]
+  let amatlist matrix:to-column-list amat
+  let alist filter [[curargu] -> curargu != -1 ] item 0 amatlist
+  let blist filter [[curargu] -> curargu != -1 ] item 1 amatlist
+  ifelse not empty? alist [
+    report (list alist blist matrix:from-column-list (list alist blist))
+  ][
+    report false
+  ]
+
 end
 
 to-report provide-testmat1
@@ -115,13 +148,86 @@ end
 ; this procedure is currently only designed to work for landscapes with two theories
 to-report researcher-attack-mem-to-amat
   let attack-relations filter [[currelation] -> first currelation = "a" ] subjective-relations
-  let amat matrix:make-constant length attack-relations 2 0
-  let i 0
-  foreach attack-relations [ [currelation] ->
-    matrix:set-row amat i (list [who] of item 1 currelation [who] of item 2 currelation )
-    set i i + 1
+  ; let attack-relations []
+  ; foreach subjective-relations [[currelation] -> 
+    ; if first currelation = "a" [
+      ; ; let cur-attack but-first currelation
+      ; set attack-relations lput (map [[curargu] -> [who] of curargu ] but-first currelation) attack-relations
+    ; ]
+  ; ]
+  ifelse length current-theory-info = 2 [
+    let amat matrix:make-constant length attack-relations 2 -1
+    let i 0
+    foreach attack-relations [ [currelation] ->
+      matrix:set-row amat i (list [who] of item 1 currelation [who] of item 2 currelation )
+      ; matrix:set-row amat i map [[curargu] -> [who] of curargu ] but-first currelation ; slower (2x) than the above solution!
+      set i i + 1
+    ]
+    report amat
+    ; ifelse not empty? attack-relations [
+      ; report matrix:from-row-list attack-relations
+    ; ][
+      ; report matrix:from-row-list [[-1 -1]]
+     ; ]
+  ][
+    set current-theory-info sort-by [ [?1 ?2] -> item 0 ?1 < item 0 ?2 ] current-theory-info
+    ; let th1 item 0 item 0 sorted-cur-th-info
+    ; let th2 item 0 item 1 sorted-cur-th-info
+    ; let th3 item 0 item 2 sorted-cur-th-info
+    let th-amats []
+    foreach current-theory-info [[curentry] ->
+      let curtheory item 0 curentry
+      let curtheory-attacks filter [[currelation] -> 
+        [mytheory] of item 1 currelation = curtheory 
+        or [mytheory] of item 2 currelation = curtheory] attack-relations 
+      let amat-cur-th matrix:make-constant length curtheory-attacks 2 -1
+      let i 0
+      foreach curtheory-attacks [ [currelation] ->
+        matrix:set-row amat-cur-th i (list [who] of item 1 currelation [who] of item 2 currelation )       
+        set i i + 1       
+      ]
+      set th-amats lput amat-cur-th th-amats
+    ]
+    report th-amats
+    ; let th1-amat matrix:make-constant length attack-relations 2 -1
+    ; ; let th1-out matrix:copy th1-in
+    ; let th2-amat matrix:copy th1-amat
+    ; ; let th2-out matrix:copy th1-in
+    ; let th3-amat matrix:copy th1-amat
+    ; ; let th3-out matrix:copy th1-in
+    ; let th1-count 0
+    ; let th2-count 0
+    ; let th3-count 0    
+    ; let to-input-attack-ap [[currelation] ->
+      ; (list [who] of item 1 currelation [who] of item 2 currelation )
+    ; ]
+    
+    ; let to-input-th1 [ [to-input-attack] -> 
+      ; matrix:set-row th1-amat th1-count to-input-attack
+      ; set th1-count th1-count + 1
+      ; ]
+    ; let to-input-th2 [ [to-input-attack] -> 
+      ; matrix:set-row th2-amat th2-count to-input-attack
+      ; set th2-count th2-count + 1
+      ; ]
+    ; let to-input-th3 [ [to-input-attack] -> 
+      ; matrix:set-row th3-amat th3-count to-input-attack
+      ; set th3-count th3-count + 1
+      ; ]
+      
+    ; foreach attack-relations [ [currelation] ->
+      ; if [mytheory] of item 1 currelation = th1 and  [mytheory] of item 2 currelation = th2 [
+        ; let to-input-attack (runresult to-input-attack-ap currelation)
+        ; (run to-input-th1 to-input-attack)
+        ; (run to-input-th2 to-input-attack)        
+      ; ]
+      ; if [mytheory] of item 1 currelation = th1 and  [mytheory] of item 2 currelation = th3 [
+        ; let to-input-attack (runresult to-input-attack-ap currelation)
+        ; (run to-input-th1 to-input-attack)
+        ; (run to-input-th3 to-input-attack)       
+      ; ]
+    ; ]
   ]
-  report amat
 end
 
 to compute-subj-attacked-test11
@@ -148,9 +254,19 @@ to compute-subj-attacked-test11
             set calc-researcher cur-researcher
             ask cur-researcher [
               let amat researcher-attack-mem-to-amat
-              let not-admissible-whos adm-calc-core amat
-              set non-admiss-subj-argu map turtle not-admissible-whos
-              set-researcher-variables-rest
+              let not-admissible-whos 0
+              ifelse length current-theory-info = 2 [
+                set not-admissible-whos adm-calc-core amat
+              ][
+                let i 0
+                foreach current-theory-info [[curentry] ->
+                  let cur-th-amat item i amat
+                  set not-admissible-whos sentence not-admissible-whos adm-calc-core cur-th-amat
+                  set i i + 1
+                ]
+              ]
+              set non-admiss-subj-argu turtle-set map turtle not-admissible-whos
+              set-researcher-variables-rest4
               ; set admissible-subj-argu filter [[curargu] -> 
                 ; not member? item 0 curargu non-admiss-subj-argu] subjective-arguments
               ; ; show admissible-subj-argu
@@ -226,4 +342,166 @@ end
 to-report replace-subitem [index1 index2 lists value]
   let old-sublist item index1 lists
   report replace-item index1 lists (replace-item index2 old-sublist value)
+end
+
+to set-researcher-variables-rest4
+ set admissible-subj-argu 0
+ ; let subj-argu-wo-color turtle-set map [[curargu] -> item 0 curargu] subjective-arguments
+  let non-admiss-subj-argu-cache non-admiss-subj-argu
+  let i 0
+  foreach current-theory-info [[curitem] ->
+    let curtheory item 0 curitem
+    let number-adm-argu count subj-argu-as with [mytheory = curtheory and not member? self non-admiss-subj-argu-cache]
+    set current-theory-info replace-subitem i 1 current-theory-info number-adm-argu
+    set i i + 1
+  ]
+end
+
+
+to-report arg-list-dupl-remover-test [alist]
+	set alist remove-duplicates alist
+	let widearglist convert-argl-long-to-wide-test alist
+	set alist convert-argl-wide-to-long-test widearglist
+	report alist
+end
+
+
+to-report convert-argl-long-to-wide-test [longarglist]
+	let redargs []
+	let orangeargs []
+	let brownargs []
+	let yellowargs []
+	let greenargs []
+	let limeargs []
+	let turquoiseargs []
+	let argulist []
+	foreach longarglist	[ [colorarg] ->
+		let curargu item 0 colorarg
+		let curcolor item 1 colorarg
+		set argulist lput curargu argulist
+		if curcolor = 15 [
+			set redargs lput curargu redargs
+		]
+		if curcolor = 25 [
+			set orangeargs lput curargu orangeargs
+		]
+		if curcolor = 35 [
+			set brownargs lput curargu brownargs
+		]
+		if curcolor = 45 [
+			set yellowargs lput curargu yellowargs
+		]
+		if curcolor = 55 [
+			set greenargs lput curargu greenargs
+		]
+		if curcolor = 65 [
+			set limeargs lput curargu limeargs
+		]
+		if curcolor = 75 [
+			set turquoiseargs lput curargu turquoiseargs
+		]
+	]
+	set argulist remove-duplicates argulist
+  set subj-argu-as turtle-set argulist
+	let widearglist (list redargs orangeargs brownargs yellowargs greenargs limeargs turquoiseargs argulist)
+	report widearglist
+end
+
+
+to-report convert-argl-wide-to-long-test [widearglist]
+	let redargs item 0 widearglist
+	let orangeargs item 1 widearglist
+	let brownargs item 2 widearglist
+	let yellowargs item 3 widearglist
+	let greenargs item 4 widearglist
+	let limeargs item 5 widearglist
+	let turquoiseargs item 6 widearglist
+	let argulist item 7 widearglist
+	let longarglist []
+	foreach argulist
+	[ [argu] ->
+		ifelse member? argu redargs [
+			set longarglist lput list argu 15 longarglist
+		][
+			ifelse member? argu orangeargs [
+				set longarglist lput list argu 25 longarglist
+			][
+				ifelse member? argu orangeargs [
+					set longarglist lput list argu 35 longarglist
+				][
+					ifelse member? argu orangeargs [
+						set longarglist lput list argu 45 longarglist
+					][
+						ifelse member? argu orangeargs [
+							set longarglist lput list argu 55 longarglist
+						][
+							ifelse member? argu orangeargs [
+								set longarglist lput list argu 65 longarglist
+							][
+								set longarglist lput list argu 75 longarglist
+							]
+						]
+					]
+				]
+			]
+		]
+	]	
+	report longarglist
+end
+
+
+
+
+; procedure in which researchers share their memory with other researchers
+; from their collaborator-network (=group)
+to share-with-others-test11
+	foreach colla-networks [ [?1] ->
+		let group-sharing-done false
+		let grp-share-researcher []
+		let cur-group ?1
+		foreach cur-group [ [??1] ->
+			let cur-researcher ??1
+			ifelse group-sharing-done [
+				ask cur-researcher [
+					set rep-researcher false
+					set subjective-arguments [subjective-arguments] of
+					grp-share-researcher
+					set subjective-relations [subjective-relations] of
+					grp-share-researcher
+          set subj-argu-as [subj-argu-as] of grp-share-researcher
+				]
+			][
+				set group-sharing-done true
+				set grp-share-researcher cur-researcher
+				ask cur-researcher [
+					; reset the variables
+					set rep-researcher false
+					set to-add-mem-argu []
+					set to-add-mem-rel []
+
+					; variables to keep track of the current researchers own memory
+					; and the combined memory of all the sharing researchers
+					; let own-memory-argu subjective-arguments
+					; let own-memory-rel subjective-relations
+					let comb-memory-argu []
+					let comb-memory-rel []
+					; collaborator network of the current researcher
+					let cur-network collaborator-network
+
+					; the information in the memories of the single researchers in
+					; the network are combined
+					foreach cur-group [ [???1] ->
+						let input-researcher ???1
+						set comb-memory-argu remove-duplicates sentence
+							[subjective-arguments] of input-researcher comb-memory-argu
+						set comb-memory-rel remove-duplicates sentence 
+							[subjective-relations] of	input-researcher comb-memory-rel
+					]
+					; the group-share-researcher adds the combined memory to its own
+					set subjective-arguments (arg-list-dupl-remover-test comb-memory-argu)
+					set subjective-relations comb-memory-rel
+				]
+			]
+		]
+	]
 end

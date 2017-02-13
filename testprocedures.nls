@@ -1260,7 +1260,7 @@ to go-test-v111
 		; duplicate-remover-test
 	; ]
   if ticks mod 5 = 4 [
-		share-with-others-test8
+		share-with-others-test11
 		create-share-memory-test7
 		share-w-other-netw-test10
 		compute-time-costs-test10
