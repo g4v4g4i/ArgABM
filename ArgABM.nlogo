@@ -93,7 +93,6 @@ end
 
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -212,7 +211,7 @@ scientists
 scientists
 5
 100
-50.0
+100.0
 5
 1
 NIL
@@ -1029,6 +1028,55 @@ NetLogo 6.0
       <value value="0.3"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="attack-probability-3rd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="test-experiment-final-commands" repetitions="10" runMetricsEveryStep="false">
+    <setup>setuprs new-seed</setup>
+    <go>go-test</go>
+    <timeLimit steps="4000"/>
+    <exitCondition>exit-condition-new</exitCondition>
+    <metric>test-final-commands</metric>
+    <enumeratedValueSet variable="social-actions">
+      <value value="&quot;reliable&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visibility-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="scientists">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="within-theory">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-3rd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-of-theories">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="move-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy-threshold">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="research-speed">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="theory-depth">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="jump-threshold">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-best">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-structure">
+      <value value="&quot;complete&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-2nd">
       <value value="0.3"/>
     </enumeratedValueSet>
   </experiment>

@@ -4,7 +4,7 @@ extensions [profiler]
 ; experimental: this file is not properly commented
 
 
-globals [ctiho ctiho2 ctiho-old ctiho-new ctiho-diff rndseed] ;current-theory(2)-info-hand-over (sorted)
+globals [ctiho ctiho2 ctiho-old ctiho-new ctiho-diff rndseed update-mem-every-tick? ] ;current-theory(2)-info-hand-over (sorted)
 
 to startup
   set rndseed []
@@ -453,6 +453,10 @@ to profile [repetitions version]
 	if version = "v91" [set go-version [ [] -> go-test-v91 ]]
 	if version = "v101" [set go-version [ [] -> go-test-v101 ]]
   if version = "v111" [set go-version [ [] -> go-test-v111 ]]
+  if version = "v12" [set go-version [ [] -> go-test-v12 ]]
+  if version = "v122" [set go-version [ [] -> go-test-v122 ]]
+  if version = "v13" [set go-version [ [] -> go-test-v13 ]]
+  if version = "v14" [set go-version [ [] -> go-test-v14 ]]
 	profilecore repetitions go-version
 end
 
@@ -1254,20 +1258,20 @@ end
 
 
 to go-test-v111
-  update-memories-test8
+  update-memories-test11
 
 	; if ticks mod 10 = 4 [
 		; duplicate-remover-test
 	; ]
   if ticks mod 5 = 4 [
 		share-with-others-test11
-		create-share-memory-test7
+		create-share-memory-test11
 		share-w-other-netw-test10
 		compute-time-costs-test10
     ; update-memories-test
 		compute-subj-attacked-test11
 		compute-strategies-researchers-test6
-    act-on-strat-ag-tst7
+    act-on-strategies-test11
   ]
   move-around-test11
   update-landscape-test7
@@ -1275,23 +1279,149 @@ to go-test-v111
 	if ticks mod 5 != 0 [
 		communication-regress
 	]
-  compute-popularity-tst7
+  compute-popularity-test11
+  tick
+end
+
+
+to go-test-v12
+  if ticks = 0 [set update-mem-every-tick? true]
+  ask researchers [
+    update-memories-test12
+  ]
+
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+		share-with-others-test12
+		create-share-memory-test11
+		share-w-other-netw-test10
+		compute-time-costs-test12
+    ; update-memories-test
+		compute-subj-attacked-test11
+		compute-strategies-researchers-test6
+    act-on-strategies-test11
+  ]
+  move-around-test11
+  update-landscape-test7
+	full-discovery-test7
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
+  tick
+end
+
+to go-test-v122
+  
+  if ticks = 0 [set update-mem-every-tick? false]
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test12
+    ]
+		share-with-others-test12
+		create-share-memory-test11
+		share-w-other-netw-test10
+		compute-time-costs-test12
+    ; update-memories-test
+		compute-subj-attacked-test11
+		compute-strategies-researchers-test6
+    act-on-strategies-test11
+  ]
+  move-around-test11
+  update-landscape-test7  
+	full-discovery-test7
+  ask researchers [
+    set flag-updated-memory false
+  ]
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
+  tick
+end
+
+
+
+to go-test-v13
+  
+  if ticks = 0 [set update-mem-every-tick? false]
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test12
+    ]
+		share-with-others-test12
+		create-share-memory-test11
+		share-w-other-netw-test10
+		compute-time-costs-test12
+    ; update-memories-test
+		compute-subj-attacked-test11
+		compute-strategies-researchers-test6
+    act-on-strategies-test11
+  ]
+  move-around-test13
+  update-landscape-test13  
+	full-discovery-test13
+  ask researchers [
+    set flag-updated-memory false
+  ]
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
+  tick
+end
+
+
+
+to go-test-v14
+  
+  if ticks = 0 [set update-mem-every-tick? false]
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test12
+    ]
+		share-with-others-test12
+		create-share-memory-test14
+		share-w-other-netw-test10
+		compute-time-costs-test14
+    ; update-memories-test
+		compute-subj-attacked-test14
+    act-on-strategies-test14
+  ]
+  move-around-test13
+  update-landscape-test13  
+	full-discovery-test13
+  ask researchers [
+    set flag-updated-memory false
+  ]
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
   tick
 end
 
 
 
 to go-test
-	go-test-v111
+	go-test-v14
 end
 
 to go-stop-test
 	setuprs new-seed
 	go-test
-	while [any? arguments with [
-	color != red and [myscientists] of mytheory !=  0
-	]
-	][
+	while [not exit-condition-new][
 		go-test
 	]
 end
@@ -1311,6 +1441,9 @@ to setuprs [rs]
 	; scientists is the chooser for the number of researchers from the interface
   distribute-researchers scientists
 	set startsargum turtles with [breed = starts or breed = arguments]
+  setup-attacks
+  setup-group-ids
+  calc-global-admiss
 	ask researchers [
 		set lastalist []
 		set lastblist []
@@ -1321,10 +1454,34 @@ to setuprs [rs]
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
     set mygps gps-setup
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set cur-best-th sort starts
 	]
   reset-ticks
 end
 
+to setup-attacks
+  let in-group-i-memory-list n-values length colla-networks [false]
+  ask attacks [
+    set mytheory-end1 [mytheory] of end1
+    set mytheory-end2 [mytheory] of end2
+    set in-group-i-memory in-group-i-memory-list
+    set uncontested true    
+  ]
+end
+
+to setup-group-ids
+  let i 0
+  foreach colla-networks [ [curgroup] ->
+    foreach curgroup [ [curresearcher] ->
+      ask curresearcher [
+        set group-id i
+      ]
+    ]
+    set i i + 1
+  ]
+end
 
 to setuprs-auto
   clear-turtles
@@ -1341,6 +1498,8 @@ to setuprs-auto
   distribute-researchers scientists
 
 	set startsargum turtles with [breed = arguments or breed = starts]
+  setup-attacks
+  setup-group-ids
 	ask researchers [
 		set lastalist []
 		set lastblist []
@@ -1351,6 +1510,9 @@ to setuprs-auto
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
     set mygps gps-setup
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set cur-best-th sort starts
 	]
   reset-ticks
 end
