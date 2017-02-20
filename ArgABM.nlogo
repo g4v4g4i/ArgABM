@@ -61,7 +61,7 @@ globals [times-right number-of-theories-many theory-depth-many
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "setup-old.nls"
  "behavior-old.nls" "strategies-old.nls" "run-many.nls" "testprocedures.nls"
- "admcalc-tests.nls"]
+ "admcalc-tests.nls" "prospective-movement-tests.nls"]
 
 
 
@@ -90,9 +90,6 @@ to go
   compute-popularity
   tick
 end
-
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -354,9 +351,9 @@ HORIZONTAL
 
 PLOT
 5
-450
+505
 205
-600
+655
 Popularity
 Time steps
 No. of researchers
@@ -385,9 +382,9 @@ NIL
 
 TEXTBOX
 10
-425
+480
 160
-443
+498
 Plots
 13
 0.0
@@ -472,6 +469,16 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+10
+425
+177
+470
+restrictions
+restrictions
+"researcher-childs-only" "group-childs" "all-subj-argu" "all-visible"
+3
 
 @#$#@#$#@
 # Motivation
@@ -1031,12 +1038,16 @@ NetLogo 6.0
       <value value="0.3"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="test-experiment-final-commands" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="test-experiment-final-commands" repetitions="2" runMetricsEveryStep="false">
     <setup>setuprs new-seed</setup>
     <go>go-test</go>
     <timeLimit steps="4000"/>
     <exitCondition>exit-condition-new</exitCondition>
     <metric>test-final-commands</metric>
+    <enumeratedValueSet variable="random-seed">
+      <value value="1"/>
+      <value value="2"/>
+    </enumeratedValueSet>
     <enumeratedValueSet variable="social-actions">
       <value value="&quot;reliable&quot;"/>
     </enumeratedValueSet>
@@ -1152,6 +1163,123 @@ NetLogo 6.0
     </enumeratedValueSet>
     <enumeratedValueSet variable="attack-probability-3rd">
       <value value="0.3"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Prospective-movement-comparisons" repetitions="1000" runMetricsEveryStep="false">
+    <setup>setuprs-behaviorspace 1000</setup>
+    <go>go-test-prosp1</go>
+    <timeLimit steps="4000"/>
+    <exitCondition>exit-condition-new</exitCondition>
+    <metric>#moved-prospectively</metric>
+    <metric>#failed-move-prosp</metric>
+    <metric>ratio-success-to-failed</metric>
+    <enumeratedValueSet variable="social-actions">
+      <value value="&quot;reliable&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visibility-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="scientists">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="within-theory">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-3rd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-of-theories">
+      <value value="2"/>
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="move-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy-threshold">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="research-speed">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="theory-depth">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="jump-threshold">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-best">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-structure">
+      <value value="&quot;complete&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-2nd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="restrictions">
+      <value value="&quot;researcher-childs-only&quot;"/>
+      <value value="&quot;group-childs&quot;"/>
+      <value value="&quot;all-subj-argu&quot;"/>
+      <value value="&quot;all-visible&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="Prospective-movement-comparisons" repetitions="10" runMetricsEveryStep="false">
+    <setup>setuprs-behaviorspace 10</setup>
+    <go>go-test-prosp1</go>
+    <timeLimit steps="4000"/>
+    <exitCondition>exit-condition-new</exitCondition>
+    <metric>#moved-prospectively</metric>
+    <metric>#failed-move-prosp</metric>
+    <metric>ratio-success-to-failed</metric>
+    <metric>rndseed</metric>
+    <enumeratedValueSet variable="social-actions">
+      <value value="&quot;reliable&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visibility-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="scientists">
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="within-theory">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-3rd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-of-theories">
+      <value value="2"/>
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="move-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy-threshold">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="research-speed">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="theory-depth">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="jump-threshold">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-best">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-structure">
+      <value value="&quot;complete&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-2nd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="restrictions">
+      <value value="&quot;researcher-childs-only&quot;"/>
+      <value value="&quot;group-childs&quot;"/>
+      <value value="&quot;all-subj-argu&quot;"/>
+      <value value="&quot;all-visible&quot;"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>

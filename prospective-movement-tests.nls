@@ -1,0 +1,251 @@
+; this branches of go-test-v14.
+globals [#moved-prospectively #failed-move-prosp]
+
+to go-test-prosp
+  go-test-prosp1
+end
+
+to bla2 [times]
+	repeat times [go-test-prosp]
+end
+
+to go-test-prosp1
+  
+  if ticks = 0 [set update-mem-every-tick? false]
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test12
+    ]
+		share-with-others-test12
+		create-share-memory-test14
+		share-w-other-netw-test10
+		compute-time-costs-test14
+    ; update-memories-test
+		compute-subj-attacked-test14
+    act-on-strategies-test14
+  ]
+  move-around-test-prosp1 
+  update-landscape-test13  
+	full-discovery-test13
+  ask researchers [
+    set flag-updated-memory false
+  ]
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
+  tick
+end
+
+
+
+to move-around-test-prosp1
+  ; variable to make sure that the procedure find-defense
+  ; is only run once
+  let run-find-defense false
+  ; at the beginning of the procedure no researcher has moved yet
+  ask researchers [
+    set moved false
+  ]
+  ask researchers [
+    let curresearcher self
+    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+			let myargu mygps     
+      ; the researcher owned variable which contains all the non defensible
+			; arguments as a list is written to not-admissible
+      let not-admissible non-admiss-subj-argu
+			
+      ; an researcher working on a non defensible argument will try to find a
+			; defense for this attack, by working further on the attacked argument,
+			; unless she discoveres a child-argument that that has a defense for
+			; the attack (it is not necessarily the case that this defense is
+			; already discovered) or until she has fully researched the argument
+      ; the find-defense runs immediately for all researchers working on 
+			; a not fully researched non defensible argument,
+			; hence it is only once executed
+      if member? myargu not-admissible and not moved [
+
+        if not run-find-defense [
+          find-defense-test-prosp1
+          set run-find-defense true
+        ]
+      ]
+
+      ; if not moved and (not member? myargu not-admissible or
+        ; (member? myargu not-admissible and [color] of myargu = red))[
+      if not moved and ([color] of myargu = red or not member? myargu not-admissible)[
+
+        ; when an argument exists that:
+        ; a) is a child-argument of the current argument;
+        ; b) is not gray, red or turquoise; and
+        ; c) no researcher from the same collaborator-network is working on it
+        ; the researcher moves there, with certain probability
+        let nextargu 0
+        ask myargu [set nextargu one-of out-discovery-neighbors with [
+          not member? color [gray red turquoise]
+					and not group-member-here-test13 curresearcher]
+        ]
+        ifelse nextargu != nobody [
+					let move-random random-float 1.0
+
+
+					; every time step with small-movement of the move-probability
+					; the researcher moves
+					ifelse move-random < (small-movement * move-probability *
+						(1 - ([color] of myargu / color-move))) [
+            move-to-nextargu nextargu
+					][
+
+						; every 5th time step the researcher mover with the full
+						; move-probability, that depends a bit on the color
+						if ticks != 0 and ticks mod 5 = 0 and move-random <
+							move-probability * (1 - ([color] of myargu / color-move)) [
+              move-to-nextargu nextargu
+						]
+					]
+				][
+          if [color] of myargu = red [
+            ; if there is no next argument and the current argument is
+            ; fully researched, the researcher moves a step back
+            ask myargu [set nextargu one-of in-discovery-neighbors with [
+              not member? color [gray turquoise]
+              and not group-member-here-test13 curresearcher]
+            ]
+            ifelse nextargu != nobody [
+              move-to-nextargu nextargu
+            ][
+              ; if moving back is not possible, she jumps to another argument in
+              ; the same tree/theory that is discovered but not fully researched
+              let askstart [mytheory] of myargu
+              set nextargu one-of startsargum with [
+                mytheory = askstart 
+                and not member? color [gray red turquoise]          
+                and not group-member-here-test13 curresearcher]
+              if nextargu != nobody [ 
+                move-to-nextargu nextargu        
+              ]              
+            ]
+          ]
+				]
+      ]
+    ]
+  ]
+end
+
+
+to find-defense-test-prosp1
+  ask researchers with [not moved][
+    let curresearcher self
+		if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+			let myargu mygps
+			; lists of arguments that are not admissible
+			let not-admissible non-admiss-subj-argu
+			
+			; if the current argument is not fully researched and not admissible
+			; and it is a 5th time step or the researcher is not communicating
+			; the researcher tries to move prospectively to a child-argument of the
+			; current argument that provides a defense for the current argument
+			if member? myargu not-admissible [       
+				ask myargu [
+					ask my-in-attacks [
+						; check to prevent the researcher from searching for further
+						; defender-childs (nextargu) when she already has moved to one
+						if not [moved] of curresearcher [
+							ask end1 [
+							; create a set of arguments that provide a defense for the 
+							; current argument, these:
+							; a) attack the attacker of the current argument;
+							; b) are a child-argument of the current argument;
+							; c) are discovered; and
+							; d) no researcher from the same group is working on it
+                
+								; let nextargu one-of in-attack-neighbors with [in-discovery-neighbor?
+									; myargu
+									; and	not member? color [gray red turquoise]
+									; and not group-member-here-test13 curresearcher]
+								; if such an argument exists the researcher moves there
+								; and cannot move anymore this time step
+                let nextargu one-of in-attack-neighbors with [
+                  member? self prospective-arguments curresearcher
+                ]
+								ifelse nextargu != nobody [
+									ask curresearcher [
+                    if [mytheory] of [mygps] of curresearcher = (start 0) [
+                      set #moved-prospectively #moved-prospectively + 1
+                    ]
+                    move-to-nextargu nextargu
+									]
+								][
+                  if [mytheory] of [mygps] of curresearcher = (start 0) [
+                    set #failed-move-prosp #failed-move-prosp + 1
+                  ]
+                ]
+							]
+						]
+					]
+				]
+			]
+		]			
+  ]
+end
+
+
+
+to-report prospective-arguments [curresearcher]
+  let researcher-th [mytheory] of [mygps] of curresearcher
+  if restrictions = "group-childs" [
+    let mygroup turtle-set item [group-id] of curresearcher colla-networks
+    let group-args turtle-set [mygps] of mygroup
+    let arg-childs-group []    
+    ask group-args [
+      ; let curargu self
+      set arg-childs-group (turtle-set arg-childs-group 
+        out-discovery-neighbors with [
+          mytheory = researcher-th
+          and not member? color [gray red turquoise]
+          and not group-member-here-test13 curresearcher])
+    ]
+    report arg-childs-group
+  ]
+  if restrictions = "all-subj-argu" [
+    let nextargus ([subj-argu-as] of curresearcher) with [
+      mytheory = researcher-th
+      and not member? color [gray red turquoise]
+      and not group-member-here-test13 curresearcher
+    ]
+    report nextargus
+  ]
+  if restrictions = "all-visible" [
+    let nextargus startsargum with [
+      mytheory = researcher-th
+      and not member? color [gray red turquoise]
+      and not group-member-here-test13 curresearcher
+    ]
+    report nextargus
+  ]
+  if restrictions = "researcher-childs-only" [
+    let nextargus 0
+    ask [mygps] of curresearcher [
+      set nextargus out-discovery-neighbors with [
+        not member? color [gray red turquoise]
+        and not group-member-here-test13 curresearcher
+      ]
+    ]    
+    report nextargus 
+  ]
+end
+
+to-report ratio-success-to-failed
+  ifelse #failed-move-prosp = 0 [
+    report 0
+  ][
+    report (#moved-prospectively / #failed-move-prosp)
+  ]
+end
+
+to-report restriction-global-variable
+  report restrictions
+end

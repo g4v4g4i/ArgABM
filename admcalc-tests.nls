@@ -1149,7 +1149,7 @@ to share-with-others-test12
 end
 
 to move-to-nextargu [nextargu]
-  if not flag-updated-memory and not update-mem-every-tick? [
+  if not flag-updated-memory and not update-mem-every-tick? [ ;2nd part just for test purposes
     update-memories-test12    
   ]
   set mygps nextargu
@@ -1261,7 +1261,7 @@ to full-discovery-test13
 end
 
 
-
+; this (member?) is faster than using the check via group id. Approx by a factor of 1.3
 to-report group-member-here-test13 [curresearcher] 
 	ifelse any? researchers in-radius 0 with [
     member? self [collaborator-network] of curresearcher][
@@ -1271,7 +1271,6 @@ to-report group-member-here-test13 [curresearcher]
 	]
 
 end
-
 
 
 to move-around-test13
@@ -1749,9 +1748,10 @@ to-report researcher-performance [pluralist-monist]
   report performance
 end
 
-to-report objective-admiss-of [th#]
+to-report objective-admiss-of [th#]  
   let objective-admiss-ap [[] -> objective-admissibility]
   if th# = "th1" [
+    final-commands
     set th# item 0 sort starts
   ]
   if th# = "th2" [

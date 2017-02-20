@@ -457,6 +457,7 @@ to profile [repetitions version]
   if version = "v122" [set go-version [ [] -> go-test-v122 ]]
   if version = "v13" [set go-version [ [] -> go-test-v13 ]]
   if version = "v14" [set go-version [ [] -> go-test-v14 ]]
+  if version = "prosp" [set go-version [ [] -> go-test-prosp ]]
 	profilecore repetitions go-version
 end
 
@@ -1461,27 +1462,40 @@ to setuprs [rs]
   reset-ticks
 end
 
-to setup-attacks
-  let in-group-i-memory-list n-values length colla-networks [false]
-  ask attacks [
-    set mytheory-end1 [mytheory] of end1
-    set mytheory-end2 [mytheory] of end2
-    set in-group-i-memory in-group-i-memory-list
-    set uncontested true    
-  ]
-end
 
-to setup-group-ids
-  let i 0
-  foreach colla-networks [ [curgroup] ->
-    foreach curgroup [ [curresearcher] ->
-      ask curresearcher [
-        set group-id i
-      ]
-    ]
-    set i i + 1
+to setuprs-behaviorspace [#of-repetitions]
+  clear-all
+  file-open "rndseed-table.txt" let rs item ((behaviorspace-run-number - 1) mod #of-repetitions) file-read file-close
+  set rndseed rs
+  random-seed rs
+  initialize-hidden-variables
+  create-discovery-landscape number-of-theories theory-depth
+  define-attack-relation
+  ; scientists is the chooser for the number of researchers from the interface
+  distribute-researchers scientists
+  set startsargum turtles with [breed = starts or breed = arguments]
+  setup-attacks
+  setup-group-ids
+  calc-global-admiss
+  ask researchers [
+    set lastalist []
+    set lastblist []
+    set lastalistafter []
+    set flag-updated-memory false
+    set conference-attended false
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set non-admiss-subj-argu []
+    set mygps gps-setup
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set cur-best-th sort starts
   ]
+  reset-ticks
+
 end
+ 
+
 
 to setuprs-auto
   clear-turtles
@@ -1517,6 +1531,29 @@ to setuprs-auto
   reset-ticks
 end
 
+
+
+to setup-attacks
+  let in-group-i-memory-list n-values length colla-networks [false]
+  ask attacks [
+    set mytheory-end1 [mytheory] of end1
+    set mytheory-end2 [mytheory] of end2
+    set in-group-i-memory in-group-i-memory-list
+    set uncontested true    
+  ]
+end
+
+to setup-group-ids
+  let i 0
+  foreach colla-networks [ [curgroup] ->
+    foreach curgroup [ [curresearcher] ->
+      ask curresearcher [
+        set group-id i
+      ]
+    ]
+    set i i + 1
+  ]
+end
 
 to-report gps-setup
 	let myx xcor
