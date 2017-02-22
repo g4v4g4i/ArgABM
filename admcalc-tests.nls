@@ -891,7 +891,7 @@ to compute-popularity-test11
       set myscientists myscientists + 1
     ]    
   ]
-  if ticks mod 5 = 4 or ticks = 0 [
+  if ticks mod 5 = 4 [
     foreach colla-networks [[curgroup] ->
       ask one-of curgroup [
         let curresearcher self
@@ -901,6 +901,11 @@ to compute-popularity-test11
           ]
         ]      
       ]
+    ]
+  ]
+  if ticks = 0 [
+    ask starts [
+      set myscientists-pluralist count researchers in-radius 0
     ]
   ]
   ask starts [

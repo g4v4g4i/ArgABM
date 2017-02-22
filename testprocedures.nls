@@ -1457,7 +1457,6 @@ to setuprs [rs]
     set mygps gps-setup
     set to-add-mem-argu []
     set to-add-mem-rel []
-    set cur-best-th sort starts
 	]
   reset-ticks
 end
