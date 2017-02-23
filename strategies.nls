@@ -15,7 +15,7 @@
 ; based on their memory researchers compute lists of attacked arguments
 ; with these lists the current best theory is computed
 to compute-strategies
-	ask researchers with [not rep-researcher][
+  ask researchers with [not rep-researcher][
     set cur-best-th []
     ; variables for the list that contains the number admissible arguments
     ; per theory and a sublist which contains only the numbers that are
@@ -31,7 +31,7 @@ to compute-strategies
     set list-admissible-arguments sort list-admissible-arguments
 
     ; a list of theories with values within the strategy threshold is
-		; constructed
+    ; constructed
     set threshold-admissible-arguments filter [ [?1] -> ?1 >=
       ((max list-admissible-arguments) * strategy-threshold) ]
         list-admissible-arguments
@@ -40,7 +40,7 @@ to compute-strategies
     ; computation of the current best theories
     ; theories with a number of defensible arguments that are
     ; within the threshold of the theory with the most defensible arguments
-		; are considered as current best theories
+    ; are considered as current best theories
     foreach current-theory-info [ [?1] ->
       if member? item 1 ?1 threshold-admissible-arguments [
         set cur-best-th lput item 0 ?1 cur-best-th
@@ -60,156 +60,156 @@ end
 ; (the calc-researcher) and the others (except for the rep-researcher) can just
 ; copy the results from her
 to compute-subjective-attacked
-	foreach colla-networks [ [?1] ->
-		let calc-done false
-		let calc-researcher []
-		let cur-group ?1
-		foreach cur-group [ [??1] ->
-			let cur-researcher ??1
-			if not [rep-researcher] of cur-researcher [
-				; if a researcher of the group already calculated defensibility other
-				; group members can copy the results into their memory
-				ifelse calc-done [
-					ask cur-researcher [
-						set admissible-subj-argu [admissible-subj-argu] of calc-researcher
-						set current-theory-info [current-theory-info] of calc-researcher
-						set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
-					]
-				][
-					; if no group member has done the defensibility calculations, the
-					; current researcher does the calculations i.e. she becomes the
-					; groups calc-researcher
-					set calc-done true
-					set calc-researcher cur-researcher
-					ask cur-researcher [
-						; variables for lists that contain:
-						; the current-theory-info with 0 admissible arguments
-						; an updated number of admissible arguments during the recursive
-						; computation 
-						; the arguments that are not admissible
-						; the arguments that the researchers knows about
-						; and the arguments that are attacked by the current theory
-						let new-info []
-						let new-cur-info []
-						let not-admissible []
-						let args-cur-arguments []
-						let args-cur-arguments-as 0
-						let attacked-by-me []
+  foreach colla-networks [ [?1] ->
+    let calc-done false
+    let calc-researcher []
+    let cur-group ?1
+    foreach cur-group [ [??1] ->
+      let cur-researcher ??1
+      if not [rep-researcher] of cur-researcher [
+        ; if a researcher of the group already calculated defensibility other
+        ; group members can copy the results into their memory
+        ifelse calc-done [
+          ask cur-researcher [
+            set admissible-subj-argu [admissible-subj-argu] of calc-researcher
+            set current-theory-info [current-theory-info] of calc-researcher
+            set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
+          ]
+        ][
+          ; if no group member has done the defensibility calculations, the
+          ; current researcher does the calculations i.e. she becomes the
+          ; groups calc-researcher
+          set calc-done true
+          set calc-researcher cur-researcher
+          ask cur-researcher [
+            ; variables for lists that contain:
+            ; the current-theory-info with 0 admissible arguments
+            ; an updated number of admissible arguments during the recursive
+            ; computation 
+            ; the arguments that are not admissible
+            ; the arguments that the researchers knows about
+            ; and the arguments that are attacked by the current theory
+            let new-info []
+            let new-cur-info []
+            let not-admissible []
+            let args-cur-arguments []
+            let args-cur-arguments-as 0
+            let attacked-by-me []
 
-						; create a list of only the attacks
-						let attack-relations []
-						foreach subjective-relations [ [???1] ->
-							if first ???1 = "a" [
-								set attack-relations lput ???1 attack-relations
-							]
-						 ]
-						; create lists of attacked and attacking arguments
-						let cur-attacked []
-						let cur-attacker []
-						foreach attack-relations [ [???1] ->
-							set cur-attacked lput last ???1 cur-attacked
-							set cur-attacker lput first but-first ???1 cur-attacker
-						 ]
+            ; create a list of only the attacks
+            let attack-relations []
+            foreach subjective-relations [ [???1] ->
+              if first ???1 = "a" [
+                set attack-relations lput ???1 attack-relations
+              ]
+             ]
+            ; create lists of attacked and attacking arguments
+            let cur-attacked []
+            let cur-attacker []
+            foreach attack-relations [ [???1] ->
+              set cur-attacked lput last ???1 cur-attacked
+              set cur-attacker lput first but-first ???1 cur-attacker
+             ]
 
-						; create a list of the arguments the researchers knows about and
-						; set the number of admissible arguments for each theory to 0
-						foreach subjective-arguments [ [???1] ->
-							set args-cur-arguments lput first ???1 args-cur-arguments
-						]
-						; create an agentset which contains all subjective-arguments
-						set args-cur-arguments-as startsargum with [member? self
-						args-cur-arguments]
-						foreach current-theory-info [ [???1] ->
-							set new-info lput replace-item 1 ???1 0 new-info
-						]
-						set current-theory-info new-info
+            ; create a list of the arguments the researchers knows about and
+            ; set the number of admissible arguments for each theory to 0
+            foreach subjective-arguments [ [???1] ->
+              set args-cur-arguments lput first ???1 args-cur-arguments
+            ]
+            ; create an agentset which contains all subjective-arguments
+            set args-cur-arguments-as startsargum with [member? self
+            args-cur-arguments]
+            foreach current-theory-info [ [???1] ->
+              set new-info lput replace-item 1 ???1 0 new-info
+            ]
+            set current-theory-info new-info
 
-						; the computation of the admissible arguments is done recursively
-						; a list of arguments that are currently consideredto be attacked
-						let open-rec []
-						; variable that lets the loop run at least one time
-						let i 0
-						foreach current-theory-info [ [???1] ->
-							; the theory that is considered in this loop
-							; and the root of that theory (the start)
-							let cur-theory ???1
-							let askstart item 0 cur-theory
-							while [ i < 1 or not empty? open-rec][
-								set not-admissible sentence not-admissible open-rec
-								set open-rec []
-								set attacked-by-me []
+            ; the computation of the admissible arguments is done recursively
+            ; a list of arguments that are currently consideredto be attacked
+            let open-rec []
+            ; variable that lets the loop run at least one time
+            let i 0
+            foreach current-theory-info [ [???1] ->
+              ; the theory that is considered in this loop
+              ; and the root of that theory (the start)
+              let cur-theory ???1
+              let askstart item 0 cur-theory
+              while [ i < 1 or not empty? open-rec][
+                set not-admissible sentence not-admissible open-rec
+                set open-rec []
+                set attacked-by-me []
 
-								; create a list of arguments that are attacked by the current
-								; theory based on the memory of the current researcher
-								if not empty? attack-relations [
-									ask args-cur-arguments-as with [mytheory = askstart][
-										if member? self cur-attacker and not member? self
-										not-admissible [
-											; the argument considered and a list of arguments
-											; attacked by that argument
-											let cur-turtle self
-											let my-attacked []
-											foreach attack-relations [ [????1] ->
-												if item 1 ????1 = cur-turtle [
-													set my-attacked lput last ????1 my-attacked
-												]
-											]
-											set attacked-by-me sentence my-attacked attacked-by-me
-										]
-									]
+                ; create a list of arguments that are attacked by the current
+                ; theory based on the memory of the current researcher
+                if not empty? attack-relations [
+                  ask args-cur-arguments-as with [mytheory = askstart][
+                    if member? self cur-attacker and not member? self
+                    not-admissible [
+                      ; the argument considered and a list of arguments
+                      ; attacked by that argument
+                      let cur-turtle self
+                      let my-attacked []
+                      foreach attack-relations [ [????1] ->
+                        if item 1 ????1 = cur-turtle [
+                          set my-attacked lput last ????1 my-attacked
+                        ]
+                      ]
+                      set attacked-by-me sentence my-attacked attacked-by-me
+                    ]
+                  ]
 
-									; arguments that are attacked by arguments from another
-									; theory that are not attacked by non-attacked arguments
-									; from the current theory are added to the open-rec list:
-									; the list of attacked-arguments
-									ask args-cur-arguments-as with [mytheory = askstart and
-										not member? self not-admissible and
-										member? self cur-attacked][
-										let cur-turtle self
-										foreach attack-relations [ [????1] ->
-											if last ????1 = cur-turtle [
-												if not member? item 1 ????1 attacked-by-me [
-													set open-rec lput cur-turtle open-rec
-												]
-											]
-										]
-									]
-								]
-								set i i + 1
-							]
-							set i 0
+                  ; arguments that are attacked by arguments from another
+                  ; theory that are not attacked by non-attacked arguments
+                  ; from the current theory are added to the open-rec list:
+                  ; the list of attacked-arguments
+                  ask args-cur-arguments-as with [mytheory = askstart and
+                    not member? self not-admissible and
+                    member? self cur-attacked][
+                    let cur-turtle self
+                    foreach attack-relations [ [????1] ->
+                      if last ????1 = cur-turtle [
+                        if not member? item 1 ????1 attacked-by-me [
+                          set open-rec lput cur-turtle open-rec
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+                set i i + 1
+              ]
+              set i 0
 
-							; update of the information in current-theory-info
-							set new-cur-info lput replace-item 1 cur-theory (count
-								args-cur-arguments-as with [mytheory = askstart] -
-								count args-cur-arguments-as with 
-								[member? self not-admissible and mytheory = askstart])
-									new-cur-info
-						]
+              ; update of the information in current-theory-info
+              set new-cur-info lput replace-item 1 cur-theory (count
+                args-cur-arguments-as with [mytheory = askstart] -
+                count args-cur-arguments-as with 
+                [member? self not-admissible and mytheory = askstart])
+                  new-cur-info
+            ]
 
-						; arguments that are part of the not-admissible list
-						; are not part of the admissible subjective arguments and hence
-						; removed
-						; this non-admissible arguments are written into the
-						; researcher owned variable non-admiss-subj-argu which will only
-						; contain these arguments as a list without their respective colors
-						set admissible-subj-argu subjective-arguments
-						set non-admiss-subj-argu []
-						foreach subjective-arguments [ [???1] ->
-							let cur-argu ???1
-							if member? first cur-argu not-admissible [
-								set admissible-subj-argu remove cur-argu admissible-subj-argu
-								set non-admiss-subj-argu lput item 0 cur-argu
-								non-admiss-subj-argu
-							]
-						]
-						; update the current-theory-info
-						set current-theory-info new-cur-info
-					]
-				]
-			]
-		]
-	]
+            ; arguments that are part of the not-admissible list
+            ; are not part of the admissible subjective arguments and hence
+            ; removed
+            ; this non-admissible arguments are written into the
+            ; researcher owned variable non-admiss-subj-argu which will only
+            ; contain these arguments as a list without their respective colors
+            set admissible-subj-argu subjective-arguments
+            set non-admiss-subj-argu []
+            foreach subjective-arguments [ [???1] ->
+              let cur-argu ???1
+              if member? first cur-argu not-admissible [
+                set admissible-subj-argu remove cur-argu admissible-subj-argu
+                set non-admiss-subj-argu lput item 0 cur-argu
+                non-admiss-subj-argu
+              ]
+            ]
+            ; update the current-theory-info
+            set current-theory-info new-cur-info
+          ]
+        ]
+      ]
+    ]
+  ]
 end
 
 
@@ -222,18 +222,18 @@ to act-on-strategies
     ; only when there is a current best theory
     ; it makes sense for the researchers to want to work on that theory
     if not empty? cur-best-th and not member? nobody cur-best-th [
-			let myargu gps
+      let myargu gps
       ; let myx xcor
       ; let myy ycor
 
       ; if the researcher is not currently working on the best theory
       ; it considers jumping
       foreach subjective-arguments [ [?1] ->
-				let cur-subj-argu item 0 ?1
-				if cur-subj-argu = myargu and not member? [mytheory] of cur-subj-argu
-				cur-best-th [
+        let cur-subj-argu item 0 ?1
+        if cur-subj-argu = myargu and not member? [mytheory] of cur-subj-argu
+        cur-best-th [
           set theory-jump theory-jump + 1
-				]        
+        ]        
       ]
 
       ; if the researcher has considered jumping jump-threshold times
@@ -249,11 +249,11 @@ to act-on-strategies
         ; if one of the arguments from the best theory is in its memory
         ; the researcher will jump there
         ifelse any? startsargum with [
-	        member? self subj-argus and mytheory = ch-best 
-					and color != turquoise][
+          member? self subj-argus and mytheory = ch-best 
+          and color != turquoise][
             move-to one-of startsargum with [
               member? self subj-argus and mytheory = ch-best 
-							and color != turquoise]
+              and color != turquoise]
           ][ ; otherwise the researcher jumps to the root of the theory
           move-to ch-best
           ]
