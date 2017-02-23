@@ -458,6 +458,8 @@ to profile [repetitions version]
   if version = "v13" [set go-version [ [] -> go-test-v13 ]]
   if version = "v14" [set go-version [ [] -> go-test-v14 ]]
   if version = "prosp" [set go-version [ [] -> go-test-prosp ]]
+  if version = "v15" [set go-version [ [] -> go-test-v15 ]]
+  if version = "v16" [set go-version [ [] -> go-test-v16 ]]
 	profilecore repetitions go-version
 end
 
@@ -1414,13 +1416,72 @@ to go-test-v14
 end
 
 
+to go-test-v15
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test15
+    ]
+		share-with-group-test15
+		create-share-memory-test15
+		share-with-other-netw-test15
+		; compute-time-costs-test14
+    ; update-memories-test
+		compute-subj-attacked-test15
+    act-on-strategies-test14
+  ]
+  move-around-test15
+  update-landscape-test15
+  ask researchers [
+    set flag-updated-memory false
+  ]
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
+  tick
+end
+
+
+
+to go-test-v16
+	; if ticks mod 10 = 4 [
+		; duplicate-remover-test
+	; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test15
+    ]
+		share-with-group-test15
+		create-share-memory-test15
+		share-with-other-netw-test15
+		; compute-time-costs-test14
+    ; update-memories-test
+		compute-subj-attacked-test16
+    act-on-strategies-test14
+  ]
+  move-around-test15
+  update-landscape-test15
+  ask researchers [
+    set flag-updated-memory false
+  ]
+	if ticks mod 5 != 0 [
+		communication-regress
+	]
+  compute-popularity-test11
+  tick
+end
+
+
 
 to go-test
-	go-test-v14
+	go-test-v16
 end
 
 to go-stop-test
-	setuprs new-seed
+	setuprs new-seed "v15"
 	go-test
 	while [not exit-condition-new][
 		go-test
@@ -1431,20 +1492,27 @@ to bla [times]
 	repeat times [go-test]
 end
 
-to setuprs [rs]
+to setuprs [rs version]
   clear-all
   random-seed rs
 	print (word "random seed: " rs)
 	print (word "no. scientists: " scientists)
   initialize-hidden-variables
+  setup-hidden-variables-test15
   create-discovery-landscape number-of-theories theory-depth
   define-attack-relation
 	; scientists is the chooser for the number of researchers from the interface
   distribute-researchers scientists
 	set startsargum turtles with [breed = starts or breed = arguments]
+  set disc-startsargum-non-red starts
   setup-attacks
   setup-group-ids
   calc-global-admiss
+  setup-argu-memory
+  if version = "v15" [
+    set update-mem-every-tick? false set v15 true
+    ask starters [die]
+  ]
 	ask researchers [
 		set lastalist []
 		set lastblist []
@@ -1457,17 +1525,23 @@ to setuprs [rs]
     set mygps gps-setup
     set to-add-mem-argu []
     set to-add-mem-rel []
+    set argu-cache no-turtles
+    if version = "v15" [
+      set subjective-arguments one-of (starts in-radius 0)
+    ]
+    set current-theory-info sort-by [ [?1 ?2] -> item 0 ?1 < item 0 ?2 ] current-theory-info
 	]
   reset-ticks
 end
 
 
-to setuprs-behaviorspace [#of-repetitions]
+to setuprs-behaviorspace [#of-repetitions version]
   clear-all
   file-open "rndseed-table.txt" let rs item ((behaviorspace-run-number - 1) mod #of-repetitions) file-read file-close
   set rndseed rs
   random-seed rs
   initialize-hidden-variables
+  setup-hidden-variables-test15
   create-discovery-landscape number-of-theories theory-depth
   define-attack-relation
   ; scientists is the chooser for the number of researchers from the interface
@@ -1476,6 +1550,10 @@ to setuprs-behaviorspace [#of-repetitions]
   setup-attacks
   setup-group-ids
   calc-global-admiss
+  if version = "v15" [
+    set update-mem-every-tick? false set v15 true
+    ask starters [die]
+  ]
   ask researchers [
     set lastalist []
     set lastblist []
@@ -1488,7 +1566,11 @@ to setuprs-behaviorspace [#of-repetitions]
     set mygps gps-setup
     set to-add-mem-argu []
     set to-add-mem-rel []
-    set cur-best-th sort starts
+    set argu-cache no-turtles
+    if version = "v15" [
+      set subjective-arguments one-of (starts in-radius 0)
+    ]
+    set current-theory-info sort-by [ [?1 ?2] -> item 0 ?1 < item 0 ?2 ] current-theory-info
   ]
   reset-ticks
 
@@ -1496,7 +1578,7 @@ end
  
 
 
-to setuprs-auto
+to setuprs-auto [version]
   clear-turtles
   clear-patches
   clear-drawing
@@ -1505,6 +1587,7 @@ to setuprs-auto
   set rndseed lput new-seed rndseed
   random-seed last rndseed
   initialize-hidden-variables
+  setup-hidden-variables-test15
   create-discovery-landscape number-of-theories theory-depth
   define-attack-relation
 	; scientists is the chooser for the number of researchers from the interface
@@ -1513,6 +1596,11 @@ to setuprs-auto
 	set startsargum turtles with [breed = arguments or breed = starts]
   setup-attacks
   setup-group-ids
+  setup-argu-memory
+  if version = "v15" [
+    set update-mem-every-tick? false set v15 true
+    ask starters [die]
+  ]
 	ask researchers [
 		set lastalist []
 		set lastblist []
@@ -1523,8 +1611,14 @@ to setuprs-auto
 		set to-add-mem-rel []
 		set non-admiss-subj-argu []
     set mygps gps-setup
+    set subj-argu-as mygps
     set to-add-mem-argu []
     set to-add-mem-rel []
+    set argu-cache no-turtles
+    if version = "v15" [
+      set subjective-arguments one-of (starts in-radius 0)
+    ]
+    set current-theory-info sort-by [ [?1 ?2] -> item 0 ?1 < item 0 ?2 ] current-theory-info
 	]
   reset-ticks
 end
@@ -1561,6 +1655,25 @@ to-report gps-setup
 end
 
 
+to setup-argu-memory
+  ; cyan = 85. This is set that way such that the smaller color the more discovered
+  let group-colors-list n-values (length colla-networks) [cyan]
+  ask startsargum [
+    set group-color-mem group-colors-list
+    set group-color-mem-cache group-colors-list
+  ]
+  ask starts [
+    let mygroups remove-duplicates [group-id] of researchers in-radius 0
+    foreach mygroups [ [curgroup-id] ->
+      set group-color-mem replace-item curgroup-id group-color-mem color
+    ]
+  ]
+end
+
+to setup-hidden-variables-test15
+  set rel-costfactor 85
+  set max-learn (85 * 10)
+end
 
 to share-with-others-test
   ask researchers [
@@ -4726,3 +4839,50 @@ to find-defense-test10
   ]
 end
 
+
+
+
+to compare-member-with-property [input repeats]
+  setuprs -628558118 1
+  set ctiho (list startsargum with [mytheory = first sort starts]
+    startsargum with [mytheory = item 1 sort starts] 
+    startsargum with [mytheory = item 2 sort starts])
+    if input = 1 [
+      repeat repeats [run-member1]
+      repeat repeats [run-with1]
+    ]
+    if input = 2 [
+      repeat repeats [run-member2]
+      repeat repeats [run-with2]
+    ]
+    if input = 3 [
+      let starterset (turtle-set (start 0) (start 85))
+      repeat repeats [run-member3]
+      repeat repeats [run-with3 starterset]
+    ]
+  
+end
+
+to run-member1
+ set ctiho-new count startsargum with [member? self first ctiho]
+end
+
+to run-with1
+  set ctiho-old count startsargum with [mytheory = (start 0)]
+end
+
+to run-member2
+  set ctiho-new count startsargum with [not member? self first ctiho]
+end
+
+to run-with2
+  set ctiho-old count startsargum with [mytheory != (start 0)]
+end
+
+to run-member3
+  set ctiho-new count (turtle-set item 0 ctiho item 1 ctiho)
+end
+
+to run-with3 [starterset]
+  set ctiho-old count startsargum with [member? mytheory (list (start 0) (start 85))]
+end

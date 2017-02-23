@@ -61,7 +61,7 @@ globals [times-right number-of-theories-many theory-depth-many
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "setup-old.nls"
  "behavior-old.nls" "strategies-old.nls" "run-many.nls" "testprocedures.nls"
- "admcalc-tests.nls" "prospective-movement-tests.nls"]
+ "admcalc-tests.nls" "prospective-movement-tests.nls" "wip-mem-management.nls"]
 
 
 

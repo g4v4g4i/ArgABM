@@ -1,13 +1,13 @@
 extensions [matrix]
 
-researchers-own [theory-jump times-jumped collaborator-network
-  subjective-arguments subjective-relations current-theory-info cur-best-th
-  admissible-subj-argu th-args th-relations communicating neighborargs moved
-  rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
-	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as mygps group-id]
+; researchers-own [theory-jump times-jumped collaborator-network
+  ; subjective-arguments subjective-relations current-theory-info cur-best-th
+  ; admissible-subj-argu th-args th-relations communicating neighborargs moved
+  ; rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
+	; lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as mygps group-id]
 
-attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory ]
-starts-own [mytheory current-start myscientists researcher-ticks full-research research-time-monist research-time-pluralist myscientists-pluralist objective-admissibility]
+; attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory ]
+; starts-own [mytheory current-start myscientists researcher-ticks full-research research-time-monist research-time-pluralist myscientists-pluralist objective-admissibility]
   
 to-report adm-calc-core [amat]
   let replacevec [-1 -1]
@@ -125,7 +125,7 @@ to profile-cadmis-compare-old-with-new [repetitions input number]
 		set vis [ [] -> true ]
 	]
   profilecore repetitions [ [] ->
-    setuprs-auto
+    setuprs-auto 1
     if input = red [
       simulate-exploration number
     ]    
@@ -238,6 +238,7 @@ to-report researcher-attack-mem-to-amat
     ; ]
   ]
 end
+
 
 to compute-subj-attacked-test11
   	foreach colla-networks [ [?1] ->
@@ -1120,8 +1121,6 @@ to share-with-others-test12
 				ask cur-researcher [
 					; reset the variables
 					set rep-researcher false
-					set to-add-mem-argu []
-					set to-add-mem-rel []
 
 					; variables to keep track of the current researchers own memory
 					; and the combined memory of all the sharing researchers
@@ -1153,9 +1152,14 @@ to share-with-others-test12
 	]
 end
 
+
 to move-to-nextargu [nextargu]
   if not flag-updated-memory and not update-mem-every-tick? [ ;2nd part just for test purposes
-    update-memories-test12    
+    ifelse v15 = true [ ; switch is also for testpurposes
+      update-memories-test15
+    ][
+      update-memories-test12
+    ]
   ]
   set mygps nextargu
   move-to mygps 
@@ -1548,6 +1552,7 @@ to compute-subj-attacked-test14
   ]
 end
 
+
 to set-researcher-variables-rest5 [#non-admiss-argu-th]
  set admissible-subj-argu 0
   let i 0
@@ -1680,6 +1685,7 @@ to create-share-memory-test14
     ]
   ]
 end
+
 
 to final-commands
   ask researchers with [not member? [mytheory] of mygps cur-best-th][
