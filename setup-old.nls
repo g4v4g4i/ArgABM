@@ -18,16 +18,16 @@ to setupcore-old [clearing numberoftheories theorydepth scientistsno]
   define-attack-relation-old
   distribute-researchers-old scientistsno
   reset-ticks
-	ask researchers [
-		set lastalist []
-		set lastblist []
-		set lastalistafter []
-	]
+  ask researchers [
+    set lastalist []
+    set lastblist []
+    set lastalistafter []
+  ]
 end
 
 ; the setup for a normal run
 to setup-old
-	setupcore-old [ [] -> clear-all ] number-of-theories theory-depth scientists
+  setupcore-old [ [] -> clear-all ] number-of-theories theory-depth scientists
 end
 
 
@@ -124,7 +124,7 @@ to create-discovery-trees-old
         if any? other arguments with [count in-discovery-neighbors = 0 and
           current-argument and not out-discovery-neighbor? curarg][
           create-discovery-to one-of other arguments with
-	        [count in-discovery-neighbors = 0 and current-argument]
+          [count in-discovery-neighbors = 0 and current-argument]
           ]
       ]
     ]
@@ -175,9 +175,9 @@ to define-attack-relation-create-attacks-old
     ifelse number-of-theories = 2[
       if attack-random < attack-probability-2nd and curtheory != start 0 [
         create-attack-from one-of other turtles with [(breed = starts or
-	      breed = arguments)and mytheory != curtheory and not
-	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        breed = arguments)and mytheory != curtheory and not
+        (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+        out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
             ]
       ]
@@ -190,8 +190,8 @@ to define-attack-relation-create-attacks-old
       attack-probability-3rd [
       create-attack-from one-of other turtles with [(breed = starts or
         breed = arguments) and mytheory != curtheory and not
-	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+        out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ][
@@ -201,7 +201,7 @@ to define-attack-relation-create-attacks-old
       create-attack-from one-of other turtles with [(breed = starts or
       breed = arguments) and mytheory != curtheory and not
       (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ]
@@ -213,8 +213,8 @@ to define-attack-relation-create-attacks-old
     if attack-random < attack-probability-best and curtheory = start 0 [
       create-attack-from one-of other turtles with [(breed = starts or
       breed = arguments) and mytheory != curtheory and not
-	    (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ]
@@ -241,10 +241,10 @@ to define-attack-relation-defend-best-old
         ; from an argument of the best theory towards the attacking argument
         if not any? in-attack-neighbors with [mytheory = start 0][
           create-attack-from one-of turtles with [(breed = starts or
-	        breed = arguments) and mytheory = start 0 and not
-	        (in-discovery-neighbor? askattack or in-attack-neighbor?
-	        askattack or out-discovery-neighbor? askattack or
-	        out-attack-neighbor? askattack) and not (self = askargu)][
+          breed = arguments) and mytheory = start 0 and not
+          (in-discovery-neighbor? askattack or in-attack-neighbor?
+          askattack or out-discovery-neighbor? askattack or
+          out-attack-neighbor? askattack) and not (self = askargu)][
             set color gray
           ]
         ]
@@ -384,7 +384,7 @@ to distribute-researchers-within-theory-on-old
         ; five researchers are added to the list cur-col
         ; which is then set as the collaborator-network of each of these researchers
         ask n-of 5 researchers with [xcor = myx and ycor = myy and
-	        empty? collaborator-network] [
+          empty? collaborator-network] [
           set cur-col lput self cur-col
         ]
         ask researchers with [member? self cur-col][

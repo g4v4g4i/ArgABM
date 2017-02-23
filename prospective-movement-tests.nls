@@ -6,36 +6,36 @@ to go-test-prosp
 end
 
 to bla2 [times]
-	repeat times [go-test-prosp]
+  repeat times [go-test-prosp]
 end
 
 to go-test-prosp1
   
   if ticks = 0 [set update-mem-every-tick? false]
-	; if ticks mod 10 = 4 [
-		; duplicate-remover-test
-	; ]
+  ; if ticks mod 10 = 4 [
+    ; duplicate-remover-test
+  ; ]
   if ticks mod 5 = 4 [
     ask researchers [
       update-memories-test12
     ]
-		share-with-others-test12
-		create-share-memory-test14
-		share-w-other-netw-test10
-		compute-time-costs-test14
+    share-with-others-test12
+    create-share-memory-test14
+    share-w-other-netw-test10
+    compute-time-costs-test14
     ; update-memories-test
-		compute-subj-attacked-test14
+    compute-subj-attacked-test14
     act-on-strategies-test14
   ]
   move-around-test-prosp1 
   update-landscape-test13  
-	full-discovery-test13
+  full-discovery-test13
   ask researchers [
     set flag-updated-memory false
   ]
-	if ticks mod 5 != 0 [
-		communication-regress
-	]
+  if ticks mod 5 != 0 [
+    communication-regress
+  ]
   compute-popularity-test11
   tick
 end
@@ -53,19 +53,19 @@ to move-around-test-prosp1
   ask researchers [
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
-			let myargu mygps     
+      let myargu mygps     
       ; the researcher owned variable which contains all the non defensible
-			; arguments as a list is written to not-admissible
+      ; arguments as a list is written to not-admissible
       let not-admissible non-admiss-subj-argu
-			
+      
       ; an researcher working on a non defensible argument will try to find a
-			; defense for this attack, by working further on the attacked argument,
-			; unless she discoveres a child-argument that that has a defense for
-			; the attack (it is not necessarily the case that this defense is
-			; already discovered) or until she has fully researched the argument
+      ; defense for this attack, by working further on the attacked argument,
+      ; unless she discoveres a child-argument that that has a defense for
+      ; the attack (it is not necessarily the case that this defense is
+      ; already discovered) or until she has fully researched the argument
       ; the find-defense runs immediately for all researchers working on 
-			; a not fully researched non defensible argument,
-			; hence it is only once executed
+      ; a not fully researched non defensible argument,
+      ; hence it is only once executed
       if member? myargu not-admissible and not moved [
 
         if not run-find-defense [
@@ -86,27 +86,27 @@ to move-around-test-prosp1
         let nextargu 0
         ask myargu [set nextargu one-of out-discovery-neighbors with [
           not member? color [gray red turquoise]
-					and not group-member-here-test13 curresearcher]
+          and not group-member-here-test13 curresearcher]
         ]
         ifelse nextargu != nobody [
-					let move-random random-float 1.0
+          let move-random random-float 1.0
 
 
-					; every time step with small-movement of the move-probability
-					; the researcher moves
-					ifelse move-random < (small-movement * move-probability *
-						(1 - ([color] of myargu / color-move))) [
+          ; every time step with small-movement of the move-probability
+          ; the researcher moves
+          ifelse move-random < (small-movement * move-probability *
+            (1 - ([color] of myargu / color-move))) [
             move-to-nextargu nextargu
-					][
+          ][
 
-						; every 5th time step the researcher mover with the full
-						; move-probability, that depends a bit on the color
-						if ticks != 0 and ticks mod 5 = 0 and move-random <
-							move-probability * (1 - ([color] of myargu / color-move)) [
+            ; every 5th time step the researcher mover with the full
+            ; move-probability, that depends a bit on the color
+            if ticks != 0 and ticks mod 5 = 0 and move-random <
+              move-probability * (1 - ([color] of myargu / color-move)) [
               move-to-nextargu nextargu
-						]
-					]
-				][
+            ]
+          ]
+        ][
           if [color] of myargu = red [
             ; if there is no next argument and the current argument is
             ; fully researched, the researcher moves a step back
@@ -129,7 +129,7 @@ to move-around-test-prosp1
               ]              
             ]
           ]
-				]
+        ]
       ]
     ]
   ]
@@ -139,56 +139,56 @@ end
 to find-defense-test-prosp1
   ask researchers with [not moved][
     let curresearcher self
-		if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
-			let myargu mygps
-			; lists of arguments that are not admissible
-			let not-admissible non-admiss-subj-argu
-			
-			; if the current argument is not fully researched and not admissible
-			; and it is a 5th time step or the researcher is not communicating
-			; the researcher tries to move prospectively to a child-argument of the
-			; current argument that provides a defense for the current argument
-			if member? myargu not-admissible [       
-				ask myargu [
-					ask my-in-attacks [
-						; check to prevent the researcher from searching for further
-						; defender-childs (nextargu) when she already has moved to one
-						if not [moved] of curresearcher [
-							ask end1 [
-							; create a set of arguments that provide a defense for the 
-							; current argument, these:
-							; a) attack the attacker of the current argument;
-							; b) are a child-argument of the current argument;
-							; c) are discovered; and
-							; d) no researcher from the same group is working on it
+    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+      let myargu mygps
+      ; lists of arguments that are not admissible
+      let not-admissible non-admiss-subj-argu
+      
+      ; if the current argument is not fully researched and not admissible
+      ; and it is a 5th time step or the researcher is not communicating
+      ; the researcher tries to move prospectively to a child-argument of the
+      ; current argument that provides a defense for the current argument
+      if member? myargu not-admissible [       
+        ask myargu [
+          ask my-in-attacks [
+            ; check to prevent the researcher from searching for further
+            ; defender-childs (nextargu) when she already has moved to one
+            if not [moved] of curresearcher [
+              ask end1 [
+              ; create a set of arguments that provide a defense for the 
+              ; current argument, these:
+              ; a) attack the attacker of the current argument;
+              ; b) are a child-argument of the current argument;
+              ; c) are discovered; and
+              ; d) no researcher from the same group is working on it
                 
-								; let nextargu one-of in-attack-neighbors with [in-discovery-neighbor?
-									; myargu
-									; and	not member? color [gray red turquoise]
-									; and not group-member-here-test13 curresearcher]
-								; if such an argument exists the researcher moves there
-								; and cannot move anymore this time step
+                ; let nextargu one-of in-attack-neighbors with [in-discovery-neighbor?
+                  ; myargu
+                  ; and not member? color [gray red turquoise]
+                  ; and not group-member-here-test13 curresearcher]
+                ; if such an argument exists the researcher moves there
+                ; and cannot move anymore this time step
                 let nextargu one-of in-attack-neighbors with [
                   member? self prospective-arguments curresearcher
                 ]
-								ifelse nextargu != nobody [
-									ask curresearcher [
+                ifelse nextargu != nobody [
+                  ask curresearcher [
                     if [mytheory] of [mygps] of curresearcher = (start 0) [
                       set #moved-prospectively #moved-prospectively + 1
                     ]
                     move-to-nextargu nextargu
-									]
-								][
+                  ]
+                ][
                   if [mytheory] of [mygps] of curresearcher = (start 0) [
                     set #failed-move-prosp #failed-move-prosp + 1
                   ]
                 ]
-							]
-						]
-					]
-				]
-			]
-		]			
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]     
   ]
 end
 

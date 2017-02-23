@@ -8,7 +8,7 @@ researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   admissible-subj-argu th-args th-relations communicating neighborargs moved
   rep-researcher to-add-mem-argu to-add-mem-rel lastalist lastblist
-	lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as mygps group-id argu-cache]
+  lastalistafter flag-updated-memory conference-attended non-admiss-subj-argu subj-argu-as mygps group-id argu-cache]
 
 globals [disc-startsargum-non-red v15 rel-costfactor]
 
@@ -431,19 +431,19 @@ to move-around-test15
   ask researchers [
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
-			let myargu mygps     
+      let myargu mygps     
       ; the researcher owned variable which contains all the non defensible
-			; arguments as a list is written to not-admissible
+      ; arguments as a list is written to not-admissible
       let not-admissible non-admiss-subj-argu
-			
+      
       ; an researcher working on a non defensible argument will try to find a
-			; defense for this attack, by working further on the attacked argument,
-			; unless she discoveres a child-argument that that has a defense for
-			; the attack (it is not necessarily the case that this defense is
-			; already discovered) or until she has fully researched the argument
+      ; defense for this attack, by working further on the attacked argument,
+      ; unless she discoveres a child-argument that that has a defense for
+      ; the attack (it is not necessarily the case that this defense is
+      ; already discovered) or until she has fully researched the argument
       ; the find-defense runs immediately for all researchers working on 
-			; a not fully researched non defensible argument,
-			; hence it is only once executed
+      ; a not fully researched non defensible argument,
+      ; hence it is only once executed
       if member? myargu not-admissible and not moved [
 
         if not run-find-defense [
@@ -464,27 +464,27 @@ to move-around-test15
         let nextargu 0
         ask myargu [set nextargu one-of out-discovery-neighbors with [
           not member? color [gray red turquoise]
-					and not group-member-here-test13 curresearcher]
+          and not group-member-here-test13 curresearcher]
         ]
         ifelse nextargu != nobody [
-					let move-random random-float 1.0
+          let move-random random-float 1.0
 
 
-					; every time step with small-movement of the move-probability
-					; the researcher moves
-					ifelse move-random < (small-movement * move-probability *
-						(1 - ([color] of myargu / color-move))) [
+          ; every time step with small-movement of the move-probability
+          ; the researcher moves
+          ifelse move-random < (small-movement * move-probability *
+            (1 - ([color] of myargu / color-move))) [
             move-to-nextargu nextargu
-					][
+          ][
 
-						; every 5th time step the researcher mover with the full
-						; move-probability, that depends a bit on the color
-						if ticks != 0 and ticks mod 5 = 0 and move-random <
-							move-probability * (1 - ([color] of myargu / color-move)) [
+            ; every 5th time step the researcher mover with the full
+            ; move-probability, that depends a bit on the color
+            if ticks != 0 and ticks mod 5 = 0 and move-random <
+              move-probability * (1 - ([color] of myargu / color-move)) [
               move-to-nextargu nextargu
-						]
-					]
-				][
+            ]
+          ]
+        ][
           if [color] of myargu = red [
             ; if there is no next argument and the current argument is
             ; fully researched, the researcher moves a step back
@@ -506,7 +506,7 @@ to move-around-test15
               ]              
             ]
           ]
-				]
+        ]
       ]
     ]
   ]

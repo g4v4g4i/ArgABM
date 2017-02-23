@@ -176,16 +176,16 @@ to run-many
 
           ; for the computation of the output
           set disc-arguments count turtles with [(breed = arguments or
-	    breed = starts) and color != gray and color != turquoise]
+      breed = starts) and color != gray and color != turquoise]
           set disc-best-arguments count turtles with [(breed = arguments or
-	    breed = starts) and color != gray and color != turquoise and
-	    mytheory = start 0]
+      breed = starts) and color != gray and color != turquoise and
+      mytheory = start 0]
           set tot-best-arguments count turtles with [(breed = arguments or
-	    breed = starts) and mytheory = start 0]
+      breed = starts) and mytheory = start 0]
           set perc-disc-argu lput ((disc-arguments / tot-arguments) * 100)
-	    perc-disc-argu
+      perc-disc-argu
           set perc-disc-best-argu lput ((disc-best-arguments /
-	    tot-best-arguments) * 100) perc-disc-best-argu
+      tot-best-arguments) * 100) perc-disc-best-argu
           set popularity []
           set colla-networks []
           set share-structure []
@@ -196,15 +196,15 @@ to run-many
         ; list of already obtained results
         set setup-time lput mean steps-needed setup-time
         set setup-successful-m lput ((find-good-m / try) * 100)
-	  setup-successful-m
+    setup-successful-m
         set setup-successful-p lput ((find-good-p / try) * 100)
-	  setup-successful-p
+    setup-successful-p
         set setup-discovered lput mean perc-disc-argu
-	  setup-discovered
+    setup-discovered
         set setup-discovered-best lput mean perc-disc-best-argu
-	  setup-discovered-best
+    setup-discovered-best
         set setup-jumps lput ((jumps / try) / scientists-many)
-	  setup-jumps
+    setup-jumps
 
         ; reset some of the variables
         set try 0
@@ -339,98 +339,98 @@ end
 ; the setup for a run-many
 to setup-many
   ; instead of clear-all, the globals should not be cleared
-	setupcore [ [] ->
-		clear-turtles
-		clear-patches
-		clear-drawing
-		clear-all-plots
-		clear-output
-	 ]
-	number-of-theories-many theory-depth-many scientists-many
+  setupcore [ [] ->
+    clear-turtles
+    clear-patches
+    clear-drawing
+    clear-all-plots
+    clear-output
+   ]
+  number-of-theories-many theory-depth-many scientists-many
 end
 
 to end-run-commands
-	let popularity []
-	let find-good-m 0
-	let find-good-p 0
-	let jumps 0
-	ask starts [
-		set popularity lput myscientists popularity
-	]
-	ask start 0 [
-		if max popularity = myscientists and max popularity = scientists-many [
-			set find-good-m true
-		]
-		if max popularity = myscientists [
-			set find-good-p true
-		]
-	]
-	ask researchers [
-		set jumps times-jumped + jumps
-	]
+  let popularity []
+  let find-good-m 0
+  let find-good-p 0
+  let jumps 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [
+    if max popularity = myscientists and max popularity = scientists-many [
+      set find-good-m true
+    ]
+    if max popularity = myscientists [
+      set find-good-p true
+    ]
+  ]
+  ask researchers [
+    set jumps times-jumped + jumps
+  ]
 end
 
 to-report pluralist-success
-	let popularity []
-	let find-good-p 0
-	ask starts [
-		set popularity lput myscientists popularity
-	]
-	ask start 0 [		
-		if max popularity = myscientists [
-			set find-good-p 1
-		]
-	]
-	report find-good-p
+  let popularity []
+  let find-good-p 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [   
+    if max popularity = myscientists [
+      set find-good-p 1
+    ]
+  ]
+  report find-good-p
 end
 
 to-report monist-success
-	let popularity []
-	let find-good-m 0
-	ask starts [
-		set popularity lput myscientists popularity
-	]
-	ask start 0 [		
-		if max popularity = myscientists and max popularity = scientists [
-			set find-good-m 1
-		]
-	]
-	report find-good-m
+  let popularity []
+  let find-good-m 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [   
+    if max popularity = myscientists and max popularity = scientists [
+      set find-good-m 1
+    ]
+  ]
+  report find-good-m
 end
 
 to-report average-jumps
-	let jumps 0
-	let avgjumps 0
-	ask researchers [
-		set jumps times-jumped + jumps
-	]
-	set avgjumps (jumps / scientists)
-	report avgjumps
+  let jumps 0
+  let avgjumps 0
+  ask researchers [
+    set jumps times-jumped + jumps
+  ]
+  set avgjumps (jumps / scientists)
+  report avgjumps
 end
 
 to-report exit-condition
-	ifelse (any? startsargum with [color != red 
-		and [myscientists] of mytheory !=  0] or ticks = 0) [
-		 report false
-		][
-			report true
-		]		
+  ifelse (any? startsargum with [color != red 
+    and [myscientists] of mytheory !=  0] or ticks = 0) [
+     report false
+    ][
+      report true
+    ]   
 end
 
 to-report perc-landscape-discoverd
-	let tot-arguments count turtles with [breed = arguments or breed = starts]
-	let disc-arguments count turtles with [(breed = arguments or
-	    breed = starts) and color != gray and color != turquoise]
-	let perc-disc-argu ((disc-arguments / tot-arguments) * 100)
-	report perc-disc-argu
+  let tot-arguments count turtles with [breed = arguments or breed = starts]
+  let disc-arguments count turtles with [(breed = arguments or
+      breed = starts) and color != gray and color != turquoise]
+  let perc-disc-argu ((disc-arguments / tot-arguments) * 100)
+  report perc-disc-argu
 end
 
 to-report perc-best-th-discoverd
-	let tot-best-arguments count turtles with [(breed = arguments or
-	    breed = starts) and mytheory = start 0]
-	let disc-best-arguments count turtles with [(breed = arguments or
-	    breed = starts) and color != gray and color != turquoise and
-	    mytheory = start 0]
-	let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
-	report perc-disc-best-argu
+  let tot-best-arguments count turtles with [(breed = arguments or
+      breed = starts) and mytheory = start 0]
+  let disc-best-arguments count turtles with [(breed = arguments or
+      breed = starts) and color != gray and color != turquoise and
+      mytheory = start 0]
+  let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
+  report perc-disc-best-argu
 end

@@ -66,13 +66,13 @@ to update-memories-old
       ; add the child argument of the discovery relation
       if any? my-out-discoveries with [color != gray][
         ask my-out-discoveries with [color != gray][
-	  let add-other-end other-end
-	  ask cur-researcher [
-	    set neighborargs lput add-other-end neighborargs
-	  ]
-	  ; construction of the to be added discovery relation
-	  let add-rel []
-	  set add-rel lput "d" add-rel
+    let add-other-end other-end
+    ask cur-researcher [
+      set neighborargs lput add-other-end neighborargs
+    ]
+    ; construction of the to be added discovery relation
+    let add-rel []
+    set add-rel lput "d" add-rel
           set add-rel lput cur-argum add-rel
           set add-rel lput add-other-end add-rel
           set to-add lput add-rel to-add
@@ -491,9 +491,9 @@ to move-around-old
         ; the researcher moves there, with certain probability
         ifelse any? turtles with [(breed = starts or breed = arguments) and
           in-discovery-neighbor? myargu and color != gray and color != red and
-    	  color != turquoise and not (any? turtles with [breed = researchers and
-	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [collaborator-network] of curresearcher])] [
+        color != turquoise and not (any? turtles with [breed = researchers and
+    xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+    [collaborator-network] of curresearcher])] [
         let move-random random-float 1.0
 
 
@@ -505,7 +505,7 @@ to move-around-old
             in-discovery-neighbor? myargu and color != gray and color != red and
             color != turquoise and not ( any? turtles with [breed = researchers and
             xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-  	    [collaborator-network] of curresearcher])]
+        [collaborator-network] of curresearcher])]
           set moved true
         ][
 
@@ -515,9 +515,9 @@ to move-around-old
           move-probability * (1 - (color / color-move)) [
           move-to one-of turtles with [(breed = starts or breed = arguments) and
             in-discovery-neighbor? myargu and color != gray and color != red and
-	    color != turquoise and not ( any? turtles with [breed = researchers
-	    and xcor = [xcor] of myself and ycor = [ycor] of myself and
-	    member? self [collaborator-network] of curresearcher])]
+      color != turquoise and not ( any? turtles with [breed = researchers
+      and xcor = [xcor] of myself and ycor = [ycor] of myself and
+      member? self [collaborator-network] of curresearcher])]
           set moved true
         ]
         ]
@@ -527,9 +527,9 @@ to move-around-old
         ; fully researched, the researcher moves a step back
         ifelse [color] of myargu = red and any? turtles with [color != gray and
           color != turquoise and out-discovery-neighbor? myargu and not any?
-	  turtles with [breed = researchers and xcor = [xcor] of myself and
-	  ycor = [ycor] of myself and member? self [collaborator-network]
-	  of curresearcher]][
+    turtles with [breed = researchers and xcor = [xcor] of myself and
+    ycor = [ycor] of myself and member? self [collaborator-network]
+    of curresearcher]][
         move-to one-of turtles with [color != gray and out-discovery-neighbor?
           myargu and not any? turtles with [breed = researchers and xcor = [xcor] of
           myself and ycor = [ycor] of myself and member? self
@@ -542,14 +542,14 @@ to move-around-old
         if [color] of myargu = red[
           let askstart [mytheory] of myargu
           if any? turtles with [(breed = starts or breed = arguments) and
-	    color != gray and color != turquoise and color != red and
-	    mytheory = askstart and not any? turtles with [breed = researchers and
-  	    xcor = [xcor] of myself and ycor = [ycor] of myself and member?
-	    self [collaborator-network] of curresearcher]][
+      color != gray and color != turquoise and color != red and
+      mytheory = askstart and not any? turtles with [breed = researchers and
+        xcor = [xcor] of myself and ycor = [ycor] of myself and member?
+      self [collaborator-network] of curresearcher]][
           move-to one-of turtles with [(breed = starts or breed = arguments) and
-	   color != turquoise and color != gray and color != red and
-  	   mytheory = askstart and not any? turtles with [breed = researchers and
-	   xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
+     color != turquoise and color != gray and color != red and
+       mytheory = askstart and not any? turtles with [breed = researchers and
+     xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
            [collaborator-network] of curresearcher]]
           set moved true
             ]
@@ -602,15 +602,15 @@ to find-defense-old
           ask my-in-attacks [
             ask end1 [
               ; create a set of arguments that provide a defense for the current
-	      ; argument, these:
+        ; argument, these:
               ; a) attack the attacker of the current argument;
-	      ; b) are a child-argument of the current argument;
+        ; b) are a child-argument of the current argument;
               ; c) are discovered; and
-	      ; d) no researcher from the same network is working on it
+        ; d) no researcher from the same network is working on it
               let nextargu in-attack-neighbors with [in-discovery-neighbor?
-	        myargu and color != gray and color != turquoise and not (any?
-		researchers with [xcor = [xcor] of myself and ycor = [ycor] of myself
-		and member? self [collaborator-network] of curresearcher])]
+          myargu and color != gray and color != turquoise and not (any?
+    researchers with [xcor = [xcor] of myself and ycor = [ycor] of myself
+    and member? self [collaborator-network] of curresearcher])]
               ; if such an argument exists the researcher moves there
               ; and cannot move anymore this time step
               if any? nextargu [
@@ -656,9 +656,9 @@ to update-landscape-old
       ; depending on the color a new child-argument is discovered, until all
       ; child-arguments are discovered
       if color = yellow and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 4 [
+  [color = gray or color = turquoise] >= 4 [
         ask one-of out-discovery-neighbors with
-	  [color = gray or color = turquoise][
+    [color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan
@@ -666,9 +666,9 @@ to update-landscape-old
         ]
       ]
       if color = brown and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 3 [
+  [color = gray or color = turquoise] >= 3 [
         ask one-of out-discovery-neighbors with
-	  [color = gray or color = turquoise][
+    [color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan
@@ -676,7 +676,7 @@ to update-landscape-old
         ]
       ]
       if color = orange and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 2 [
+  [color = gray or color = turquoise] >= 2 [
        ask one-of out-discovery-neighbors with
          [color = gray or color = turquoise][
           set color lime
@@ -686,9 +686,9 @@ to update-landscape-old
         ]
       ]
       if color = red and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 1 [
+  [color = gray or color = turquoise] >= 1 [
         ask one-of out-discovery-neighbors with
-  	 [color = gray or color = turquoise][
+     [color = gray or color = turquoise][
           set color lime
           ask my-in-discoveries [
             set color cyan

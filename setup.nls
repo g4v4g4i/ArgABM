@@ -17,18 +17,18 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
   create-discovery-landscape numberoftheories theorydepth
   define-attack-relation
   distribute-researchers scientistsno 
-	set startsargum turtles with [breed = starts or breed = arguments]
-	ask researchers [
-		set to-add-mem-argu []
-		set to-add-mem-rel []
-		set non-admiss-subj-argu []
-	]
-	reset-ticks
+  set startsargum turtles with [breed = starts or breed = arguments]
+  ask researchers [
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set non-admiss-subj-argu []
+  ]
+  reset-ticks
 end
 
 ; the setup for a normal run
 to setup
-	setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
+  setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
 end
 
 
@@ -125,7 +125,7 @@ to create-discovery-trees
         if any? other arguments with [count in-discovery-neighbors = 0 and
           current-argument and not out-discovery-neighbor? curarg][
           create-discovery-to one-of other arguments with
-	        [count in-discovery-neighbors = 0 and current-argument]
+          [count in-discovery-neighbors = 0 and current-argument]
           ]
       ]
     ]
@@ -176,9 +176,9 @@ to define-attack-relation-create-attacks
     ifelse number-of-theories = 2[
       if attack-random < attack-probability-2nd and curtheory != start 0 [
         create-attack-from one-of other turtles with [(breed = starts or
-	      breed = arguments)and mytheory != curtheory and not
-	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        breed = arguments)and mytheory != curtheory and not
+        (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+        out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
             ]
       ]
@@ -191,8 +191,8 @@ to define-attack-relation-create-attacks
       attack-probability-3rd [
       create-attack-from one-of other turtles with [(breed = starts or
         breed = arguments) and mytheory != curtheory and not
-	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+        out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ][
@@ -202,7 +202,7 @@ to define-attack-relation-create-attacks
       create-attack-from one-of other turtles with [(breed = starts or
       breed = arguments) and mytheory != curtheory and not
       (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ]
@@ -214,8 +214,8 @@ to define-attack-relation-create-attacks
     if attack-random < attack-probability-best and curtheory = start 0 [
       create-attack-from one-of other turtles with [(breed = starts or
       breed = arguments) and mytheory != curtheory and not
-	    (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
         set color gray
           ]
     ]
@@ -242,10 +242,10 @@ to define-attack-relation-defend-best
         ; from an argument of the best theory towards the attacking argument
         if not any? in-attack-neighbors with [mytheory = start 0][
           create-attack-from one-of turtles with [(breed = starts or
-	        breed = arguments) and mytheory = start 0 and not
-	        (in-discovery-neighbor? askattack or in-attack-neighbor?
-	        askattack or out-discovery-neighbor? askattack or
-	        out-attack-neighbor? askattack) and not (self = askargu)][
+          breed = arguments) and mytheory = start 0 and not
+          (in-discovery-neighbor? askattack or in-attack-neighbor?
+          askattack or out-discovery-neighbor? askattack or
+          out-attack-neighbor? askattack) and not (self = askargu)][
             set color gray
           ]
         ]
@@ -383,9 +383,9 @@ to distribute-researchers-within-theory-on
       while [count researchers with [xcor = myx and ycor = myy and
         empty? collaborator-network] > 5][
         ; five researchers are added to the list cur-col which is then set as
-				; the collaborator-network of each of these researchers
+        ; the collaborator-network of each of these researchers
         ask n-of 5 researchers with [xcor = myx and ycor = myy and
-	        empty? collaborator-network] [
+          empty? collaborator-network] [
           set cur-col lput self cur-col
         ]
         ask researchers with [member? self cur-col][
@@ -437,7 +437,7 @@ to compute-popularity
   ask starts [ set myscientists 0 ]
   ask researchers [
     ; set myargu to the the argument the current researcher is investigating
-		let myargu gps
+    let myargu gps
     let mystart [mytheory] of myargu
 
     ; the myscientists variable of the theory the researcher
@@ -489,12 +489,12 @@ to create-networks
         let to-add-structure2 []
         set to-add-structure1 lput first connect-networks to-add-structure1
         set to-add-structure1 lput first but-first connect-networks
-				to-add-structure1
+        to-add-structure1
         set to-add-structure1 lput last connect-networks to-add-structure1
         set to-add-structure2 lput last connect-networks to-add-structure2
         set to-add-structure2 lput first connect-networks to-add-structure2
         set to-add-structure2 lput last but-last connect-networks
-				to-add-structure2
+        to-add-structure2
         set share-structure lput to-add-structure1 share-structure
         set share-structure lput to-add-structure2 share-structure
       ][
@@ -522,7 +522,7 @@ to create-networks
       if length colla-networks = 3 [
         let add-colla-networks []
         set add-colla-networks lput first but-first colla-networks
-				add-colla-networks
+        add-colla-networks
         set add-colla-networks lput first colla-networks add-colla-networks
         set add-colla-networks lput last colla-networks add-colla-networks
         set share-structure lput add-colla-networks share-structure
@@ -548,13 +548,13 @@ to create-networks
         let to-add-structure2 []
         set to-add-structure1 lput first connect-networks to-add-structure1
         set to-add-structure1 lput first but-first connect-networks
-				to-add-structure1
+        to-add-structure1
         set to-add-structure1 lput last connect-networks to-add-structure1
         set to-add-structure1 lput middle to-add-structure1
         set to-add-structure2 lput last connect-networks to-add-structure2
         set to-add-structure2 lput first connect-networks to-add-structure2
         set to-add-structure2 lput last but-last connect-networks
-				to-add-structure2
+        to-add-structure2
         set to-add-structure2 lput middle to-add-structure2
         set share-structure lput to-add-structure1 share-structure
         set share-structure lput to-add-structure2 share-structure
