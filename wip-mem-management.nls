@@ -671,6 +671,7 @@ end
 
 to distribute-com-costs [com-costs]
   ifelse com-costs > (3 * max-learn) [
+    set communicating 4
     let com-cost-remaining (com-costs - 3 * max-learn)
     let cur-group (turtle-set item group-id colla-networks)
     ask cur-group [
@@ -695,7 +696,7 @@ to share-with-other-netw-2
   ask comb-memory-argu [
     let best-color min group-color-mem
     set group-color-mem-cache n-values #groups [best-color]
-    let costvector-cur-argu (map - group-color-mem-cache group-color-mem)
+    let costvector-cur-argu (map - group-color-mem group-color-mem-cache)
     set costvector (map + costvector costvector-cur-argu)
   ]
   ask comb-memory-rel [
