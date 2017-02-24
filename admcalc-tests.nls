@@ -1700,7 +1700,7 @@ to-report test-final-commands
   report rndseed
 end
 
-to calc-global-admiss
+to calc-global-admiss-matrix
   let startslist sort starts
   let amat-cur-th 0
   foreach startslist [[curtheory] ->
@@ -1719,6 +1719,7 @@ to calc-global-admiss
     ]
   ]  
 end
+
 
 to-report research-time [pluralist-monist th#]
   ifelse pluralist-monist = "monist" [

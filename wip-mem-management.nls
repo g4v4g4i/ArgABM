@@ -524,7 +524,7 @@ carefully [
       ; group members can copy the results into their memory
       ifelse calc-done [
         ask cur-researcher [
-          set admissible-subj-argu [admissible-subj-argu] of calc-researcher ; can be removed, doesn't have any function anymore
+          set admissible-subj-argu [admissible-subj-argu] of calc-researcher ; can be removed everywhere when transferred, doesn't have any function anymore
           set current-theory-info [current-theory-info] of calc-researcher
           set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
           set cur-best-th [cur-best-th] of calc-researcher
@@ -540,14 +540,14 @@ carefully [
           let #non-admiss-argu-th []
           set non-admiss-subj-argu []
           ifelse length sorted-starts = 2 [
-            set non-admiss-subj-argu adm-calc-core-test16 subjective-relations group-id item 0 sorted-starts ;16-2 is the testversion
+            set non-admiss-subj-argu adm-calc-core-test16 subjective-relations group-id item 0 sorted-starts ;16-x is the testversion
             let #non-admiss-argu-th2 count non-admiss-subj-argu with [mytheory = item 1 sorted-starts]
             let #non-admiss-argu-th1 (count non-admiss-subj-argu - #non-admiss-argu-th2)
             set #non-admiss-argu-th (list #non-admiss-argu-th1 #non-admiss-argu-th2)
            
           ][   
             foreach sorted-starts [[curtheory] ->   
-              let to-add-non-admiss-argu adm-calc-core-test16 subjective-relations group-id curtheory ;16-2 is the testversion
+              let to-add-non-admiss-argu adm-calc-core-test16 subjective-relations group-id curtheory ;16-x is the testversion
               set #non-admiss-argu-th lput count to-add-non-admiss-argu with [mytheory = curtheory] #non-admiss-argu-th
               set non-admiss-subj-argu (turtle-set non-admiss-subj-argu to-add-non-admiss-argu)
             ]
@@ -562,7 +562,7 @@ carefully [
 end
 
 ;probably slight performance advantage to call with "theory (start0)" in two theory case
-to-report adm-calc-core-test16 [attackset cur-group-id theory]
+to-report adm-calc-core-test16-old [attackset cur-group-id theory]
   let sucattacked no-turtles
   let prime-attackers attackset with [uncontested]
   if any? prime-attackers [
@@ -600,17 +600,24 @@ end
 
 to-report adm-calc-core-test16-2 [attackset cur-group-id theory]
   let sucattacked no-turtles
+  let secondary-attackers no-links
   ask attackset [
     set processed? false
-    if uncontested [
+    ifelse uncontested [
       ask end2 [
         set sucattacked (turtle-set sucattacked self)
         ask my-out-attacks [
-          if item cur-group-id in-group-i-memory 
-            and (mytheory-end1 = theory or mytheory-end2 = theory) [
-            set attackset attackset with [self != myself] ; try self != myself formulation speedwise
-          ]
+          set processed? true
+          set secondary-attackers secondary-attackers with [self != myself]          
+          ; if item cur-group-id in-group-i-memory 
+            ; and (mytheory-end1 = theory or mytheory-end2 = theory) [
+            ; set attackset attackset with [self != myself]
+          ; ]
         ]
+      ]
+    ][
+      if not processed? [
+        set secondary-attackers (link-set secondary-attackers self)
       ]
     ]
   ]
@@ -618,16 +625,17 @@ to-report adm-calc-core-test16-2 [attackset cur-group-id theory]
   ; if any? prime-attackers [
     ; set sucattacked (turtle-set [end2] of prime-attackers)
   ; ]
-  let secondary-attackers attackset with [not uncontested] ;could probably be made faster by using an additional attack variable instead of member?
-  let sucattacked-temp adm-calc-core-sub1 attackset cur-group-id theory sucattacked
+  ; let secondary-attackers attackset with [not uncontested] ;could probably be made faster by using an additional attack variable instead of member?
+  let sucattacked-temp adm-calc-core-sub1 secondary-attackers cur-group-id theory sucattacked
   report sucattacked-temp
 end
 
 
 
-to-report adm-calc-core-sub1 [attackset cur-group-id theory sucattacked]
-  let secondary-attackers attackset with [not uncontested]
+to-report adm-calc-core-sub1 [secondary-attackers cur-group-id theory sucattacked]
+  ; let secondary-attackers attackset with [not uncontested]
   let another-loop? true
+  let i 0
   while [another-loop? and any? secondary-attackers] [
     let sucattacked-cache no-turtles
     set another-loop? false
@@ -649,7 +657,9 @@ to-report adm-calc-core-sub1 [attackset cur-group-id theory sucattacked]
     if another-loop? [
       set secondary-attackers secondary-attackers with [not member? end1 sucattacked-cache]
     ]
+  set i i + 1
   ]
+  every 2 [show i]
   report sucattacked
 end
 
@@ -694,30 +704,56 @@ carefully [
     ask askresearcher [
       set argu-cache comb-memory-argu
       set to-add-mem-rel comb-memory-rel
-      ifelse com-costs > (3 * max-learn) [
-        let com-cost-remaining (com-costs - 3 * max-learn)
-        let cur-group (turtle-set item group-id colla-networks)
-        ask cur-group [
-          if com-cost-remaining > 0 and not [rep-researcher] of self [
-            let com-payment-curresearcher min (list com-cost-remaining (4 * max-learn))
-            set communicating ceiling (com-payment-curresearcher / max-learn)
-            set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
-          ]
-        ]      
-      ][
-        set communicating ((ceiling (com-costs / max-learn)) + 1)
-      ]      
+      distribute-com-costs com-costs 
     ] 
   ] 
   ][show (word "share-with-other-netw-test15" error-message)]
 end
 
-
-to share-with-other-netw-2
-  
+to distribute-com-costs [com-costs]
+  ifelse com-costs > (3 * max-learn) [
+    let com-cost-remaining (com-costs - 3 * max-learn)
+    let cur-group (turtle-set item group-id colla-networks)
+    ask cur-group [
+      if com-cost-remaining > 0 and not [rep-researcher] of self [
+        let com-payment-curresearcher min (list com-cost-remaining (4 * max-learn))
+        set communicating ceiling (com-payment-curresearcher / max-learn)
+        set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
+      ]
+    ]      
+  ][
+    set communicating ((ceiling (com-costs / max-learn)) + 1)
+  ]
 end
 
-to share-with-other-netw-test16
+
+to share-with-other-netw-2
+  let rep-researchers researchers with [rep-researcher]
+  let #groups length colla-networks
+  let comb-memory-argu (turtle-set [th-args] of rep-researchers)
+  let comb-memory-rel (link-set [th-relations] of rep-researchers)
+  let costvector n-values #groups [0]
+  ask comb-memory-argu [
+    let best-color min group-color-mem
+    set group-color-mem-cache n-values #groups [best-color]
+    let costvector-cur-argu (map - group-color-mem-cache group-color-mem)
+    set costvector (map + costvector costvector-cur-argu)
+  ]
+  ask comb-memory-rel [
+    let costvector-cur-rel map [ [group-i-rel-memory] -> 
+    ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
+    set costvector (map + costvector costvector-cur-rel)
+  ]
+  ask rep-researchers [
+    set argu-cache comb-memory-argu
+    set to-add-mem-rel comb-memory-rel
+    let com-costs item group-id costvector
+    distribute-com-costs com-costs
+  ]
+end
+
+
+to share-with-other-netw-test17
   ifelse network-structure = "complete" or (length colla-networks <= 3)
   or (length colla-networks <= 4 and network-structure != "cycle") [  
       share-with-other-netw-2
@@ -725,4 +761,60 @@ to share-with-other-netw-test16
       share-with-other-netw-1
     ] 
 
+end
+
+; this is not optimal efficient as it has to set variables for lots of agents back and forth. On big landscapes this could become computationally expensive. In this case we should think about creating a own procedure for this or modify the existing one.
+to calc-global-admiss
+  let startslist sort starts
+  let amat-cur-th 0
+  ask attacks [
+    set in-group-i-memory replace-item 0 in-group-i-memory true
+    if any? [my-in-attacks] of end1 [
+      set uncontested false
+    ]
+  ]
+  foreach startslist [[curtheory] ->
+    let curtheory-attacks attacks with [mytheory-end1 = curtheory or mytheory-end2 = curtheory]    
+    ask curtheory [
+      let non-admiss-argu adm-calc-core-test16 curtheory-attacks 0 curtheory
+      set objective-admissibility (count startsargum with [mytheory = curtheory]
+        - count non-admiss-argu with [mytheory = curtheory])
+    ]
+  ]  
+   ask attacks [
+    set in-group-i-memory replace-item 0 in-group-i-memory false   
+    set uncontested true    
+  ]
+  
+end
+
+
+to-report adm-calc-core-test16 [attackset cur-group-id theory]
+  let sucattacked no-turtles
+  let prime-attackers attackset with [uncontested]
+  if any? prime-attackers [
+    set sucattacked (turtle-set [end2] of prime-attackers)
+  ]
+  let secondary-attackers attackset with [not uncontested and not member? end1 sucattacked] ;could probably be made faster by using an additional attack variable instead of member?
+  let another-loop? true
+  while [another-loop? and any? secondary-attackers] [
+    let sucattacked-cache no-turtles
+    set another-loop? false
+    ask secondary-attackers [
+      set processed? false
+      ; let cur-attacker self
+      if not any? [my-in-attacks with [item cur-group-id in-group-i-memory
+        and (mytheory-end1 = theory or mytheory-end2 = theory)]] of end1  [
+        set another-loop? true
+        set sucattacked-cache (turtle-set sucattacked-cache end2)
+        set processed? true
+      ]     
+    ]
+    set sucattacked (turtle-set sucattacked sucattacked-cache)
+    if another-loop? [
+      set secondary-attackers secondary-attackers with [
+        not processed? and not member? end1 sucattacked-cache]
+    ]
+  ]
+  report sucattacked
 end

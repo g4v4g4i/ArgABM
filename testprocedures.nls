@@ -460,6 +460,7 @@ to profile [repetitions version]
   if version = "prosp" [set go-version [ [] -> go-test-prosp ]]
   if version = "v15" [set go-version [ [] -> go-test-v15 ]]
   if version = "v16" [set go-version [ [] -> go-test-v16 ]]
+  if version = "v17" [set go-version [ [] -> go-test-v17 ]]
   profilecore repetitions go-version
 end
 
@@ -1476,8 +1477,39 @@ end
 
 
 
+to go-test-v17
+  ; if ticks mod 10 = 4 [
+    ; duplicate-remover-test
+  ; ]
+  if ticks mod 5 = 4 [
+    ask researchers [
+      update-memories-test15
+    ]
+    share-with-group-test15
+    create-share-memory-test15
+    share-with-other-netw-test17
+    ; compute-time-costs-test14
+    ; update-memories-test
+    compute-subj-attacked-test16
+    act-on-strategies-test14
+  ]
+  move-around-test15
+  update-landscape-test15
+  ask researchers [
+    set flag-updated-memory false
+  ]
+  if ticks mod 5 != 0 [
+    communication-regress
+  ]
+  compute-popularity-test11
+  tick
+end
+
+
+
+
 to go-test
-  go-test-v16
+  go-test-v17
 end
 
 to go-stop-test
@@ -1511,7 +1543,7 @@ to setuprs [rs version]
   setup-argu-memory
   if version = "v15" [
     set update-mem-every-tick? false set v15 true
-    ask starters [die]
+    ask starters [die] ; to prevent potential conflicts when asking for "links" in general
   ]
   ask researchers [
     set lastalist []
