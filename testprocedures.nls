@@ -1702,9 +1702,10 @@ to setup-argu-memory
   ]
 end
 
+; one argument from nothing (= cyan = 85) to full (= red = 15) costs 70.  A attack relation costs as much as a full argument. They can digest three full arguments / relations (= attacks) per day which mirrors the amount of communication cost payed in the old version.
 to setup-hidden-variables-test15
-  set rel-costfactor 85
-  set max-learn (85 * 2)
+  set rel-costfactor 70
+  set max-learn (70 * 3)
 end
 
 to share-with-others-test
@@ -4917,4 +4918,32 @@ end
 
 to run-with3 [starterset]
   set ctiho-old count startsargum with [member? mytheory (list (start 0) (start 85))]
+end
+
+
+to-report shortest-item [lists]
+  let best-entry reduce [[best-so-far next-item] ->
+    ifelse-value (length best-so-far <= length next-item) [best-so-far][next-item]
+  ] lists
+  let #occurrences 0
+  foreach lists [[curitem] ->
+    if length curitem = length best-entry [
+      set #occurrences #occurrences + 1
+    ]
+  ]
+  report (list best-entry length best-entry #occurrences)
+end
+
+
+to-report longest-item [lists]
+  let best-entry reduce [[best-so-far next-item] ->
+    ifelse-value (length best-so-far >= length next-item) [best-so-far][next-item]
+  ] lists
+  let #occurrences 0
+  foreach lists [[curitem] ->
+    if length curitem = length best-entry [
+      set #occurrences #occurrences + 1
+    ]
+  ]
+  report (list best-entry length best-entry #occurrences)
 end
