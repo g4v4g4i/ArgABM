@@ -211,9 +211,9 @@ to transfer-argu-cache-to-memory
   carefully [
   let cur-group-id group-id
   let cached-aguments no-turtles
-  let last-intra-group-sharer one-of (turtle-set item cur-group-id colla-networks) with [any? argu-cache]
-  if last-intra-group-sharer != nobody [
-    set cached-aguments  [argu-cache] of last-intra-group-sharer
+  let last-inter-group-sharer one-of (turtle-set item cur-group-id colla-networks) with [any? argu-cache]
+  if last-inter-group-sharer != nobody [
+    set cached-aguments  [argu-cache] of last-inter-group-sharer
     ask cached-aguments [
       let cached-color item cur-group-id group-color-mem-cache
       let cur-color item cur-group-id group-color-mem
@@ -222,7 +222,7 @@ to transfer-argu-cache-to-memory
       ]
       set group-color-mem-cache replace-item cur-group-id group-color-mem-cache cyan
     ]
-    ask last-intra-group-sharer [
+    ask last-inter-group-sharer [
       set to-add-mem-argu (turtle-set to-add-mem-argu argu-cache)
       set argu-cache no-turtles
     ]
@@ -540,14 +540,14 @@ carefully [
           let #non-admiss-argu-th []
           set non-admiss-subj-argu []
           ifelse length sorted-starts = 2 [
-            set non-admiss-subj-argu adm-calc-core-test16 subjective-relations group-id item 0 sorted-starts ;16-x is the testversion
+            set non-admiss-subj-argu adm-calc-core-test16 subjective-relations
             let #non-admiss-argu-th2 count non-admiss-subj-argu with [mytheory = item 1 sorted-starts]
             let #non-admiss-argu-th1 (count non-admiss-subj-argu - #non-admiss-argu-th2)
             set #non-admiss-argu-th (list #non-admiss-argu-th1 #non-admiss-argu-th2)
            
           ][   
             foreach sorted-starts [[curtheory] ->   
-              let to-add-non-admiss-argu adm-calc-core-test16 subjective-relations group-id curtheory ;16-x is the testversion
+              let to-add-non-admiss-argu adm-calc-core-test16 subjective-relations with [mytheory-end1 = curtheory or mytheory-end2 = curtheory]
               set #non-admiss-argu-th lput count to-add-non-admiss-argu with [mytheory = curtheory] #non-admiss-argu-th
               set non-admiss-subj-argu (turtle-set non-admiss-subj-argu to-add-non-admiss-argu)
             ]
@@ -561,40 +561,6 @@ carefully [
   ][show (word "compute-subj-attacked-test16 " error-message)]
 end
 
-;probably slight performance advantage to call with "theory (start0)" in two theory case
-to-report adm-calc-core-test16-old [attackset cur-group-id theory]
-  let sucattacked no-turtles
-  let prime-attackers attackset with [uncontested]
-  if any? prime-attackers [
-    set sucattacked (turtle-set [end2] of prime-attackers)
-  ]
-  let secondary-attackers attackset with [not uncontested and not member? end1 sucattacked] ;could probably be made faster by using an additional attack variable instead of member?
-  let another-loop? true
-  while [another-loop? and any? secondary-attackers] [
-    let sucattacked-cache no-turtles
-    set another-loop? false
-    ask secondary-attackers [
-      set processed? false
-      let cur-attacker self
-      ask end1 [
-        if not any? my-in-attacks with [item cur-group-id in-group-i-memory 
-          and (mytheory-end1 = theory or mytheory-end2 = theory)][
-          set another-loop? true
-          ask cur-attacker [
-            set sucattacked-cache (turtle-set sucattacked-cache end2)
-            set processed? true            
-          ]
-        ]        
-      ]
-    ]
-    set sucattacked (turtle-set sucattacked sucattacked-cache)
-    if another-loop? [
-      set secondary-attackers secondary-attackers with [
-        not processed? and not member? end1 sucattacked-cache]
-    ]
-  ]
-  report sucattacked
-end
 
 
 
@@ -681,7 +647,7 @@ carefully [
       ask other-researcher [
         let other-researcher-id group-id
         
-        ask th-args with [item other-researcher-id group-color-mem < item askresearcher-id group-color-mem][ ;maybe the "with" could be dropped for more performance?
+        ask th-args with [item other-researcher-id group-color-mem < item askresearcher-id group-color-mem][ 
           if item askresearcher-id group-color-mem-cache = cyan [
             set group-color-mem-cache replace-item 
               askresearcher-id group-color-mem-cache (item askresearcher-id group-color-mem)
@@ -767,44 +733,77 @@ end
 to calc-global-admiss
   let startslist sort starts
   let amat-cur-th 0
-  ask attacks [
-    set in-group-i-memory replace-item 0 in-group-i-memory true
-    if any? [my-in-attacks] of end1 [
-      set uncontested false
-    ]
-  ]
+  ask attacks with [any? [my-in-attacks] of end1][
+    set uncontested false    
+  ]  
   foreach startslist [[curtheory] ->
     let curtheory-attacks attacks with [mytheory-end1 = curtheory or mytheory-end2 = curtheory]    
     ask curtheory [
-      let non-admiss-argu adm-calc-core-test16 curtheory-attacks 0 curtheory
+      let non-admiss-argu adm-calc-core-test16 curtheory-attacks
       set objective-admissibility (count startsargum with [mytheory = curtheory]
         - count non-admiss-argu with [mytheory = curtheory])
     ]
   ]  
    ask attacks [
-    set in-group-i-memory replace-item 0 in-group-i-memory false   
     set uncontested true    
-  ]
-  
+  ]  
 end
 
 
-to-report adm-calc-core-test16 [attackset cur-group-id theory]
-  let sucattacked no-turtles
+
+to-report adm-calc-core-test16 [attackset] 
   let prime-attackers attackset with [uncontested]
-  if any? prime-attackers [
-    set sucattacked (turtle-set [end2] of prime-attackers)
-  ]
+  let sucattacked (turtle-set [end2] of prime-attackers)
   let secondary-attackers attackset with [not uncontested and not member? end1 sucattacked] ;could probably be made faster by using an additional attack variable instead of member?
   let another-loop? true
+  ; every 2 [show count secondary-attackers]
   while [another-loop? and any? secondary-attackers] [
     let sucattacked-cache no-turtles
     set another-loop? false
     ask secondary-attackers [
       set processed? false
       ; let cur-attacker self
-      if not any? [my-in-attacks with [item cur-group-id in-group-i-memory
-        and (mytheory-end1 = theory or mytheory-end2 = theory)]] of end1  [
+      if not [any? my-in-attacks with [member? self secondary-attackers]] of end1  [
+        set another-loop? true
+        set sucattacked-cache (turtle-set sucattacked-cache end2)
+        set processed? true
+      ]     
+    ]
+    set sucattacked (turtle-set sucattacked sucattacked-cache)
+    if another-loop? [
+      set secondary-attackers secondary-attackers with [
+        not processed? and not member? end1 sucattacked-cache]
+    ]
+  ]
+  report sucattacked
+end
+
+
+; revisit after let fix (netlogo v6.0.1) currently quite a bit slower than the normal v16 version
+to-report adm-calc-core-beta [attackset]
+  let sucattacked no-turtles
+  let secondary-attackers no-links
+  ask attackset [
+    set processed? false
+    ifelse uncontested [
+      set sucattacked (turtle-set sucattacked end2)
+      ask [my-out-attacks] of end2 [set processed? true]
+    ][
+      if not processed? [
+        set secondary-attackers (link-set secondary-attackers self)
+      ]
+    ]
+  ]
+  set secondary-attackers secondary-attackers with [not processed?]
+  let another-loop? true
+  ; every 2 [show count secondary-attackers]
+  while [another-loop? and any? secondary-attackers] [
+    let sucattacked-cache no-turtles
+    set another-loop? false
+    ask secondary-attackers [
+      set processed? false
+      ; let cur-attacker self
+      if not [any? my-in-attacks with [member? self secondary-attackers]] of end1  [
         set another-loop? true
         set sucattacked-cache (turtle-set sucattacked-cache end2)
         set processed? true

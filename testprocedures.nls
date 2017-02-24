@@ -1704,7 +1704,7 @@ end
 
 to setup-hidden-variables-test15
   set rel-costfactor 85
-  set max-learn (85 * 10)
+  set max-learn (85 * 1)
 end
 
 to share-with-others-test
