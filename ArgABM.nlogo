@@ -61,6 +61,11 @@ globals [times-right number-of-theories-many theory-depth-many
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
+; The setup initializes the landscape and all variables with the values from the interface
+to setup
+  setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
+end
+
 
 ; procedure that lets the program run, after the landscape was setup
 ; every five time steps researchers update their memory and compute the
