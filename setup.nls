@@ -26,10 +26,6 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
   reset-ticks
 end
 
-; the setup for a normal run
-to setup
-  setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
-end
 
 
 ; procedure in which the variables that are not mentioned
