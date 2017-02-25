@@ -443,15 +443,12 @@ to move-around-test15
       ; a not fully researched non defensible argument,
       ; hence it is only once executed
       if member? myargu not-admissible and not moved [
-
         if not run-find-defense [
           find-defense-test13
           set run-find-defense true
         ]
       ]
-
-      ; if not moved and (not member? myargu not-admissible or
-        ; (member? myargu not-admissible and [color] of myargu = red))[
+      
       if not moved and ([color] of myargu = red or not member? myargu not-admissible)[
 
         ; when an argument exists that:
@@ -460,9 +457,10 @@ to move-around-test15
         ; c) no researcher from the same collaborator-network is working on it
         ; the researcher moves there, with certain probability
         let nextargu 0
-        ask myargu [set nextargu one-of out-discovery-neighbors with [
-          not member? color [gray red turquoise]
-          and not group-member-here-test13 curresearcher]
+        ask myargu [
+          set nextargu one-of out-discovery-neighbors with [
+            not member? color [gray red turquoise]
+            and not group-member-here-test13 curresearcher]
         ]
         ifelse nextargu != nobody [
           let move-random random-float 1.0
