@@ -122,7 +122,7 @@ to create-discovery-trees
           current-argument and not out-discovery-neighbor? curarg][
           create-discovery-to one-of other arguments with
           [count in-discovery-neighbors = 0 and current-argument]
-          ]
+        ]
       ]
     ]
   ]
@@ -304,9 +304,7 @@ end
 to researchers-create-scientists [scientistsno]
   create-researchers scientistsno [
     ; the researchers are blue-colored
-    ; and start on one of the roots
     set color blue
-    move-to one-of starts
 
     ; the researcher-own variables are initialized
     set collaborator-network []
@@ -329,6 +327,16 @@ to researchers-create-scientists [scientistsno]
       set theories lput start-add theories
     ]
     set current-theory-info theories
+  ]
+  ; The researchers are randomly distributed among the starts in groups of five
+  ; which corresponds to the number of members each collaborative network has
+  let remaining-researchers researchers
+  while [any? remaining-researchers][
+    let start-destination one-of starts
+    ask n-of 5 remaining-researchers [      
+      move-to start-destination
+      set remaining-researchers remaining-researchers with [self != myself]
+    ]
   ]
 end
 
