@@ -4947,3 +4947,13 @@ to-report longest-item [lists]
   ]
   report (list best-entry length best-entry #occurrences)
 end
+
+
+to test-identity-handover
+carefully [
+  show self
+  show myself
+  show other-end
+  ask other-end [show self]
+  ][show (word "test-identity-handover " error-message)]
+end

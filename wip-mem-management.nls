@@ -30,7 +30,7 @@ to update-landscape-test15
         set color color - 10
         ifelse color = red [
           set disc-startsargum-non-red other disc-startsargum-non-red
-          ask self [full-discovery-test15 cur-argum cur-theory]
+          full-discovery-test15 cur-argum cur-theory
         ][
           ; depending on the color a new child-argument is discovered, 
           ; until all child-arguments are discovered
@@ -97,17 +97,26 @@ carefully [
 end
 
 to discover-attack [cur-argum cur-theory]
-carefully [
   set color red
-  ask cur-argum [
-    ask other-end [
-      if color = gray [set color turquoise]
-      ask my-out-attacks with [mytheory-end2 = cur-theory] [
-        set uncontested false
-      ]      
-    ]
+  let other-end-argum 0
+  let other-theory 0  
+  ask other-end [
+    set other-end-argum self
+    set other-theory mytheory
+    if color = gray [set color turquoise]
   ]
-  ][show (word "discover-attack" error-message)]
+  ; ifelse [out-attack-neighbor? other-end-argum] of cur-argum  [
+  ifelse mytheory-end1 = cur-theory [
+    ask [my-out-attacks with [mytheory-end2 = cur-theory]] of other-end-argum [
+      set uncontested false
+      ; set color lime ; debugging / test
+    ]  
+  ][
+    ask [my-out-attacks with [mytheory-end2 = other-theory]] of cur-argum [
+      set uncontested false
+      ; set color blue ; debugging / test
+    ]  
+  ]
 end
 
 
