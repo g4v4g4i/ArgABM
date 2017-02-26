@@ -30,38 +30,64 @@ undirected-link-breed [collaborators collaborator]
 
 ; properties of the arguments, each argument "knows":
 ; the theory it belongs to, during the setup if it should
-; be considered, how many ticks a researcher was working on it
-; and when it was fully researched (when it turned red)
-; the roots also know how many researchers are working on that theory
-starts-own [mytheory current-start myscientists researcher-ticks full-research]
-arguments-own [mytheory current-argument researcher-ticks full-research]
+; be considered, how many ticks a researcher was working on it,
+; when it was fully researched (when it turned red), in which status the
+; different groups know the argument: actually and potentially (cache) if they
+; learned this via inter-group communcation
+arguments-own [mytheory current-argument researcher-ticks full-research
+  group-color-mem group-color-mem-cache]
+
+; the roots additionally know how many researchers are working on that theory
+; and keep track on how popular they have been over the course of the run as
+; well as  how admissible their theory is objectively
+starts-own [mytheory current-start myscientists researcher-ticks full-research
+  research-time-monist research-time-pluralist myscientists-pluralist
+  objective-admissibility group-color-mem group-color-mem-cache]
+
+; attack relations keep track starting from which theory (mytheory-end1) they
+; are attacking which other theory (mytheory-end2), if they're uncontested
+; i.e. if their end1 doesn't have an attacker from their mytheory-end2,
+; whether they are known by the different groups and during the
+; compute-subjective-attacked procedure whether they have already been
+; processed
+attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory
+ processed?]
 
 ; every researcher keeps track of how often she thinks
 ; that she should jump to another theory, how many times she jumped,
 ; the social network she belongs to, her current subjective landscape,
 ; the current best theory, if she received information at the current time
 ; the information in her neighborhood, whether she moved, if she is the
-; representative researcher of her network and the new arguments/relations
-; that are to be added
+; representative researcher of her network, the new arguments/relations
+; that are to be added, whether she updated her memory this round,
+; the non-admissible arguments she knows, the argument she is currently
+; working on and a cache for information she is currently digesting from the
+; inter-group sharing
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   admissible-subj-argu th-args th-relations communicating neighborargs moved
-  rep-researcher to-add-mem-argu to-add-mem-rel non-admiss-subj-argu]
+  rep-researcher to-add-mem-argu to-add-mem-rel flag-updated-memory
+  non-admiss-subj-argu mygps group-id argu-cache]
 
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables
 ; startsargum is an agentset which contains all arguments (including starts)
+; and disc-startsargum-non-red are those startsargum which are non red and
+; properly discovered (i.e. non gray and non turquoise).
+; rel-costfactor is a hidden variable which determines how costly it is
+; to learn relations via inter-group communication
 globals [times-right number-of-theories-many theory-depth-many
   scientists-many setup-successful-m setup-successful-p setup-time
   setup-discovered setup-discovered-best setup-jumps
   max-learn small-movement color-move colla-networks share-structure
-	startsargum]
+  startsargum disc-startsargum-non-red rel-costfactor]
 
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
 
 
-; The setup initializes the landscape and all variables with the values from the interface
+; The setup initializes the landscape and all variables with the values from
+; the interface
 to setup
   setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
 end
@@ -92,8 +118,6 @@ to go
   compute-popularity
   tick
 end
-
-
 
 
 @#$#@#$#@
@@ -644,6 +668,124 @@ Each researcher computes for its "current-theory-info" the number of admissible 
 Once the current best theory is computed, researchers will reconsider the theory they are working on. If that is not the current best theory, they consider to jump.
 
 If researchers think often enough that they should jump to another theory, often enough depends on the "jump-threshold" of the interface, the researcher jumps to a/the current best theory and starts working on that theory. If the researcher is aware of an argument from that theory, it will jump to a random, argument of that theory in its memory, otherwise it will jump to the root.
+
+# Changes to be integrated into the doc (wip)
+- This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
+- Needs also to be integrated into the readme.
+
+## Variables
+
+globals: 
+
+* startsargum
+  * format: turtle-set
+  * example: (agentset, 255 turtles)
+This variable will contain all the arguments including all starts.
+
+* disc-startsargum-non-red
+  * format: turtle-set
+  * example: (agentset, 50 turtles)
+This variable contains all those those arguments including starts (=startsargum) which are non red and properly discovered (i.e. non gray and non turquoise) at the current time.
+
+* rel-costfactor
+  * format: float
+  * default value: 70
+This is a hidden variable which determines how costly it is to learn relations via inter-group communication.
+
+researchers-own:
+
+* flag-updated-memory
+  * format: boolean
+  * initialization value: false
+This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundance of the `update-memories` procedure.
+
+* non-admiss-subj-argu
+  * format: turtle-set
+  * example: (agentset, 10 turtles)
+Will contain all the arguments which are not admissible according to the researchers subjective memory.
+
+* mygps
+  * format: turtle
+  * example: (argument 55)
+Contains the argument the researcher is currently working on i.e. the argument at her position in the landscape.
+
+* group-id
+  * format: integer
+  * example: 0
+Contains the number of the group this researcher belongs to. This number is equal to her groups position in the `colla-networks` list.
+
+* argu-cache
+  * format: turtle-set
+  * example (agentset, 10 turtles)
+Contains the information (relations + arguments) the researcher has learned via inter-group communication and is currently digesting. This information will be consolidated into her memory one week later during the `share-with-group` procedure.
+
+
+arguments-own, starts-own:
+
+* group-color-mem
+  * format: list
+  * example: [85 85 65 15]
+Contains the status in which group-i knows the argument in. 85 (= cyan) corresponds to the group not knowing the argument at all. The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the argument while group 2 knows it as lime and group 3 as red.
+
+* group-color-mem-cache
+  * format: list
+  * example: [85 85 65 15]
+This is the same format as `group-color-mem`. It is used to cache information which researchers learned via inter-group communication and are currently digesting. This information will be consolidated into `group-color-mem` one week later during the `share-with-group` procedure.
+
+Additionally starts-own:
+
+* research-time-monist
+  * format: integer
+  * example: 3200
+This is the amount of time researchers spent so far on this theory. Every tick during the `compute-popularity` procedure the starts check for the number of researchers on their theory and increase their `research-time-monist` value by this number.
+
+* research-time-pluralist
+  * format: float
+  * example: 2000.51
+This is how long and by how many researchers the theory has been considered to be among the best theories (this is basicially an integral over `myscientists-pluralists`). Each tick this theory is considered to be best by a particular researcher this counter will increase by one. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher. This is done by the `compute-popularity` procedure.
+
+* myscientists-pluralist
+  * format: integer
+  * example: 100
+How many researchers currently cosider this theory to be a best theory. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher.
+
+* objective-admissibility
+  * format: integer
+  * example: 85
+This is how many admissible arguments this theory has. The best theory always has full admissibility which corresponds e.g. in the case of theory-depth 3 to a number of 85. This is calculated at the beginning of the run during the setup.
+
+
+attacks-own
+
+* mytheory-end1
+  * format: turtle
+  * example: (start 0)
+This is the mytheory value of end1 of the attack relation i.e. the theory this attack is attacking from.
+
+* mytheory-end2
+  * format: turtle
+  * example: (start 85)
+This is the mytheory value of end2 of the attack relation i.e. the theory which will be attacked by this attack. 
+
+* uncontested
+  * format: boolean
+  * initialization value: true
+Tracks whether this attack relations startargument (end1) has a discovered (= red) attack from the theory this attack is attacking incoming. If this is not the case the attack is uncontested and is guaranteed to be successful. This value is updated during the `update-landscape` procedure and used during the `compute-subjective-attacked` procedure.
+
+
+* in-group-i-memory
+  * format: list of booleans
+  * example: [true true false]
+As with `group-color-mem` this contains the status in which group-i knows argument (i.e. if they know it (= true) or not =(false)). The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the attack while group 2 knows it.
+
+* processed?
+  * format: boolean
+  * initialization-value: false
+This is a helper variable utilized during the `compute-subjective-attacked` procedure. It will mark whether a certain attack has already been processed during the calculations. For details cf. the procedure itself.
+
+
+
+
 @#$#@#$#@
 default
 true
