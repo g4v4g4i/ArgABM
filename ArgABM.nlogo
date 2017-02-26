@@ -483,7 +483,7 @@ CHOOSER
 restrictions
 restrictions
 "researcher-childs-only" "group-childs" "all-subj-argu" "all-visible"
-0
+3
 
 @#$#@#$#@
 # Motivation
@@ -1237,6 +1237,156 @@ NetLogo 6.0
     <enumeratedValueSet variable="restrictions">
       <value value="&quot;researcher-childs-only&quot;"/>
       <value value="&quot;group-childs&quot;"/>
+      <value value="&quot;all-subj-argu&quot;"/>
+      <value value="&quot;all-visible&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="prosp-mov-with-sucess" repetitions="1000" runMetricsEveryStep="false">
+    <setup>setuprs-behaviorspace-simple "v15"</setup>
+    <go>go-test-prosp1</go>
+    <timeLimit steps="4000"/>
+    <exitCondition>exit-condition-new</exitCondition>
+    <metric>objective-admiss-of "th1"</metric>
+    <metric>objective-admiss-of "th2"</metric>
+    <metric>objective-admiss-of "th3"</metric>
+    <metric>research-time "monist" "th1"</metric>
+    <metric>research-time "monist" "th2"</metric>
+    <metric>research-time "monist" "th3"</metric>
+    <metric>research-time "pluralist" "th1"</metric>
+    <metric>research-time "pluralist" "th2"</metric>
+    <metric>research-time "pluralist" "th3"</metric>
+    <metric>researcher-performance "monist"</metric>
+    <metric>researcher-performance "pluralist"</metric>
+    <metric>monist-success</metric>
+    <metric>pluralist-success</metric>
+    <metric>perc-landscape-discoverd</metric>
+    <metric>perc-best-th-discoverd</metric>
+    <metric>average-jumps</metric>
+    <metric>ratio-success-to-failed</metric>
+    <metric>#moved-prospectively</metric>
+    <metric>#failed-move-prosp</metric>
+    <enumeratedValueSet variable="social-actions">
+      <value value="&quot;reliable&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visibility-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="scientists">
+      <value value="10"/>
+      <value value="40"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="within-theory">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-3rd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-of-theories">
+      <value value="2"/>
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="move-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy-threshold">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="research-speed">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="theory-depth">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="jump-threshold">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-best">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-structure">
+      <value value="&quot;cycle&quot;"/>
+      <value value="&quot;complete&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-2nd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="restrictions">
+      <value value="&quot;all-subj-argu&quot;"/>
+      <value value="&quot;all-visible&quot;"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="prosp-mov-with-sucess-low-number" repetitions="2" runMetricsEveryStep="false">
+    <setup>setuprs-behaviorspace-simple "v15"</setup>
+    <go>go-test-prosp1</go>
+    <timeLimit steps="4000"/>
+    <exitCondition>exit-condition-new</exitCondition>
+    <metric>objective-admiss-of "th1"</metric>
+    <metric>objective-admiss-of "th2"</metric>
+    <metric>objective-admiss-of "th3"</metric>
+    <metric>research-time "monist" "th1"</metric>
+    <metric>research-time "monist" "th2"</metric>
+    <metric>research-time "monist" "th3"</metric>
+    <metric>research-time "pluralist" "th1"</metric>
+    <metric>research-time "pluralist" "th2"</metric>
+    <metric>research-time "pluralist" "th3"</metric>
+    <metric>researcher-performance "monist"</metric>
+    <metric>researcher-performance "pluralist"</metric>
+    <metric>monist-success</metric>
+    <metric>pluralist-success</metric>
+    <metric>perc-landscape-discoverd</metric>
+    <metric>perc-best-th-discoverd</metric>
+    <metric>average-jumps</metric>
+    <metric>ratio-success-to-failed</metric>
+    <metric>#moved-prospectively</metric>
+    <metric>#failed-move-prosp</metric>
+    <enumeratedValueSet variable="social-actions">
+      <value value="&quot;reliable&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="visibility-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="scientists">
+      <value value="10"/>
+      <value value="40"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="within-theory">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-3rd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="number-of-theories">
+      <value value="2"/>
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="move-probability">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="strategy-threshold">
+      <value value="0.9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="research-speed">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="theory-depth">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="jump-threshold">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-best">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="network-structure">
+      <value value="&quot;cycle&quot;"/>
+      <value value="&quot;complete&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="attack-probability-2nd">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="restrictions">
       <value value="&quot;all-subj-argu&quot;"/>
       <value value="&quot;all-visible&quot;"/>
     </enumeratedValueSet>

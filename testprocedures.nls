@@ -1567,6 +1567,46 @@ to setuprs [rs version]
 end
 
 
+to setuprs-behaviorspace-simple [version]
+  clear-all
+  random-seed new-seed
+  initialize-hidden-variables
+  setup-hidden-variables-test15
+  create-discovery-landscape number-of-theories theory-depth
+  define-attack-relation
+  ; scientists is the chooser for the number of researchers from the interface
+  distribute-researchers scientists
+  set startsargum turtles with [breed = starts or breed = arguments]
+  set disc-startsargum-non-red starts
+  setup-attacks
+  setup-group-ids
+  calc-global-admiss
+  setup-argu-memory
+  if version = "v15" [
+    set update-mem-every-tick? false set v15 true
+    ask starters [die] ; to prevent potential conflicts when asking for "links" in general
+  ]
+  ask researchers [
+    set lastalist []
+    set lastblist []
+    set lastalistafter []
+    set flag-updated-memory false
+    set conference-attended false
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set non-admiss-subj-argu []
+    set mygps gps-setup
+    set to-add-mem-argu []
+    set to-add-mem-rel []
+    set argu-cache no-turtles
+    if version = "v15" [
+      set subjective-arguments one-of (starts in-radius 0)
+    ]
+    set current-theory-info sort-by [ [?1 ?2] -> item 0 ?1 < item 0 ?2 ] current-theory-info
+  ]
+  reset-ticks
+end
+
 to setuprs-behaviorspace [#of-repetitions version]
   clear-all
   file-open "rndseed-table.txt" let rs item ((behaviorspace-run-number - 1) mod #of-repetitions) file-read file-close

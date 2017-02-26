@@ -1,4 +1,4 @@
-; this branches of go-test-v14.
+; this branches of go-test-v17.
 globals [#moved-prospectively #failed-move-prosp]
 
 to go-test-prosp
@@ -10,26 +10,23 @@ to bla2 [times]
 end
 
 to go-test-prosp1
-  
-  if ticks = 0 [set update-mem-every-tick? false]
   ; if ticks mod 10 = 4 [
     ; duplicate-remover-test
   ; ]
   if ticks mod 5 = 4 [
     ask researchers [
-      update-memories-test12
+      update-memories-test15
     ]
-    share-with-others-test12
-    create-share-memory-test14
-    share-w-other-netw-test10
-    compute-time-costs-test14
+    share-with-group-test15
+    create-share-memory-test15
+    share-with-other-netw-test17
+    ; compute-time-costs-test14
     ; update-memories-test
-    compute-subj-attacked-test14
+    compute-subj-attacked-test16
     act-on-strategies-test14
   ]
-  move-around-test-prosp1 
-  update-landscape-test13  
-  full-discovery-test13
+  move-around-test-prosp1
+  update-landscape-test15
   ask researchers [
     set flag-updated-memory false
   ]
@@ -67,15 +64,12 @@ to move-around-test-prosp1
       ; a not fully researched non defensible argument,
       ; hence it is only once executed
       if member? myargu not-admissible and not moved [
-
         if not run-find-defense [
           find-defense-test-prosp1
           set run-find-defense true
         ]
       ]
-
-      ; if not moved and (not member? myargu not-admissible or
-        ; (member? myargu not-admissible and [color] of myargu = red))[
+      
       if not moved and ([color] of myargu = red or not member? myargu not-admissible)[
 
         ; when an argument exists that:
@@ -84,9 +78,10 @@ to move-around-test-prosp1
         ; c) no researcher from the same collaborator-network is working on it
         ; the researcher moves there, with certain probability
         let nextargu 0
-        ask myargu [set nextargu one-of out-discovery-neighbors with [
-          not member? color [gray red turquoise]
-          and not group-member-here-test13 curresearcher]
+        ask myargu [
+          set nextargu one-of out-discovery-neighbors with [
+            not member? color [gray red turquoise]
+            and not group-member-here-test13 curresearcher]
         ]
         ifelse nextargu != nobody [
           let move-random random-float 1.0
@@ -120,9 +115,8 @@ to move-around-test-prosp1
               ; if moving back is not possible, she jumps to another argument in
               ; the same tree/theory that is discovered but not fully researched
               let askstart [mytheory] of myargu
-              set nextargu one-of startsargum with [
-                mytheory = askstart 
-                and not member? color [gray red turquoise]          
+              set nextargu one-of disc-startsargum-non-red with [
+                mytheory = askstart                       
                 and not group-member-here-test13 curresearcher]
               if nextargu != nobody [ 
                 move-to-nextargu nextargu        
@@ -134,6 +128,8 @@ to move-around-test-prosp1
     ]
   ]
 end
+
+
 
 
 to find-defense-test-prosp1
@@ -219,9 +215,8 @@ to-report prospective-arguments [curresearcher]
     report nextargus
   ]
   if restrictions = "all-visible" [
-    let nextargus startsargum with [
-      mytheory = researcher-th
-      and not member? color [gray red turquoise]
+    let nextargus disc-startsargum-non-red with [
+      mytheory = researcher-th    
       and not group-member-here-test13 curresearcher
     ]
     report nextargus
