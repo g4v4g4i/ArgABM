@@ -1755,7 +1755,7 @@ to-report researcher-performance [pluralist-monist]
   ]
   ; (ticks + 1 ) b/c in the end of the run behaviorspace will run an additional 
   ; "compute-popularity", which basicially equates one tick
-  set performance ((performance * 100) / (count starts * scientists * 
+  set performance ((performance * 100) / (scientists * 
   (ticks + 1) * [objective-admissibility] of first sort starts))
   report performance
 end
