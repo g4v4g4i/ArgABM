@@ -132,14 +132,13 @@ carefully [
   ask cur-argum [
     set group-color-mem replace-item cur-group-id group-color-mem color
     ask my-links with [color != gray ] [
-      let cur-link self
+      if breed = attacks [
+        set to-add-mem-rel-cache (link-set to-add-mem-rel-cache self)
+      ]
       ask other-end [
-        set to-add-mem-argu-cache (turtle-set to-add-mem-argu-cache self)            
+        set to-add-mem-argu-cache (turtle-set to-add-mem-argu-cache self)
         set group-color-mem replace-item cur-group-id group-color-mem color
-      ]
-      if [breed] of cur-link = attacks [
-        set to-add-mem-rel-cache (link-set to-add-mem-rel-cache cur-link)        
-      ]
+      ]      
     ]
   ]
   set to-add-mem-argu (turtle-set to-add-mem-argu to-add-mem-argu-cache)
@@ -206,21 +205,19 @@ end
 to transfer-argu-cache-to-memory
   carefully [
   let cur-group-id group-id
-  let cached-aguments 0
-  let last-inter-group-sharer one-of (turtle-set item cur-group-id colla-networks) with [any? argu-cache]
-  if last-inter-group-sharer != nobody [
-    ask last-inter-group-sharer [
-      set cached-aguments argu-cache with [
-        item cur-group-id group-color-mem-cache < 
-        item cur-group-id group-color-mem]
-      set to-add-mem-argu (turtle-set to-add-mem-argu argu-cache)
-      set argu-cache no-turtles
-    ]
-    ask cached-aguments  [      
-      set group-color-mem replace-item cur-group-id group-color-mem 
-        (item cur-group-id group-color-mem-cache)   
-    ]   
+  let cached-aguments no-turtles
+  ask (turtle-set item cur-group-id colla-networks) with [any? argu-cache] [
+    set cached-aguments argu-cache with [
+      item cur-group-id group-color-mem-cache < 
+      item cur-group-id group-color-mem]
+    set to-add-mem-argu (turtle-set to-add-mem-argu argu-cache)
+    set argu-cache no-turtles
   ]
+  ask cached-aguments  [      
+    set group-color-mem replace-item cur-group-id group-color-mem 
+      (item cur-group-id group-color-mem-cache)   
+  ]   
+  
   ][show (word "transfer-argu-cache-to-memory" error-message)]
 end
 
@@ -250,9 +247,10 @@ carefully [
     let th-relations-cache no-links
     let th-args-cache no-turtles
     ask cur-argum [
-      ; this has the possibility that a turquoise argument in the discovery neighborhood gets added just although the discovery is not found yet. But for this to happen the researcher must know the argument via an attack relation. This is arguably ok and doesn't collide with our intentions when we "banned" turquoise arguments from being shared      
+      ; this has the possibility that a turquoise argument in the discovery neighborhood gets added although the discovery is not found yet. But for this to happen the researcher must know the argument via an attack relation. This is arguably ok and doesn't collide with our intentions when we "banned" turquoise arguments from being shared. Also: she will share this argument only in the state she learned it back then (i.e. turquoise).
       set th-args-cache link-neighbors with [
         color != gray and item cur-group-id group-color-mem != cyan] ; this formulation is redundant, but might provide performance benefits -> check
+      ; we still have the argument from the other end in the memory even if the attack relation would not get added. This is the same behavior as in the old version, but maybe we want to change this in the future
       ifelse social-actions = "biased" [
         set th-relations-cache my-out-attacks with [color != gray]        
       ][
