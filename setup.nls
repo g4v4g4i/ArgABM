@@ -657,7 +657,7 @@ to calc-global-admiss
     let curtheory-attacks attacks with [mytheory-end1 = curtheory 
       or mytheory-end2 = curtheory]
     ask curtheory [
-      let non-admiss-argu adm-calc-core-test16 curtheory-attacks
+      let non-admiss-argu admissibility-calc-core curtheory-attacks
       set objective-admissibility (count startsargum with [
         mytheory = curtheory] 
         - count non-admiss-argu with [mytheory = curtheory])

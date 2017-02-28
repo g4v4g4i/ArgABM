@@ -673,6 +673,30 @@ If researchers think often enough that they should jump to another theory, often
 - This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
 - Needs also to be integrated into the readme.
 
+## Strategies
+
+* _admissibility-calc-core_
+The core of the admissibility calculation procedure. It takes a link-set
+(attackset) for a certain theory (i.e. all attacks which are either
+outgoing or incoming to this theoy) as input and reports the arguments
+which are successfully attacked i.e. non-admissible as a turtle-set
+processed? is a boolean dummy variable which marks arguments which have
+are sucessfull attackers during the secondary-attackers phase (cf. also global variables). 
+
+1. take the attacks which are themselves uncontested (cf. infotab) in  the objective landscape. The destination of this attacks will be non-admissible and attacks coming from there are void.
+
+2. the attacks which are not uncontested but also were not rendered void by
+  the prime attackers form the secondary-attackers link-set. If they don't
+  have any incoming attack from the secondary-attackers themselves their
+  attack is successfull 
+  
+ 3. Of those secondary-attackers which were successfull, the destination 
+  (= end2) gets added to the non-admissible turtle-set and attacks
+  starting from there are rendered void and are therefore removed from
+  the set. Then the successfull secondary attacks themselves are removed.
+  This repeats until there are no secondary-attackers left or non of the
+  left is able to attack successfully anymore.
+
 ## Variables
 
 globals: 

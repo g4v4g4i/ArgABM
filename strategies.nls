@@ -51,6 +51,43 @@ end
 
 
 
+; the core of the admissibility calculation procedure. It takes a link-set
+; (attackset) for a certain theory (i.e. all attacks which are either
+; outgoing or incoming to this theoy) as input and reports the arguments
+; which are successfully attacked i.e. non-admissible as a turtle-set
+; processed? is a boolean dummy variable which marks arguments which have
+; are sucessfull attackers during the secondary-attackers phase. The details
+; are described in the infotab under _admissibility-calc-core_.
+to-report admissibility-calc-core [attackset]
+  ; cf infotab 1)
+  let prime-attackers attackset with [uncontested]
+  let sucattacked (turtle-set [end2] of prime-attackers)
+  ; cf infotab 2)
+  let secondary-attackers attackset with [
+    not uncontested and not member? end1 sucattacked] 
+  let another-loop? true
+  while [another-loop? and any? secondary-attackers] [
+    let sucattacked-cache no-turtles
+    set another-loop? false
+    ask secondary-attackers [
+      set processed? false
+      if not [any? my-in-attacks with [
+        member? self secondary-attackers]] of end1  [
+        set another-loop? true
+        set sucattacked-cache (turtle-set sucattacked-cache end2)
+        set processed? true
+      ]     
+    ]   
+    ; cf infotab 3)
+    set sucattacked (turtle-set sucattacked sucattacked-cache)
+    if another-loop? [
+      set secondary-attackers secondary-attackers with [
+        not processed? and not member? end1 sucattacked-cache]
+    ]
+  ]
+  report sucattacked
+end
+
 
 
 ; procedure that computes for each collaborator network (= groups)
