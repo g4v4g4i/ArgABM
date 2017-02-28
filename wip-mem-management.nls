@@ -532,7 +532,7 @@ carefully [
         let sorted-starts sort starts
         ask cur-researcher [
           let #non-admiss-argu-th []
-          set non-admiss-subj-argu []
+          set non-admiss-subj-argu no-turtles
           ifelse length sorted-starts = 2 [
             set non-admiss-subj-argu adm-calc-core-test16 subjective-relations
             let #non-admiss-argu-th2 count non-admiss-subj-argu with [mytheory = item 1 sorted-starts]
@@ -717,25 +717,9 @@ to share-with-other-netw-test17
 
 end
 
-; this is not optimal efficient as it has to set variables for lots of agents back and forth. On big landscapes this could become computationally expensive. In this case we should think about creating a own procedure for this or modify the existing one.
-to calc-global-admiss
-  let startslist sort starts
-  let amat-cur-th 0
-  ask attacks with [any? [my-in-attacks] of end1][
-    set uncontested false    
-  ]  
-  foreach startslist [[curtheory] ->
-    let curtheory-attacks attacks with [mytheory-end1 = curtheory or mytheory-end2 = curtheory]    
-    ask curtheory [
-      let non-admiss-argu adm-calc-core-test16 curtheory-attacks
-      set objective-admissibility (count startsargum with [mytheory = curtheory]
-        - count non-admiss-argu with [mytheory = curtheory])
-    ]
-  ]  
-   ask attacks [
-    set uncontested true    
-  ]  
-end
+
+; calc-global-admiss is not optimal efficient as it has to set variables for lots of agents back and forth. On big landscapes this could become computationally expensive. In this case we should think about creating a own procedure for this or modify the existing one.
+
 
 
 

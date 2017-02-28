@@ -294,120 +294,120 @@ end
 
 
 ; setup for the errorneous attack-relations
-to setup-test-error
-  clear-all
-  initialize-hidden-variables
-  create-discovery-landscape number-of-theories theory-depth
-  define-attack-relation-error
-  distribute-researchers scientists
-  reset-ticks
-end
+; to setup-test-error
+  ; clear-all
+  ; initialize-hidden-variables
+  ; create-discovery-landscape number-of-theories theory-depth
+  ; define-attack-relation-error
+  ; distribute-researchers scientists
+  ; reset-ticks
+; end
 
 
-to define-attack-relation-error
-  ; first the random attacks are defined
-  define-attack-relation-create-attacks-error
+; to define-attack-relation-error
+  ; ; first the random attacks are defined
+  ; define-attack-relation-create-attacks-error
 
-  ; then the best theory defends itself
-  define-attack-relation-defend-best
+  ; ; then the best theory defends itself
+  ; define-attack-relation-defend-best
 
-  ; the arguments and relations are spread over the patches
-  define-attack-relation-visualize
-end
+  ; ; the arguments and relations are spread over the patches
+  ; define-attack-relation-visualize
+; end
 
 
-to define-attack-relation-create-attacks-error
-  ask turtles with [breed = starts or breed = arguments][
-    ; variables for the current argument, the theory it belongs to,
-    ; a random number between 0.00 and 1.00 and a list of theories
-    let askargu self
-    let curtheory mytheory
-    let attack-random random-float 1.00
-    let starts-list []
-    ask starts [
-      set starts-list lput who starts-list
-    ]
-    set starts-list sort starts-list
+; to define-attack-relation-create-attacks-error
+  ; ask turtles with [breed = starts or breed = arguments][
+    ; ; variables for the current argument, the theory it belongs to,
+    ; ; a random number between 0.00 and 1.00 and a list of theories
+    ; let askargu self
+    ; let curtheory mytheory
+    ; let attack-random random-float 1.00
+    ; let starts-list []
+    ; ask starts [
+      ; set starts-list lput who starts-list
+    ; ]
+    ; set starts-list sort starts-list
 
-    ; with attack-probability-2nd from the interface an attack towards
-    ; the current argument is created
-    ifelse number-of-theories = 2[
-      if attack-random < attack-probability-2nd and curtheory != start 0 [
-        create-attack-from one-of other turtles with [(breed = starts or
-        breed = arguments)and mytheory != curtheory and not
-        (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-        out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-            ]
-      ]
-    ][
+    ; ; with attack-probability-2nd from the interface an attack towards
+    ; ; the current argument is created
+    ; ifelse number-of-theories = 2[
+      ; if attack-random < attack-probability-2nd and curtheory != start 0 [
+        ; create-attack-from one-of other turtles with [(breed = starts or
+        ; breed = arguments)and mytheory != curtheory and not
+        ; (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+        ; out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        ; set color gray
+            ; ]
+      ; ]
+    ; ][
 
-    ; when there are three theories both attack-probability-2nd and -3rd are
-    ; considered to create attacks, depending on the theory the current argument
-    ; belongs to first for the third theory
-    ifelse [who] of curtheory = max starts-list and attack-random <
-      attack-probability-3rd [
-      create-attack-to one-of other turtles with [(breed = starts or
-        breed = arguments) and mytheory != curtheory and not
-        (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-        out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-          ]
-    ][
-    ; then attacks towards arguments of the 2nd theory are created
-    if [who] of curtheory != max starts-list and curtheory != start 0 and
-      attack-random < attack-probability-2nd [
-      create-attack-from one-of other turtles with [(breed = starts or
-      breed = arguments) and mytheory != curtheory and not
-      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-          ]
-    ]
-    ]
-    ]
+    ; ; when there are three theories both attack-probability-2nd and -3rd are
+    ; ; considered to create attacks, depending on the theory the current argument
+    ; ; belongs to first for the third theory
+    ; ifelse [who] of curtheory = max starts-list and attack-random <
+      ; attack-probability-3rd [
+      ; create-attack-to one-of other turtles with [(breed = starts or
+        ; breed = arguments) and mytheory != curtheory and not
+        ; (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+        ; out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        ; set color gray
+          ; ]
+    ; ][
+    ; ; then attacks towards arguments of the 2nd theory are created
+    ; if [who] of curtheory != max starts-list and curtheory != start 0 and
+      ; attack-random < attack-probability-2nd [
+      ; create-attack-from one-of other turtles with [(breed = starts or
+      ; breed = arguments) and mytheory != curtheory and not
+      ; (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+      ; out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        ; set color gray
+          ; ]
+    ; ]
+    ; ]
+    ; ]
 
-    ; if the current argument belongs to the objective best theory
-    ; an attack towards this argument is created with attack-probability-best
-    if attack-random < attack-probability-best and curtheory = start 0 [
-      create-attack-from one-of other turtles with [(breed = starts or
-      breed = arguments) and mytheory != curtheory and not
-      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-          ]
-    ]
-  ]
-end
+    ; ; if the current argument belongs to the objective best theory
+    ; ; an attack towards this argument is created with attack-probability-best
+    ; if attack-random < attack-probability-best and curtheory = start 0 [
+      ; create-attack-from one-of other turtles with [(breed = starts or
+      ; breed = arguments) and mytheory != curtheory and not
+      ; (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
+      ; out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
+        ; set color gray
+          ; ]
+    ; ]
+  ; ]
+; end
 
-to compare-error-with-new [times]
-  repeat times [
-    setup
-    cadmis 1
-    print (word "fixed:      " ctiho " #attacks: "count attacks)
-    setup-test-error
-    cadmis 1
-    print (word "errorneous: " ctiho " #attacks: "count attacks)
-  ]
-end
+; to compare-error-with-new [times]
+  ; repeat times [
+    ; setup
+    ; cadmis 1
+    ; print (word "fixed:      " ctiho " #attacks: "count attacks)
+    ; setup-test-error
+    ; cadmis 1
+    ; print (word "errorneous: " ctiho " #attacks: "count attacks)
+  ; ]
+; end
 
-to compare-error-with-new-statistics [times]
-  repeat times [
-    file-open "testprocedure_adm_fixed.txt"
-    setup
-    cadmis 1
-    file-print (word item 1 item 1 ctiho " " item 1 item 2 ctiho)
-    file-open "testprocedure_attack_fixed.txt"
-    file-print count attacks
-    file-open "testprocedure_adm_error.txt"
-    setup-test-error
-    cadmis 1
-    file-print (word item 1 item 1 ctiho " " item 1 item 2 ctiho)
-    file-open "testprocedure_attack_error.txt"
-    file-print count attacks
-  ]
-  file-close-all
-end
+; to compare-error-with-new-statistics [times]
+  ; repeat times [
+    ; file-open "testprocedure_adm_fixed.txt"
+    ; setup
+    ; cadmis 1
+    ; file-print (word item 1 item 1 ctiho " " item 1 item 2 ctiho)
+    ; file-open "testprocedure_attack_fixed.txt"
+    ; file-print count attacks
+    ; file-open "testprocedure_adm_error.txt"
+    ; setup-test-error
+    ; cadmis 1
+    ; file-print (word item 1 item 1 ctiho " " item 1 item 2 ctiho)
+    ; file-open "testprocedure_attack_error.txt"
+    ; file-print count attacks
+  ; ]
+  ; file-close-all
+; end
 
 
 to check-full-adm [times]
@@ -1501,7 +1501,7 @@ to go-test-v17
   if ticks mod 5 != 0 [
     communication-regress
   ]
-  compute-popularity-test11
+  compute-popularity
   tick
 end
 
@@ -1555,8 +1555,6 @@ to setuprs [rs version]
     set to-add-mem-rel []
     set non-admiss-subj-argu []
     set mygps gps-setup
-    set to-add-mem-argu []
-    set to-add-mem-rel []
     set argu-cache no-turtles
     if version = "v15" [
       set subjective-arguments one-of (starts in-radius 0)
@@ -1695,7 +1693,9 @@ to setuprs-auto [version]
   reset-ticks
 end
 
-
+to v15-rest
+  set update-mem-every-tick? false set v15 true
+end
 
 to setup-attacks
   let in-group-i-memory-list n-values length colla-networks [false]
