@@ -65,8 +65,8 @@ attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory
 ; inter-group sharing
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
-  admissible-subj-argu th-args th-relations communicating neighborargs moved
-  rep-researcher to-add-mem-argu to-add-mem-rel flag-updated-memory
+  th-args th-relations communicating neighborargs moved rep-researcher
+  to-add-mem-argu to-add-mem-rel flag-updated-memory
   non-admiss-subj-argu mygps group-id argu-cache]
 
 ; the global variables are all concerned with the
@@ -696,6 +696,17 @@ are sucessfull attackers during the secondary-attackers phase (cf. also global v
   the set. Then the successfull secondary attacks themselves are removed.
   This repeats until there are no secondary-attackers left or non of the
   left is able to attack successfully anymore.
+  
+* _compute-subjective-attacked_
+procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible/defensible because researcher in a collaborator network share all information with each other only one agent needs to do the defensibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
+
+1. if a researcher of the group already calculated defensibility other group members can copy the results into their memory
+
+2. if no group member has done the defensibility calculations, the current researcher does the calculations i.e. she becomes the groups calc-researcher
+
+3. if there are only two theories the admissibility calculation can be  done on the whole attackset at once
+
+4. if there are more than two theories the calculation has to be done once for each attack set of a theory sepearately. A attack set of a theory corresponds to all the attacks in the set which are either incoming or outgoing to/from this theory
 
 ## Variables
 
