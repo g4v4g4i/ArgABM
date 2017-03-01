@@ -196,105 +196,47 @@ end
 
 ; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
-; every fifth round the researchers share their updated memory within their
-; collaborator-network
+; The memory management is comprised of two parts:
+; (a) The researchers save arguments and relations in the form of turtle-sets
+; / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu`
+; `to-add-mem-rel`) which will be synchronized every week with the group in
+; the `share-with-group` procedure
+; (b) the status in which the argument / relation is known to a certain
+; collaborative network (=group) is saved in the argument / link itself. 
+; (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For
+; links this will be facilitated during the `share-with-group` procedure,
+; while for arguments the color is updated right when the researchers update
+; their memory
 to update-memories
-  ask researchers [
-    ; the argument the researcher is standing on is written to cur-argum
-    let cur-argum gps
-    let cur-researcher self
-    ; information of current argument in the format of the memory
-    let add-cur (sentence cur-argum [color] of cur-argum)
-    ; list of relations (resp. arguments) that are added
-    let to-add []
-    let to-add-argu []
-    set to-add-argu lput add-cur to-add-argu
-    ; list of neighborhood arguments of the current argument
-    set neighborargs []
-    set neighborargs lput cur-argum neighborargs
-
-    ; for the current argument
-    ; add the neighboring discovered arguments and relations
-    ; (attacks and discovery) to a to-add list
-    ask cur-argum [
-       if any? my-in-discoveries with [color != gray][
-        ask my-in-discoveries with [color != gray][
-          let add-other-end other-end
-          ask cur-researcher [
-            set neighborargs lput add-other-end neighborargs
-          ]
-          ; construction of the to be added discovery relation
-          let add-rel []
-          set add-rel lput "d" add-rel
-          set add-rel lput add-other-end add-rel
-          set add-rel lput cur-argum add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-other-end [color] of add-other-end)
-          set to-add-argu lput add-other to-add-argu
-        ]
+  ; the argument the researcher is standing on is written to cur-argum
+  let cur-argum mygps
+  let cur-researcher self
+  let cur-group-id group-id  
+  ; the argument the researcher is standing on is added to her memory (a)
+  let to-add-mem-argu-cache cur-argum
+  let to-add-mem-rel-cache no-links
+  ask cur-argum [
+    ; the most recent version (=color) of the argument the researcher is 
+    ; standing on is now known by the group (b) 
+    set group-color-mem replace-item cur-group-id group-color-mem color   
+    ask my-links with [color != gray ] [
+      ; discovered attacks are added to the researchers memory (a)
+      if breed = attacks [
+        set to-add-mem-rel-cache (link-set to-add-mem-rel-cache self)
       ]
-
-      ; add the child argument of the discovery relation
-      if any? my-out-discoveries with [color != gray][
-        ask my-out-discoveries with [color != gray][
-    let add-other-end other-end
-    ask cur-researcher [
-      set neighborargs lput add-other-end neighborargs
-    ]
-    ; construction of the to be added discovery relation
-    let add-rel []
-    set add-rel lput "d" add-rel
-          set add-rel lput cur-argum add-rel
-          set add-rel lput add-other-end add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-other-end [color] of add-other-end)
-          set to-add-argu lput add-other to-add-argu
-        ]
-      ]
-
-      ; add the parent argument of the attack relation
-      if any? my-in-attacks with [color != gray][
-        ask my-in-attacks with [color != gray][
-          let add-other-end other-end
-          ask cur-researcher [
-            set neighborargs lput add-other-end neighborargs
-          ]
-          ; construction of the to be added attack relation
-          let add-rel []
-          set add-rel lput "a" add-rel
-          set add-rel lput add-other-end add-rel
-          set add-rel lput cur-argum add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-other-end [color] of add-other-end)
-          set to-add-argu lput add-other to-add-argu
-        ]
-      ]
-
-      ; add the child argument of the attack relation
-      if any? my-out-attacks with [color != gray][
-        ask my-out-attacks with [color != gray][
-          let add-other-end other-end
-          ask cur-researcher [
-            set neighborargs lput add-other-end neighborargs
-          ]
-          ; construction of the to be added attack relation
-          let add-rel []
-          set add-rel lput "a" add-rel
-          set add-rel lput cur-argum add-rel
-          set add-rel lput other-end add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-other-end [color] of add-other-end)
-          set to-add-argu lput add-other to-add-argu
-        ]
+      ; the same update as above for the cur-argum is done for all arguments 
+      ; connected to cur-argum by non gray links
+      ask other-end [ 
+        ;(a)
+        set to-add-mem-argu-cache (turtle-set to-add-mem-argu-cache self)
+        ;(b)
+        set group-color-mem replace-item cur-group-id group-color-mem color
       ]
     ]
-    set subjective-relations sentence subjective-relations to-add
-    set subjective-arguments sentence subjective-arguments to-add-argu
   ]
+  set to-add-mem-argu (turtle-set to-add-mem-argu to-add-mem-argu-cache)
+  set to-add-mem-rel (link-set to-add-mem-rel to-add-mem-rel-cache)
+  set flag-updated-memory true  
 end
 
 
@@ -573,6 +515,20 @@ to-report group-member-here [curresearcher]
     report false
   ]
 
+end
+
+
+; procedure which is called by researchers when they move (to nextargu). It
+; makes sure that the researcher has an updated memory of her surrounding
+; before moving and updates the argument she's working on 
+; (mygps - cf. infotab) to the argument she's moving to
+to move-to-nextargu [nextargu]
+  if not flag-updated-memory [ 
+    update-memories
+  ]
+  set mygps nextargu
+  move-to mygps
+  set moved true 
 end
 
 

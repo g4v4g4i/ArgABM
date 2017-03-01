@@ -673,7 +673,9 @@ If researchers think often enough that they should jump to another theory, often
 - This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
 - Needs also to be integrated into the readme.
 
-## Strategies
+## Procedures
+
+### Strategies
 
 * _admissibility-calc-core_
 The core of the admissibility calculation procedure. It takes a link-set
@@ -708,58 +710,76 @@ procedure that computes for each collaborator network (= groups) which of the ar
 
 4. if there are more than two theories the calculation has to be done once for each attack set of a theory sepearately. A attack set of a theory corresponds to all the attacks in the set which are either incoming or outgoing to/from this theory
 
+## Behavior
+
+* _update-memories_ 
+The memory management is comprised of two parts:
+(a) The researchers save arguments and relations in the form of turtle-sets / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu` `to-add-mem-rel`) which will be synchronized every week with the group in the `share-with-group` procedure
+(b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory
+
+
 ## Variables
 
 globals: 
 
-* startsargum
-  * format: turtle-set
-  * example: (agentset, 255 turtles)
+  * startsargum
+    * format: turtle-set
+    * example: (agentset, 255 turtles)
 This variable will contain all the arguments including all starts.
 
-* disc-startsargum-non-red
-  * format: turtle-set
-  * example: (agentset, 50 turtles)
+  * disc-startsargum-non-red
+    * format: turtle-set
+    * example: (agentset, 50 turtles)
 This variable contains all those those arguments including starts (=startsargum) which are non red and properly discovered (i.e. non gray and non turquoise) at the current time.
 
-* rel-costfactor
-  * format: float
-  * default value: 70
+  * rel-costfactor
+    * format: float
+    * default value: 70
 This is a hidden variable which determines how costly it is to learn relations via inter-group communication.
 
 researchers-own:
 
-* flag-updated-memory
-  * format: boolean
-  * initialization value: false
+  * flag-updated-memory
+    * format: boolean
+    * initialization value: false
 This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundance of the `update-memories` procedure.
 
-* non-admiss-subj-argu
-  * format: turtle-set
-  * example: (agentset, 10 turtles)
+  * non-admiss-subj-argu
+    * format: turtle-set
+    * example: (agentset, 10 turtles)
 Will contain all the arguments which are not admissible according to the researchers subjective memory.
 
-* mygps
-  * format: turtle
-  * example: (argument 55)
+  * mygps
+    * format: turtle
+    * example: (argument 55)
 Contains the argument the researcher is currently working on i.e. the argument at her position in the landscape.
 
-* group-id
-  * format: integer
-  * example: 0
+  * group-id
+    * format: integer
+    * example: 0
 Contains the number of the group this researcher belongs to. This number is equal to her groups position in the `colla-networks` list.
 
-* argu-cache
-  * format: turtle-set
-  * example (agentset, 10 turtles)
-Contains the information (relations + arguments) the researcher has learned via inter-group communication and is currently digesting. This information will be consolidated into her memory one week later during the `share-with-group` procedure.
+  * argu-cache
+    * format: turtle-set
+    * example (agentset, 10 turtles)
+Contains the arguments the researcher has learned via inter-group communication(i.e. `share-with-other-networks`) and is currently digesting. This information will be consolidated into her memory one week later during the `share-with-group` procedure.
 
+  * to-add-mem-argu
+    * format: turtle-set
+    * example: (agentset, 3 turtles)
+Contains the arguments a researcher learned via the `update-memories` procedure, i.e. arguments she learned by conducting her research. This information is will be synchronized every week with her group during the `share-with-group` procedure. The status (=color) of the arguments is saved seperately in the argument-owned variable `group-color-mem`.
+
+  * to-add-mem-rel
+    * format: link-set
+    * example: (agentset, 2 links)
+Contains the relations (= attacks) a researcher learned via the `update-memories` procedure - i.e. relations she learned by conducting her research - or via inter-group communication during `share-with-other-networks`. This information is will be synchronized every week with her group during the `share-with-group` procedure.
+  
 
 arguments-own, starts-own:
 
-* group-color-mem
-  * format: list
-  * example: [85 85 65 15]
+  * group-color-mem
+    * format: list
+    * example: [85 85 65 15]
 Contains the status in which group-i knows the argument in. 85 (= cyan) corresponds to the group not knowing the argument at all. The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the argument while group 2 knows it as lime and group 3 as red.
 
 * group-color-mem-cache
