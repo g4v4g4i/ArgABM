@@ -19,181 +19,6 @@ end
 
 
 
-
-; procedure which merges lists of arguments with colors (alist and blist)
-; and removes all duplicates from the merged list which is then reported
-; alist is supposed to be the arguments already in the reserchers memory and
-; blist corresponds to the new input 
-; the procedure is called with a flag (type: boolean) which determines
-; whether it has to look in 2nd input list (blist) for duplicates or not
-; this is done (flag = false) to increase performance when the procedure is
-; called with a blist that can't contain duplicates in itself
-; and where the blist entries are guaranteed to be the most recent version
-; availiable in the landscape (e.g update-memories)
-; alist in general musn't contain any duplicates
-; arguments that are part of the lists with different colors also count as
-; duplicates. In these cases only the entry with the lowest color value
-; is kept i.e. the arguments which are furthest researched
-to-report merge-arg-wo-duplicates [alist blist flag]
-  if flag [
-    set blist remove-duplicates blist
-  ]
-  foreach blist [ [?1] ->
-    let argu first ?1
-    let my-color item 1 ?1
-    if flag [
-      let duplicate-check filter [ [??1] -> first ??1 = argu ] blist
-      foreach duplicate-check [ [??1] ->
-        if item 1 ??1 > my-color [
-          set blist remove ??1 blist
-        ]
-      ]
-    ]
-    ; argu-old will contain the current argument (argu) from blist if this
-    ; argument also is present in alist. argu-old is a nested list:
-    ; lists [[(argu) color-argu-in-alist]]
-    let argu-old filter [ [??1] -> first ??1 = argu ] alist
-    if not empty? argu-old [
-      ; item 0 will reduce the degree of nestedness of the argu-old by one i.e.
-      ; argu-old will now now be [(argu) color-argu-in-alist] 
-      set argu-old item 0 argu-old
-      if my-color < item 1 argu-old [
-      let argument-position position argu-old alist
-        if argument-position != false [
-          set alist replace-item argument-position alist ?1
-        ]
-      ]
-      if my-color >= item 1 argu-old [
-        set blist remove ?1 blist
-      ]
-    ]
-  ]
-  ; finally the lists which had their respective duplicates removed are merged
-  ; and identical entries are removed. The result is then reported
-  set alist remove-duplicates sentence alist blist
-  report alist
-end
-
-
-
-
-; a new duplicate remover for lists with arguments + colors. It takes a list
-; as input and will report the same list back with each argument only
-; contained once with the the arguments most researched color (i.e. the
-; lowest color value). It is specificially designed for the share-with-others
-; procedure as the merge-arg-wo-duplicates procedure is unfortunately still a
-; bit slow in this regard. 
-to-report arg-list-dupl-remover [alist]
-  set alist remove-duplicates alist
-  let widearglist convert-arglist-long-to-wide alist
-  set alist convert-arglist-wide-to-long widearglist
-  report alist
-end
-
-
-
-; procedure which takes a argulist with colors of the format
-; [[(argu-1) color-1]...[(argu-i) color-i]] (the long format) and transforms
-; it to [[(argu-1)...(argu-i)] [(argu-j)...] ... [(argu-k)...] [(argu-1) ...
-; (argu-n)]] (the wide format).
-; Here the first nested list [(argu-1) ... (argu-i)] corresponds to all
-; arguments with the color red (redargs) the next is orange (orangeargs),
-; all the way till turquoise and then the last list (argulist):
-; [(argu-i)... (argu-n)] will be a list of all arguments.
-to-report convert-arglist-long-to-wide [longarglist]
-  let redargs []
-  let orangeargs []
-  let brownargs []
-  let yellowargs []
-  let greenargs []
-  let limeargs []
-  let turquoiseargs []
-  let argulist []
-  foreach longarglist [ [colorarg] ->
-    let curargu item 0 colorarg
-    let curcolor item 1 colorarg
-    set argulist lput curargu argulist
-    if curcolor = 15 [
-      set redargs lput curargu redargs
-    ]
-    if curcolor = 25 [
-      set orangeargs lput curargu orangeargs
-    ]
-    if curcolor = 35 [
-      set brownargs lput curargu brownargs
-    ]
-    if curcolor = 45 [
-      set yellowargs lput curargu yellowargs
-    ]
-    if curcolor = 55 [
-      set greenargs lput curargu greenargs
-    ]
-    if curcolor = 65 [
-      set limeargs lput curargu limeargs
-    ]
-    if curcolor = 75 [
-      set turquoiseargs lput curargu turquoiseargs
-    ]
-  ]
-  set argulist remove-duplicates argulist
-  let widearglist (list redargs orangeargs brownargs yellowargs greenargs limeargs turquoiseargs argulist)
-  report widearglist
-end
-
-
-; this procedure is the reverse procedure to convert-arglist-long-to-wide.
-; It takes a argument list in the wide format as produced by the long-to-wide
-; procedure and transforms it back into a long-list i.e. the format where
-; each argument has it's color right with it's entry: 
-; [[(argu-1) color-1] ... [(argu-n) color-n]]
-; The output will contain each argument only once with the the most
-; researched color (i.e. the lowest color value)
-to-report convert-arglist-wide-to-long [widearglist]
-  let redargs item 0 widearglist
-  let orangeargs item 1 widearglist
-  let brownargs item 2 widearglist
-  let yellowargs item 3 widearglist
-  let greenargs item 4 widearglist
-  let limeargs item 5 widearglist
-  let turquoiseargs item 6 widearglist
-  let argulist item 7 widearglist
-  let longarglist []
-  foreach argulist
-  [ [argu] ->
-    ifelse member? argu redargs [
-      set longarglist lput list argu 15 longarglist
-    ][
-      ifelse member? argu orangeargs [
-        set longarglist lput list argu 25 longarglist
-      ][
-        ifelse member? argu orangeargs [
-          set longarglist lput list argu 35 longarglist
-        ][
-          ifelse member? argu orangeargs [
-            set longarglist lput list argu 45 longarglist
-          ][
-            ifelse member? argu orangeargs [
-              set longarglist lput list argu 55 longarglist
-            ][
-              ifelse member? argu orangeargs [
-                set longarglist lput list argu 65 longarglist
-              ][
-                set longarglist lput list argu 75 longarglist
-              ]
-            ]
-          ]
-        ]
-      ]
-    ]
-  ] 
-  report longarglist
-end
-
-
-
-
-
-
 ; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
 ; The memory management is comprised of two parts:
@@ -243,15 +68,22 @@ end
 
 
 
-; procedure in which researchers share their memory with other researchers
-; from their collaborator-network (=group)
-to share-with-others
-  foreach colla-networks [ [?1] ->
+; intra-group sharing: researchers share their memory with other researchers
+; from their collaborator-network (=group).
+; The memory update is twofold (cf. update-memories)
+; (a) the agentset which contains the arguments / relations themselves and
+; (b) the information saved within the arguments /relations on how the item is 
+; remembered by the group
+; For arguments (b) has already been done during `update-memories` so only (a)
+; needs to be performed, while for relations (=attacks) both (a) + (b) will be
+; performed
+to share-with-group
+  foreach colla-networks [ [cur-group] ->
+    ; after the information has been combined by the grp-share-researcher the
+    ; other group members copy that information into their own memory
     let group-sharing-done false
     let grp-share-researcher []
-    let cur-group ?1
-    foreach cur-group [ [??1] ->
-      let cur-researcher ??1
+    foreach cur-group [ [cur-researcher] ->
       ifelse group-sharing-done [
         ask cur-researcher [
           set rep-researcher false
@@ -259,41 +91,79 @@ to share-with-others
           grp-share-researcher
           set subjective-relations [subjective-relations] of
           grp-share-researcher
+          set to-add-mem-argu no-turtles
+          set to-add-mem-rel no-links
         ]
       ][
+        ; one researcher combines all the information
         set group-sharing-done true
-        set grp-share-researcher cur-researcher
-        ask cur-researcher [
+        set grp-share-researcher cur-researcher        
+        ask cur-researcher [     
+          let cur-group-id group-id        
           ; reset the variables
-          set rep-researcher false
-          set to-add-mem-argu []
-          set to-add-mem-rel []
-
-          ; variables to keep track of the current researchers own memory
-          ; and the combined memory of all the sharing researchers
-          ; let own-memory-argu subjective-arguments
-          ; let own-memory-rel subjective-relations
-          let comb-memory-argu []
-          let comb-memory-rel []
-          ; collaborator network of the current researcher
-          let cur-network collaborator-network
-
+          set rep-researcher false          
+          ; variables to keep track the combined memory of all the sharing
+          ; researchers
+          let comb-memory-argu no-turtles
+          let comb-memory-rel no-links 
+          ; the last rep-researcher of the group integrates the arguments
+          ; learned via this communication into her memory
+          transfer-argu-cache-to-memory     
           ; the information in the memories of the single researchers in
-          ; the network are combined
-          foreach cur-group [ [???1] ->
-            let input-researcher ???1
-            set comb-memory-argu remove-duplicates sentence
-              [subjective-arguments] of input-researcher comb-memory-argu
-            set comb-memory-rel remove-duplicates sentence 
-              [subjective-relations] of input-researcher comb-memory-rel
+          ; the network are combined (a)
+          foreach cur-group [ [input-researcher] ->
+            set comb-memory-argu (turtle-set comb-memory-argu 
+              [to-add-mem-argu] of input-researcher)
+            set comb-memory-rel (link-set comb-memory-rel
+              [to-add-mem-rel] of input-researcher)
           ]
-          ; the group-share-researcher adds the combined memory to its own
-          set subjective-arguments (arg-list-dupl-remover comb-memory-argu)
-          set subjective-relations comb-memory-rel
+          ; (b) is performed for the combined new relations of the group
+          ask comb-memory-rel [
+            set in-group-i-memory replace-item 
+              cur-group-id in-group-i-memory true
+          ]
+          ; the group-share-researcher adds the combined memory to her own
+          ; (a)
+          set subjective-arguments (turtle-set subjective-arguments 
+            comb-memory-argu)
+          set subjective-relations (link-set subjective-relations
+            comb-memory-rel)
+          set to-add-mem-argu no-turtles
+          set to-add-mem-rel no-links
         ]
       ]
     ]
   ]
+end
+
+; the arguments learned from the last inter-group sharing
+; (share-with-other-networks) have been digested and are now merged with the
+; arguments she learned via her own research (update-memories). The memory
+; update is twofold (cf. update-memories)
+; (a) the agentset which contains the arguments themselves and
+; (b) the information saved within the arguments on how the item is 
+; remembered by the group
+to transfer-argu-cache-to-memory
+  let cur-group-id group-id
+  let cached-aguments no-turtles
+  ; the last rep-researcher of the group has arguments she learned in the
+  ; last inter-group communication in her argu-cache
+  ask (turtle-set item cur-group-id colla-networks) with [any? argu-cache] [
+    ; arguments for which the most recent version (=color) is in the
+    ; argu-cache are selected...
+    set cached-aguments argu-cache with [
+      item cur-group-id group-color-mem-cache < 
+      item cur-group-id group-color-mem]
+    ; ...and combined with the other arguments she learned by her own research
+    ; i.e. via update-memories (a)
+    set to-add-mem-argu (turtle-set to-add-mem-argu argu-cache)
+    set argu-cache no-turtles
+  ]
+  ; the argu-cache which is most recent updates the in-argument-memory (b)
+  ask cached-aguments  [      
+    set group-color-mem replace-item cur-group-id group-color-mem 
+      (item cur-group-id group-color-mem-cache)   
+  ]   
 end
 
 
