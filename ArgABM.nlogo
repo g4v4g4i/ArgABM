@@ -779,6 +779,16 @@ Contains the arguments a researcher learned via the `update-memories` procedure,
     * format: link-set
     * example: (agentset, 2 links)
 Contains the relations (= attacks) a researcher learned via the `update-memories` procedure - i.e. relations she learned by conducting her research - or via inter-group communication during `share-with-other-networks`. This information is will be synchronized every week with her group during the `share-with-group` procedure.
+
+  * th-args
+    * format: turtle-set
+    * example: (agentset, 3 turtles)
+Contains the arguments which the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). Those arguments are the one the researcher is currently working on (cf. mygps) as well as all the arguments which are known by her group (cf. group-color-mem) and directly connected to her current argument by a link (either attack or discovery).
+
+  * th-relations
+    * format: link-set
+    * example: (agentset, 1 link)
+Contains all the relations (= attacks) the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). In case of "reliable" social-actions the attacks are all non-gray attacks **to- and from** the argument the researcher is currently working on (cf. mygps), while in the case of "biased" social-actions this will only be the outgoing non-gray attacks **from** her current argument.
   
 
 arguments-own, starts-own:

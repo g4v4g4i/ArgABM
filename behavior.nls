@@ -171,64 +171,41 @@ end
 
 ; procedure in which researchers collect the information from their
 ; memory that they want to share with researchers that do not
-; belong to their own collaborator-network
+; belong to their own collaborator-network (i.e. for inter-group-sharing)
 to create-share-memory
-
   ; for each collaborator-network one researcher is set to be
   ; the representative researcher
-  foreach colla-networks [ [?1] ->
-    ifelse length ?1 > 1 [
-      ask one-of researchers with [member? self ?1][
-        set rep-researcher true
-      ]
-    ][
-      if ticks mod 25 = 4 [
-        ask one-of researchers with [member? self ?1][
-          set rep-researcher true
-      ]
-    ]
+  let rep-researchers no-turtles
+  foreach colla-networks [ [curgroup] ->
+    ask one-of curgroup [
+      set rep-researcher true
+      set rep-researchers (turtle-set rep-researchers self)
     ]
   ]
-
   ; only the representative researchers create a memory
   ; that they want to share with researchers from other networks
-  ask researchers with [rep-researcher][
-    let cur-argum gps  
+  ask rep-researchers [
+    let cur-argum mygps  
     let cur-researcher self
     let cur-th [mytheory] of cur-argum
-    ; create a list of arguments and a list of relations that the researcher
-    ; can share with researchers from other collaborative networks
-    ; what researchers share depends on the "social-action" and "sharing"
-    ; from the interface
-    set th-args []
-    set th-relations []
-
-    ; researchers share only information obtained in the neighborhood
-    ; they are currently working on
-    ; collect the arguments from the researcher's memory
-    ; that belong also to the neighborargs
-    foreach subjective-arguments [ [?1] ->
-      if member? item 0 ?1 [neighborargs] of cur-researcher [
-        set th-args lput ?1 th-args
+    let cur-group-id group-id
+    ; create a set of arguments and a set of relations (= attacks) that the
+    ; researcher can share with researchers from other collaborative networks
+    ; which relations researchers share depends on the "social-action" from the
+    ; interface (cf. infotab: th-relations and th-args)
+    let th-relations-cache no-links
+    let th-args-cache no-turtles
+    ask cur-argum [     
+      set th-args-cache link-neighbors with [
+        color != gray and item cur-group-id group-color-mem != cyan] 
+      ifelse social-actions = "biased" [
+        set th-relations-cache my-out-attacks with [color != gray]        
+      ][
+        set th-relations-cache my-attacks with [color != gray]
       ]
-    ]
-    ; collect the relations from/to the current argument
-    ; from the researcher's memory
-    foreach subjective-relations [ [?1] ->
-      if item 1 ?1 = cur-argum or item 2 ?1 = cur-argum [
-        set th-relations lput ?1 th-relations
-      ]
-    ]
-
-    ; if the researcher behaves biased she does not share the attack relations
-    ; that attack its current theory, these relations are removed
-    if social-actions = "biased"[
-      foreach th-relations [ [?1] ->
-        if item 0 ?1 = "a" and [mytheory] of item 2 ?1 = cur-th [
-          set th-relations remove ?1 th-relations
-        ]
-      ]
-    ]
+    ] 
+    set th-relations th-relations-cache
+    set th-args (turtle-set th-args-cache cur-argum)
   ]
 end
 
