@@ -730,7 +730,42 @@ intra-group sharing: researchers share their memory with other researchers from 
 (b) the information saved within the arguments /relations on how the item is remembered by the group
 For arguments (b) has already been done during `update-memories` so only (a) needs to be performed, while for relations (=attacks) both (a) + (b) will be performed
 
- 
+  * _share-with-other-networks_
+inter-group sharing: representative researchers of the networks share information according to the social structure.
+In  cases where the network structure is de-facto complete i.e. all complete cases + when there are equal or less than 3 groups + when there are equal or less than 4 groups and the structure is not a ‘cycle’ it calls the  subprocedure `inter-group-sharing-complete`, else `inter-group-sharing-default`.
+
+  * _inter-group-sharing-complete_
+The inter-group-sharing (= share-with-other-networks) procedure for de-facto complete networks. The memory update is twofold (cf. update-memories)
+(a) the agentset which contains the arguments / relations themselves and
+(b) the information saved within the arguments /relations on how the item is remembered by the group
+all information gets cached and will be integrated into the group memory during the next intra-group-sharing (= share-with-group) one week later
+1.  The absolute costs each group has to pay to incorporate the information learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 groups). This costvector is initialized with the value 0 for each group and for each information which is new to the group the respective absolute costs will be added to their entry. The i-th entry is the absolute cost the rep-researcher from group i has to pay (cf. group-id and distribute-com-costs).
+2. For each argument the most researched version (= lowest color) will be exchanged: i.e. cached until it is consolidated  into the group memory during the next intra-group-sharing (= share-with-group) one week later cf. infotab group-color-mem-cache.
+3. Each group pays the difference between the version (= color) they know an argument in and the most recent version. For details on the costs cf.  _initialize-hidden-variables_
+4. For each relation (= attack) the researcher didn't know she has to pay the absolute costs of rel-costfactor (cf. infotab `rel-costfactor` and _initialize-hidden-variables_)
+5. The absolute costs are transformed into relative costs (in days) and distributed among the group
+
+  * _inter-group-sharing-default_
+The inter-group-sharing (= share-with-other-networks) procedure for non-complete networks. The memory update is twofold (cf. update-memories)
+(a) the agentset which contains the arguments / relations themselves and
+(b) the information saved within the arguments /relations on how the item is remembered by the group
+all information gets cached and will be integrated into the group memory during the next intra-group-sharing (= share-with-group) one week later
+1. for all arguments the rep-researchers are going to share the cache is updated to contain the most recent version (=color) they know the arguments in (b).
+2. The rep-researcher from the first group in the current share-structure entry is the askresearcher
+3. The askresearcher collects all the information from the other rep-researchers she is to sharing with i.e. the share-researchers from the other groups in her share-structure entry (= the entry where her group is first).
+4. The arguments which are known by the askresearcher in a less recent version (= higher color) are selected
+5. The difference between the more recent color and the less recent one gets added to the absolute communication costs 
+6. The more recent version of the argument gets cached ((a) & (b))
+7. The relations (= attacks) which were unknown to the askresearcher get cached (a)
+8. The absolute communication costs are those paid for the difference to the more recent arguments + (the newly learned relations * rel-costfactor cf. `rel-costfactor`)
+9. The absolute costs are transformed into relative costs (in days) and distributed among the group
+
+  * _distribute-com-costs_
+Distributes the absolute communication costs (com-costs) among the group and transform them into relative costs (in days) which are then saved in the researcher-owned variable `communicating`. 
+The absolute costs are the difference between the information the rep-researcher posessed before vs. after the inter-group-sharing. For details on the costsfunction cf. infotab: initialize-hidden-variables. The researchers have to digest all information within a work-week (= 5 days/ticks) while still reserving one day for doing their own research, which leaves them with 4 days for digesting. The rep researcher herself only has 3 days b/c the day she visits the conference (inter-group-sharing) is also lost. Every day a researcher can digest information of value `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned variable will be set to how many days the researcher will be occupied by digesting information (+ one day in the case of the rep-researchers: the day of visiting the conference itself)
+1. the rep-researcher pays for as much information as she can.
+2. If the (absolute) costs are higher than what she can pay (= 3 * max-learn), the next researcher from her group will be picked and pay for as much of the rest of the communication costs as she can ( = 4 * max-learn). If there are still communication costs left this continues until all researchers of the group have paid the maximum relative costs (= communicating 4 = 4 days) or all communication costs have been paid
+
 
 ## Variables
 
