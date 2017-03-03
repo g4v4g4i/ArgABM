@@ -34,13 +34,13 @@ undirected-link-breed [collaborators collaborator]
 ; when it was fully researched (when it turned red), in which status the
 ; different groups know the argument: actually and potentially (cache) if they
 ; learned this via inter-group communcation
-arguments-own [mytheory current-argument researcher-ticks full-research
+arguments-own [mytheory current-argument researcher-ticks
   group-color-mem group-color-mem-cache]
 
 ; the roots additionally know how many researchers are working on that theory
 ; and keep track on how popular they have been over the course of the run as
 ; well as  how admissible their theory is objectively
-starts-own [mytheory current-start myscientists researcher-ticks full-research
+starts-own [mytheory current-start myscientists researcher-ticks
   research-time-monist research-time-pluralist myscientists-pluralist
   objective-admissibility group-color-mem group-color-mem-cache]
 

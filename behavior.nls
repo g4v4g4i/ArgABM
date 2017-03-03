@@ -570,12 +570,11 @@ end
 
 
 ; reports whether an appropriate researcher (i.e. one that is not digesting
-; information from communication) is present at the position myx myy
+; information from communication) is present at the current position
 ; called by arguments when the landscape is updated
-to-report non-comm-scientists-here [myx myy]
-  ifelse any? researchers with [xcor = myx and ycor = myy 
-    and communicating = 0]
-  or (ticks mod 5 = 0 and any? researchers with [xcor = myx and ycor = myy])[
+to-report non-comm-scientists-here
+  ifelse any? researchers in-radius 0 with [communicating = 0]
+  or (ticks mod 5 = 0 and any? researchers in-radius 0)[
     report true
   ][
     report false
@@ -588,78 +587,57 @@ end
 ; every five time steps the landscape is updated:
 ; new arguments become visible and attacks are discovered
 to update-landscape
-  ask startsargum [
-    let myx xcor
-    let myy ycor
+  ask disc-startsargum-non-red [
+    let cur-argum self
+    let cur-theory mytheory
     ; discoveries only occur when an researcher is working on that argument,
     ; it is the 5th time step or the researcher does not communicate
     ; working on an argument means that the researcher did
-    ; not communicate in that round
-    if non-comm-scientists-here myx myy [
+    ; not digest information from the last inter-group-sharing in that round
+    if non-comm-scientists-here [
       set researcher-ticks researcher-ticks + 1
 
       ; the color of an argument is changed if researchers have been working
       ; on that argument for research-speed time steps
-      if researcher-ticks mod research-speed = 0 and color != red [
+      if researcher-ticks mod research-speed = 0 [
         set color color - 10
-        if color = red [set full-research true]
-      ]
-
-      ; depending on the color a new child-argument is discovered, until all
-      ; child-arguments are discovered
-      if color = yellow and count out-discovery-neighbors with
-        [color = gray or color = turquoise] >= 4 [
-        ask one-of out-discovery-neighbors with
-          [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
+        ; if an argument turns red it is fully discovered
+        ifelse color = red [
+          ; red arguments are removed from the turtle-set 
+          ; disc-startsargum-non-red (cf. infotab disc-startsargum-non-red)
+          set disc-startsargum-non-red other disc-startsargum-non-red
+          full-discovery cur-argum cur-theory
+        ][
+          ; depending on the color a new child-argument is discovered, 
+          ; until all child-arguments are discovered
+          let my-out-disc-neighbor-gt one-of 
+            out-discovery-neighbors with [color = gray or color = turquoise]
+          if my-out-disc-neighbor-gt != nobody [
+            ask my-out-disc-neighbor-gt [
+              set color lime
+              ; new discovered arguments are added to the turtle-set 
+              ; disc-startsargum-non-red (cf. infotab disc-startsargum-non-red)
+              set disc-startsargum-non-red 
+                (turtle-set disc-startsargum-non-red self)
+              ask my-in-discoveries [
+                set color cyan
+              ]
+            ]
           ]
         ]
-      ]
-      if color = brown and count out-discovery-neighbors with
-        [color = gray or color = turquoise] >= 3 [
-        ask one-of out-discovery-neighbors with
-          [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-      if color = orange and count out-discovery-neighbors with
-        [color = gray or color = turquoise] >= 2 [
-        ask one-of out-discovery-neighbors with
-         [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-      if color = red and count out-discovery-neighbors with
-        [color = gray or color = turquoise] >= 1 [
-        ask one-of out-discovery-neighbors with
-          [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-
+      ]      
       ; for arguments that have still undiscovered relations/neighbors and are
       ; not fully researched
-      if ticks mod 5 = 0 and color != red [
+      if ticks mod 5 = 0 [
         let attack-random random-float 1.00
 
         ; with visibility-probability a new attacked/attacking argument is
         ; discovered
         if attack-random < visibility-probability [
-          if any? my-links with [breed = attacks and color = gray][
-            ask one-of my-links with [breed = attacks and color = gray][
-              set color red
-              ask other-end [if color = gray [set color turquoise]]
+          let my-gray-attack one-of my-attacks with [color = gray]
+          if my-gray-attack != nobody [
+            ask my-gray-attack [
+              discover-attack cur-argum cur-theory
             ]
           ]
         ]
@@ -667,60 +645,59 @@ to update-landscape
     ]
     ; if both ends of a discovery relation are discovered
     ; by research, the relation is discovered as well
-    if color != gray [
-      ask my-out-discoveries with [color = gray][
-        if [not member? color [gray turquoise]] of other-end [
-          set color cyan
-        ]
+    ask my-out-discoveries with [color = gray][
+      if [not member? color [gray turquoise]] of other-end [
+        set color cyan
       ]
     ]
   ]
 end
-
-
-
 
 
 ; once an argument is fully researched all its relations to other arguments
-; are discovered as well therefore this procedure makes sure that fully
+; are discovered as well; this procedure makes sure that fully
 ; researched arguments have a fully discovered neighborhood
-to full-discovery
-  ask startsargum with [full-research][
-    let myx xcor
-    let myy ycor
-    if non-comm-scientists-here myx myy [
-
-      ; once an argument is fully researched all its relations,
-      ; attack and discovery, are discovered
-      if any? out-discovery-neighbors with [color = gray or color = turquoise][
-        ask out-discovery-neighbors with [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-
-      ; note that in the case of a discovery via attack relation the other
-      ; argument is not really discovered: it needs to be discovered by a
-      ; discovery relation in the other theory to become lime
-      if any? my-in-attacks with [color = gray][
-        ask my-in-attacks with [color = gray][
-          set color red
-          ask other-end [if color = gray [set color turquoise]]
-        ]
-      ]
-      if any? my-out-attacks with [color = gray][
-        ask my-out-attacks with [color = gray][
-          set color red
-          ask other-end [if color = gray [set color turquoise]]
-        ]
-      ]
+to full-discovery [cur-argum cur-theory]
+  ; once an argument is fully researched all its relations,
+  ; attack and discovery, are discovered
+  ask out-discovery-neighbors with [member? color [gray turquoise]] [
+    set color lime
+    ask my-in-discoveries [
+      set color cyan
     ]
-    set full-research false
+  ]  
+  ask my-attacks with [color = gray] [
+    discover-attack cur-argum cur-theory     
   ]
 end
 
+
+; when an attack is discovered it turns red and gray ends turn turquoise. If 
+; the argument the attack goes to (end2) has any attacks going to the theory 
+; the attack comes from (mytheory-end1) those attacks will no longer be 
+; uncontested (cf. infotab `uncontested`)
+; note that in the case of a discovery via attack relation the other
+; argument is not really discovered: it needs to be discovered by a
+; discovery relation in the other theory to become lime
+to discover-attack [cur-argum cur-theory]
+  set color red
+  let other-end-argum 0
+  let other-theory 0  
+  ask other-end [
+    set other-end-argum self
+    set other-theory mytheory
+    if color = gray [set color turquoise]
+  ]
+  ifelse mytheory-end1 = cur-theory [
+    ask [my-out-attacks with [mytheory-end2 = cur-theory]] of other-end-argum [
+      set uncontested false
+    ]  
+  ][
+    ask [my-out-attacks with [mytheory-end2 = other-theory]] of cur-argum [
+      set uncontested false
+    ]  
+  ]
+end
 
 
 
