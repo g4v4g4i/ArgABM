@@ -673,11 +673,18 @@ If researchers think often enough that they should jump to another theory, often
 - This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
 - Needs also to be integrated into the readme.
 
-## Procedures
+## Setup
 
-### Strategies
+  * _initialize-hidden-variables_
+Procedure in which the variables that are not mentioned in the interface can be set.
+ 1. This determines amount of information learned via intergroup-communication (_share-with-other-networks_)that a researcher can digest each tick. To learn one argument which was unknown before (= cyan = 85) all the way to the highest degree of exploration (= red = 15) costs 70. By default an attack relation costs as much as a full argument (`rel-costfactor`) and researchers can digest three full arguments / relations (= attacks) per day (`max-learn`).
+ 2. only every 5 ticks (= days) researchers move with full move-probability during the _move-around_ procedure. In between the move-probability is lower by the factor `small-movement` i.e. by default they move only with 1/5 th of the move probability on the days in between.
+ 3. During the _move-around_ procedure the move probability is influenced by the color of the argument a researcher is standing on (`color-move`). The further researched an argument is (= lower color) the higher the move-probability is. Researchers move if 
+ `move-random < move-probability * (1 - ([color] of myargu / color-move))` where `move-random` is a random float on the interval [0,1] and myargu is the argument the researcher is currently standing/working on.
 
-* _admissibility-calc-core_
+## Strategies
+
+  * _admissibility-calc-core_
 The core of the admissibility calculation procedure. It takes a link-set
 (attackset) for a certain theory (i.e. all attacks which are either
 outgoing or incoming to this theoy) as input and reports the arguments
@@ -699,7 +706,7 @@ are sucessfull attackers during the secondary-attackers phase (cf. also global v
   This repeats until there are no secondary-attackers left or non of the
   left is able to attack successfully anymore.
   
-* _compute-subjective-attacked_
+  * _compute-subjective-attacked_
 procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible/defensible because researcher in a collaborator network share all information with each other only one agent needs to do the defensibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
 
 1. if a researcher of the group already calculated defensibility other group members can copy the results into their memory
@@ -712,17 +719,18 @@ procedure that computes for each collaborator network (= groups) which of the ar
 
 ## Behavior
 
-* _update-memories_ 
+  * _update-memories_ 
 The memory management is comprised of two parts:
 (a) The researchers save arguments and relations in the form of turtle-sets / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu` `to-add-mem-rel`) which will be synchronized every week with the group in the `share-with-group` procedure
 (b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory
 
-*_share-with-group_
+  * _share-with-group_
 intra-group sharing: researchers share their memory with other researchers from their collaborator-network (=group). The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
 For arguments (b) has already been done during `update-memories` so only (a) needs to be performed, while for relations (=attacks) both (a) + (b) will be performed
 
+ 
 
 ## Variables
 
@@ -741,7 +749,7 @@ This variable contains all those those arguments including starts (=startsargum)
   * rel-costfactor
     * format: float
     * default value: 70
-This is a hidden variable which determines how costly it is to learn relations via inter-group communication.
+This is a hidden variable which determines how costly it is to learn relations via inter-group communication cf. _initialize-hidden-variables_
 
 researchers-own:
 
@@ -767,7 +775,7 @@ Contains the number of the group this researcher belongs to. This number is equa
 
   * argu-cache
     * format: turtle-set
-    * example (agentset, 10 turtles)
+    * example: (agentset, 10 turtles)
 Contains the arguments the researcher has learned via inter-group communication(i.e. `share-with-other-networks`) and is currently digesting. This information will be consolidated into her memory one week later during the `share-with-group` procedure.
 
   * to-add-mem-argu

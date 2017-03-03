@@ -28,22 +28,17 @@ end
 
 
 ; procedure in which the variables that are not mentioned
-; in the interface can be set
+; in the interface can be set (cf. infotab initialize-hidden-variables)
 to initialize-hidden-variables
- ; this determines amount of information learned via intergroup communication
- ; that a researcher can digest each tick. To learn one argument which was
- ; unknown before (= cyan = 85) all the way to the highest degree of
- ; exploration (= red = 15) costs 70.  A attack relation costs as much as a
- ; full argument. Researchers can digest three full arguments / 
- ; relations (= attacks) per day
+  ; cf. infotab 1.
   set rel-costfactor 70
   set max-learn (70 * 3)
 
   ; the probability that researchers move every round is
-  ; only small-movement * move-probability
+  ; only small-movement * move-probability (cf. infotab 2.)
   set small-movement 0.2
 
-  ; influence color on move probability
+  ; influence color on move probability (cf. infotab 3.)
   set color-move 200
 end
 
