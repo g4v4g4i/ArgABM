@@ -65,7 +65,7 @@ attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory
 ; inter-group sharing
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
-  th-args th-relations communicating neighborargs moved rep-researcher
+  th-args th-relations communicating moved rep-researcher
   to-add-mem-argu to-add-mem-rel flag-updated-memory
   non-admiss-subj-argu mygps group-id argu-cache]
 
