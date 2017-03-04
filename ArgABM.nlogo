@@ -83,7 +83,8 @@ globals [times-right number-of-theories-many theory-depth-many
   startsargum disc-startsargum-non-red rel-costfactor]
 
 ; includes
-__includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"]
+__includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"
+  "protocol.nls"]
 
 
 ; The setup initializes the landscape and all variables with the values from
@@ -120,7 +121,6 @@ to go
   compute-popularity
   tick
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -490,7 +490,7 @@ BUTTON
 125
 43
 go-stop
-setup\ngo\nwhile [any? arguments with\n  [color != red and\n    [myscientists] of mytheory !=  0]][\n  go\n]
+setup\nwhile [not exit-condition][\n  go\n]
 NIL
 1
 T
@@ -773,6 +773,14 @@ The absolute costs are the difference between the information the rep-researcher
 2. If the (absolute) costs are higher than what she can pay (= 3 * max-learn), the next researcher from her group will be picked and pay for as much of the rest of the communication costs as she can ( = 4 * max-learn). If there are still communication costs left this continues until all researchers of the group have paid the maximum relative costs (= communicating 4 = 4 days) or all communication costs have been paid
 
 
+## Protocol
+
+  * _exit-condition_
+  The exit-condition is a reporter that determines when a given run is considered to be finished. A run is over as soon as there exists one theory which is fully discovered (i.e. has only red arguments). When this happens researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best. This is facilitated by the `final-commands` procedure which is called as soon as  `exit-condition` reports `true` and therefore ends the run. 
+  
+  * _final-commands_
+ As soon as a run is finished (cf. _exit-condition_) researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best.
+
 ## Variables
 
 globals: 
@@ -902,8 +910,6 @@ As with `group-color-mem` this contains the status in which group-i knows argume
     * format: boolean
     * initialization-value: false
 This is a helper variable utilized during the `compute-subjective-attacked` procedure. It will mark whether a certain attack has already been processed during the calculations. For details cf. the procedure itself.
-
-
 
 @#$#@#$#@
 default

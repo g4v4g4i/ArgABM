@@ -1,0 +1,104 @@
+; holds the reporters and procedures needed for the behaviorspace runs
+
+
+
+
+; the exit-condition determines when a given run is considered to be 
+; finished. A run is over as soon as there exists one theory which is fully 
+; discovered (i.e. has only red arguments). When this happens researchers can 
+; one final time jump to a best theory (irrespective of their `theory-jump` 
+; value) if they’re not already on a theory they consider best. This is 
+; facilitated by the `final-commands` procedure which is called as soon as  
+; `exit-condition` reports `true` and therefore ends the run.  
+to-report exit-condition
+  let stop? []
+  ask starts [
+    let curstart self
+    ifelse (any? startsargum with [mytheory = curstart and color != red]) [
+      set stop? lput false stop?
+    ][
+      set stop? lput true stop?
+    ]
+  ]
+  ifelse member? true stop? [
+    final-commands
+    report true
+  ][
+    report false
+  ]
+end
+
+
+; as soon as a run is finished (cf. exit-condition) researchers can one final 
+; time jump to a best theory (irrespective of their `theory-jump` value) if 
+; they’re not already on a theory they consider best.
+to final-commands
+  ask researchers with [not member? [mytheory] of mygps cur-best-th][
+     move-to-nextargu one-of cur-best-th
+     set times-jumped times-jumped + 1
+  ]
+  compute-popularity
+end
+
+
+
+to-report monist-success
+  let popularity []
+  let find-good-m 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [
+    if max popularity = myscientists and max popularity = scientists [
+      set find-good-m 1
+    ]
+  ]
+  report find-good-m
+end
+
+
+
+to-report pluralist-success
+  let popularity []
+  let find-good-p 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [   
+    if max popularity = myscientists [
+      set find-good-p 1
+    ]
+  ]
+  report find-good-p
+end
+
+
+to-report average-jumps
+  let jumps 0
+  let avgjumps 0
+  ask researchers [
+    set jumps times-jumped + jumps
+  ]
+  set avgjumps (jumps / scientists)
+  report avgjumps
+end
+
+
+
+to-report perc-landscape-discoverd
+  let tot-arguments count startsargum
+  let disc-arguments count startsargum with [
+    color != gray and color != turquoise]
+  let perc-disc-argu ((disc-arguments / tot-arguments) * 100)
+  report perc-disc-argu
+end
+
+
+
+to-report perc-best-th-discoverd
+  let tot-best-arguments count startsargum with [mytheory = start 0]
+  let disc-best-arguments count startsargum with [
+    mytheory = start 0 and color != gray and color != turquoise]
+  let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
+  report perc-disc-best-argu
+end
