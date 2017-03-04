@@ -1,21 +1,11 @@
+globals [#moved-prospectively #failed-move-prosp]
+
 ; the procedures that determine
 ; the basic behavior of the researchers:
 ; 1. how they update their memory
 ; 2. how they share information
 ; 3. how they walk around on the landscape
 ; 4. how the landscape is updated
-
-
-; procedure which reports the argument at the current position
-; called by researchers in order to determine the argument they are
-; currently working/standing on
-to-report gps
-  let myx xcor
-  let myy ycor
-  let myargu one-of startsargum with [xcor = myx and ycor = myy]
-  report myargu
-end
-
 
 
 
@@ -365,15 +355,13 @@ end
 ; represents the fact that agents will coordinate with their their
 ; collaborative network (=group) to not to move to an argument where a group
 ; member is already working, in order to keep redundancy of their research low
-to-report group-member-here [curresearcher] 
-  ifelse any? researchers with [
-      xcor = [xcor] of myself and ycor = [ycor] of myself 
-      and member? self [collaborator-network] of curresearcher][
+to-report group-member-here [curresearcher]
+  ifelse any? researchers in-radius 0 with [
+    member? self [collaborator-network] of curresearcher][
     report true
   ][
     report false
   ]
-
 end
 
 
@@ -413,7 +401,7 @@ to move-around
   ask researchers [
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
-      let myargu gps     
+      let myargu mygps     
       ; the researcher owned variable which contains all the non defensible
       ; arguments as a list is written to not-admissible
       let not-admissible non-admiss-subj-argu
@@ -427,78 +415,61 @@ to move-around
       ; a not fully researched non defensible argument,
       ; hence it is only once executed
       if member? myargu not-admissible and not moved [
-
         if not run-find-defense [
           find-defense
           set run-find-defense true
         ]
       ]
-
-      if not moved and (not member? myargu not-admissible or
-        (member? myargu not-admissible and [color] of myargu = red))[
-
+      
+      if not moved and ([color] of myargu = red 
+        or not member? myargu not-admissible)[
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
         ; c) no researcher from the same collaborator-network is working on it
         ; the researcher moves there, with certain probability
-        ifelse any? startsargum with [in-discovery-neighbor? myargu
-          and [not member? color [gray red turquoise]] of self
-          and not group-member-here curresearcher][
+        let nextargu 0
+        ask myargu [
+          set nextargu one-of out-discovery-neighbors with [
+            not member? color [gray red turquoise]
+            and not group-member-here curresearcher]
+        ]
+        ifelse nextargu != nobody [
           let move-random random-float 1.0
-
-
           ; every time step with small-movement of the move-probability
           ; the researcher moves
           ifelse move-random < (small-movement * move-probability *
-            (1 - (color / color-move))) [
-            move-to one-of startsargum with [
-              in-discovery-neighbor? myargu
-              and [not member? color [gray red turquoise]] of self
-              and not group-member-here curresearcher]
-            set moved true
+            (1 - ([color] of myargu / color-move))) [
+            move-to-nextargu nextargu
           ][
 
             ; every 5th time step the researcher mover with the full
             ; move-probability, that depends a bit on the color
             if ticks != 0 and ticks mod 5 = 0 and move-random <
-              move-probability * (1 - (color / color-move)) [
-              move-to one-of startsargum with [
-                in-discovery-neighbor? myargu
-                and [not member? color [gray red turquoise]] of self
-                and not group-member-here curresearcher]
-              set moved true
+              move-probability * (1 - ([color] of myargu / color-move)) [
+              move-to-nextargu nextargu
             ]
           ]
         ][
-
-          ; if there is no next argument and the current argument is
-          ; fully researched, the researcher moves a step back
-          ifelse [color] of myargu = red 
-            and any? startsargum with 
-            [[not member? color [gray turquoise]] of self
-            and out-discovery-neighbor? myargu and not group-member-here
-            curresearcher][
-            move-to one-of startsargum with [ 
-            [not member? color [gray turquoise]] of self
-            and out-discovery-neighbor? myargu
-            and not group-member-here curresearcher]
-            set moved true
-          ][
-
-            ; if moving back is not possible, she jumps to another argument in
-            ; the same tree/theory that is discovered but not fully researched
-            if [color] of myargu = red [
+          if [color] of myargu = red [
+            ; if there is no next argument and the current argument is
+            ; fully researched, the researcher moves a step back
+            ask myargu [set nextargu one-of in-discovery-neighbors with [
+              not member? color [gray turquoise]
+              and not group-member-here curresearcher]
+            ]
+            ifelse nextargu != nobody [
+              move-to-nextargu nextargu
+            ][
+              ; if moving back is not possible, she jumps to another argument 
+              ; in the same tree/theory that is discovered but not fully 
+              ; researched
               let askstart [mytheory] of myargu
-              if any? startsargum with [
-                [not member? color [gray red turquoise]] of self
-                and mytheory = askstart 
-                and not group-member-here curresearcher][
-                move-to one-of startsargum with [
-                  [not member? color [gray red turquoise]] of self
-                  and mytheory = askstart
-                  and not group-member-here curresearcher]
-                set moved true
+              set nextargu one-of disc-startsargum-non-red with [
+                mytheory = askstart                       
+                and not group-member-here curresearcher]
+              if nextargu != nobody [ 
+                move-to-nextargu nextargu        
               ]
             ]
           ]
@@ -522,39 +493,48 @@ end
 ; branch further away
 to find-defense
   ask researchers with [not moved][
-    let curresearcher self
+    let curresearcher self    
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
-      let myargu gps
-      ; lists of arguments that are not admissible
+      let myargu mygps
+      let cur-th [mytheory] of myargu
+      let cur-group-id group-id
+      ; set of arguments that are not admissible
       let not-admissible non-admiss-subj-argu
       
       ; if the current argument is not fully researched and not admissible
       ; and it is a 5th time step or the researcher is not communicating
       ; the researcher tries to move prospectively to a child-argument of the
       ; current argument that provides a defense for the current argument
-      if member? myargu not-admissible [
+      if member? myargu not-admissible [       
         ask myargu [
           ask my-in-attacks [
             ; check to prevent the researcher from searching for further
             ; defender-childs (nextargu) when she already has moved to one
             if not [moved] of curresearcher [
               ask end1 [
-              ; create a set of arguments that provide a defense for the 
-              ; current argument, these:
-              ; a) attack the attacker of the current argument;
-              ; b) are a child-argument of the current argument;
-              ; c) are discovered; and
-              ; d) no researcher from the same group is working on it
-                let nextargu in-attack-neighbors with [in-discovery-neighbor?
-                  myargu
-                  and [not member? color [gray red turquoise]] of self
-                  and not group-member-here curresearcher]
-                ; if such an argument exists the researcher moves there
-                ; and cannot move anymore this time step
-                if any? nextargu [
+              ; pick one of the arguments that provide a defense for the 
+              ; current argument, this argument:
+              ; a) attacks the attacker of the current argument;
+              ; b) is from the same theory as the curresearcher is working on
+              ; c) is an argument which is known to the researcher;
+              ; d) is discovered and not fully researched (= red); and
+              ; e) has no researcher from the same group working on it
+                let nextargu one-of in-attack-neighbors with [ ; (a)
+                  mytheory = cur-th ; (b)
+                  and item cur-group-id group-color-mem != cyan ; (c)
+                  and not member? color [gray red turquoise] ; (d)
+                  and not group-member-here curresearcher ; (e)
+                ]
+                ifelse nextargu != nobody [
                   ask curresearcher [
-                    move-to one-of nextargu
-                    set moved true
+                    if [mytheory] of [mygps] of curresearcher = (start 0) [
+                      set #moved-prospectively #moved-prospectively + 1
+                    ]
+                    move-to-nextargu nextargu
+                  ]
+                ][
+                  if [mytheory] of [mygps] of curresearcher = (start 0) [
+                    set #failed-move-prosp #failed-move-prosp + 1
                   ]
                 ]
               ]
