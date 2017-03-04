@@ -414,11 +414,9 @@ to move-around
       ; the find-defense runs immediately for all researchers working on 
       ; a not fully researched non defensible argument,
       ; hence it is only once executed
-      if member? myargu not-admissible and not moved [
-        if not run-find-defense [
-          find-defense
-          set run-find-defense true
-        ]
+      if not run-find-defense and not moved and member? myargu not-admissible [
+        find-defense
+        set run-find-defense true
       ]
       
       if not moved and ([color] of myargu = red 
