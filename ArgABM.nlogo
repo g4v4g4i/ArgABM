@@ -99,23 +99,25 @@ end
 ; researchers always move around and update the landscape (with the
 ; probabilities as set in the interface)
 to go
-  update-memories
   if ticks mod 5 = 4 [
-		share-with-others
-		create-share-memory
-		share-with-other-networks
-		compute-time-costs
-		compute-subjective-attacked
-		compute-strategies
+    ask researchers [
+      update-memories
+    ]
+    share-with-group
+    create-share-memory
+    share-with-other-networks
+    compute-subjective-attacked
     act-on-strategies
   ]
   move-around
   update-landscape
-	full-discovery
-	if ticks mod 5 != 0 [
-		communication-regress
-	]
-  compute-popularity
+  ask researchers [
+    set flag-updated-memory false
+  ]
+  if ticks mod 5 != 0 [
+    communication-regress
+  ]
+  compute-popularity  
   tick
 end
 
