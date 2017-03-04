@@ -117,10 +117,9 @@ to go
   if ticks mod 5 != 0 [
     communication-regress
   ]
-  compute-popularity  
+  compute-popularity
   tick
 end
-
 
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -240,7 +239,7 @@ scientists
 scientists
 5
 100
-50.0
+100.0
 5
 1
 NIL
@@ -429,7 +428,7 @@ SWITCH
 318
 within-theory
 within-theory
-1
+0
 1
 -1000
 
@@ -722,9 +721,14 @@ procedure that computes for each collaborator network (= groups) which of the ar
 ## Behavior
 
   * _update-memories_ 
+Researchers will update their memory every week right before the sharing with other researchers (intra- and inter-group-sharing) takes place. In between researchers will update their memory if needed, i.e. if they move. For this _update-memories_ will be called by the _move-to-nextargu_ procedure.
 The memory management is comprised of two parts:
 (a) The researchers save arguments and relations in the form of turtle-sets / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu` `to-add-mem-rel`) which will be synchronized every week with the group in the `share-with-group` procedure
-(b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory
+(b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory. 
+
+  * _move-to-nextargu_
+Procedure which is called by researchers when they move (to nextargu). It makes sure that the researcher has an updated memory of her surrounding before moving by calling _update-memories_.
+Then `mygps` (cf. Variables) - i.e. the argument she is working on - will be set to her new destination ( = nextargu). 
 
   * _share-with-group_
 intra-group sharing: researchers share their memory with other researchers from their collaborator-network (=group). The memory update is twofold (cf. update-memories)
@@ -843,62 +847,61 @@ arguments-own, starts-own:
     * example: [85 85 65 15]
 Contains the status in which group-i knows the argument in. 85 (= cyan) corresponds to the group not knowing the argument at all. The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the argument while group 2 knows it as lime and group 3 as red.
 
-* group-color-mem-cache
-  * format: list
-  * example: [85 85 65 15]
+  * group-color-mem-cache
+    * format: list
+    * example: [85 85 65 15]
 This is the same format as `group-color-mem`. It is used to cache information which researchers learned via inter-group communication and are currently digesting. This information will be consolidated into `group-color-mem` one week later during the `share-with-group` procedure.
 
 Additionally starts-own:
 
-* research-time-monist
-  * format: integer
-  * example: 3200
+  * research-time-monist
+    * format: integer
+    * example: 3200
 This is the amount of time researchers spent so far on this theory. Every tick during the `compute-popularity` procedure the starts check for the number of researchers on their theory and increase their `research-time-monist` value by this number.
 
-* research-time-pluralist
-  * format: float
-  * example: 2000.51
+  * research-time-pluralist
+    * format: float
+    * example: 2000.51
 This is how long and by how many researchers the theory has been considered to be among the best theories (this is basicially an integral over `myscientists-pluralists`). Each tick this theory is considered to be best by a particular researcher this counter will increase by one. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher. This is done by the `compute-popularity` procedure.
 
-* myscientists-pluralist
-  * format: integer
-  * example: 100
+  * myscientists-pluralist
+    * format: integer
+    * example: 100
 How many researchers currently cosider this theory to be a best theory. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher.
 
-* objective-admissibility
-  * format: integer
-  * example: 85
+  * objective-admissibility
+    * format: integer
+    * example: 85
 This is how many admissible arguments this theory has. The best theory always has full admissibility which corresponds e.g. in the case of theory-depth 3 to a number of 85. This is calculated at the beginning of the run during the setup.
 
 
 attacks-own
 
-* mytheory-end1
-  * format: turtle
-  * example: (start 0)
+  * mytheory-end1
+    * format: turtle
+    * example: (start 0)
 This is the mytheory value of end1 of the attack relation i.e. the theory this attack is attacking from.
 
-* mytheory-end2
-  * format: turtle
-  * example: (start 85)
+  * mytheory-end2
+    * format: turtle
+    * example: (start 85)
 This is the mytheory value of end2 of the attack relation i.e. the theory which will be attacked by this attack. 
 
-* uncontested
-  * format: boolean
-  * initialization value: true
+  * uncontested
+    * format: boolean
+    * initialization value: true
 Tracks whether this attack relations startargument (end1) has a discovered (= red) attack from the theory this attack is attacking incoming. If this is not the case the attack is uncontested and is guaranteed to be successful. This value is updated during the `update-landscape` procedure and used during the `compute-subjective-attacked` procedure.
 
 
-* in-group-i-memory
-  * format: list of booleans
-  * example: [true true false]
-As with `group-color-mem` this contains the status in which group-i knows argument (i.e. if they know it (= true) or not =(false)). The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the attack while group 2 knows it.
+  * in-group-i-memory
+    * format: list of booleans
+    * example: [true true false]
+As with `group-color-mem` this contains the status in which group-i knows argument i.e. if they know it (= true) or not (= false). The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the attack while group 2 knows it.
 
-* processed?
-  * format: boolean
-  * initialization-value: false
+  * processed?
+    * format: boolean
+    * initialization-value: false
 This is a helper variable utilized during the `compute-subjective-attacked` procedure. It will mark whether a certain attack has already been processed during the calculations. For details cf. the procedure itself.
-
 
 
 

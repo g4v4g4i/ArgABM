@@ -365,10 +365,11 @@ to-report group-member-here [curresearcher]
 end
 
 
-; procedure which is called by researchers when they move (to nextargu). It
-; makes sure that the researcher has an updated memory of her surrounding
-; before moving and updates the argument she's working on 
-; (mygps - cf. infotab) to the argument she's moving to
+; procedure which is called by researchers when they move (to nextargu). It 
+; makes sure that the researcher has an updated memory of her surrounding 
+; before moving by calling `update-memories`.
+; Then `mygps` (cf. Infotab - Variables) - i.e. the argument she is working 
+; on - will  be set to her new destination ( = nextargu)
 to move-to-nextargu [nextargu]
   if not flag-updated-memory [ 
     update-memories
