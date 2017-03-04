@@ -65,7 +65,6 @@ to create-discovery-landscape [numberoftheories theorydepth]
       set color lime
       set current-start true
       set mytheory self
-      set full-research false
       set group-color-mem group-colors-list
       set group-color-mem-cache group-colors-list
       set startsargum (turtle-set startsargum self)
@@ -79,7 +78,6 @@ to create-discovery-landscape [numberoftheories theorydepth]
         set color gray
         set current-argument true
         set mytheory one-of starts with [current-start]
-        set full-research false
         set group-color-mem group-colors-list
         set group-color-mem-cache group-colors-list
         set startsargum (turtle-set startsargum self)

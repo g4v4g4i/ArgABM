@@ -129,7 +129,7 @@ to set-current-theory-info [#non-admiss-argu-th]
   let i 0
   foreach current-theory-info [[curitem] ->
     let curtheory item 0 curitem
-    let number-adm-argu (count subj-argu-as with [mytheory = curtheory]
+    let number-adm-argu (count subjective-arguments with [mytheory = curtheory]
       - item i #non-admiss-argu-th)
     set current-theory-info replace-subitem i 1 current-theory-info
     number-adm-argu
@@ -195,7 +195,7 @@ to act-on-strategies
         let ch-best one-of cur-best-th        
         ; if one of the arguments from the best theory is in her memory
         ; the researcher will jump there
-        let nextargu one-of subj-argu-as with [
+        let nextargu one-of subjective-arguments with [
           mytheory = ch-best 
           and color != turquoise]
         ifelse nextargu != nobody [
