@@ -449,11 +449,10 @@ end
 ; computations for the Popularity plot and the reporters in behaviorspace runs
 ; it computes for every theory the number of researchers working on it
 ; (myscientists) and how many researchers consider a theory to be among the
-; best (myscientists-pluralist). This values are calculated every tick and
-; added up in their respective global variables:
-; research-time-monist/pluralist. For details cf. infotab
+; best (myscientists-pluralist). This values are added up in their respective 
+; global variables: research-time-monist/pluralist. For details cf. infotab
 to compute-popularity
-  ; initialize the variable at 0
+  ; initialize the variables at 0
   ask starts [ 
     set myscientists 0
     if ticks mod 5 = 4 [
@@ -461,40 +460,56 @@ to compute-popularity
     ]
   ]
   ask researchers [
-    ; set myargu to the the argument the current researcher is investigating
+  ; cf infotab 1.
     let curresearcher self
     let myargu mygps
     let mystart [mytheory] of myargu
 
-    ; the myscientists variable of the theory the researcher
-    ; is working on is increased by one
+    ; cf infotab 2.
     ask mystart [
       set myscientists myscientists + 1
     ]    
   ]
+  ; cf. infotab 3.
   if ticks mod 5 = 4 [
-    foreach colla-networks [[curgroup] ->
-      ask one-of (turtle-set curgroup) with [not rep-researcher][
+    foreach colla-networks [ [curgroup] ->
+      let curgroup-as (turtle-set curgroup)
+      ask one-of curgroup-as with [not rep-researcher][
         let curresearcher self
-        foreach cur-best-th [[curstart] ->
+        foreach cur-best-th [ [curstart] ->
           ask curstart [
-            ; if multiple theories are considered best the group will
-            ; contribute their group size (= 5) divided by number of theories
-            ; they consider best to the myscientists-pluralist counter
+            ; cf. infotab 4.
             set myscientists-pluralist (myscientists-pluralist 
-              + 5 / length [cur-best-th] of curresearcher)
+              + 4 / length [cur-best-th] of curresearcher)
           ]
         ] 
       ]
+      ask one-of curgroup-as with [rep-researcher] [
+        let curresearcher self
+        ifelse cur-best-th != 0 [
+          foreach cur-best-th [ [curstart] ->
+            ask curstart [
+              ; cf. infotab 5.
+              set myscientists-pluralist (myscientists-pluralist 
+                + 1 / length [cur-best-th] of curresearcher)
+            ]
+          ]
+        ][
+          ; cf. infotab 6.
+          ask [mytheory] of mygps [
+            set myscientists-pluralist (myscientists-pluralist + 1)
+          ]
+        ]
+      ]
     ]
   ]
+  ; cf. infotab 6.
   if ticks = 0 [
     ask starts [
       set myscientists-pluralist count researchers in-radius 0
     ]
   ]
-  ; The values are added up in their respective global variables:
-  ; research-time-monist/pluralist. For details cf. infotab
+  ; cf. infotab 7.
   ask starts [
     set research-time-monist research-time-monist + myscientists
     set research-time-pluralist research-time-pluralist 

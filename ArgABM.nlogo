@@ -682,6 +682,17 @@ Procedure in which the variables that are not mentioned in the interface can be 
  2. only every 5 ticks (= days) researchers move with full move-probability during the _move-around_ procedure. In between the move-probability is lower by the factor `small-movement` i.e. by default they move only with 1/5 th of the move probability on the days in between.
  3. During the _move-around_ procedure the move probability is influenced by the color of the argument a researcher is standing on (`color-move`). The further researched an argument is (= lower color) the higher the move-probability is. Researchers move if 
  `move-random < move-probability * (1 - ([color] of myargu / color-move))` where `move-random` is a random float on the interval [0,1] and myargu is the argument the researcher is currently standing/working on.
+ 
+  * _compute-popularity_
+  Computations for the Popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables). 
+  1.  mystart is the theory the current researcher is investigating
+  2. For each researcher the myscientists variable of the theory this researcher is working on is increased by one
+  3. The `myscientists-pluralist` variable (cf. Variables) is updated. As all members of a group (except for the rep-researcher) have the same best theories it suffices if one of the non rep-researchers and the rep-researcher are doing this update  
+  4. If multiple theories are considered best the group will contribute their group size without the rep-researcher (= 4) divided by (number of theories they consider best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist)
+  5. If multiple theories are considered best the rep-researcher of the group will contribute one divided by (number of theories she considers best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist) 
+  6. As long as researchers haven't done any admissibility calculations it is assumed that they think the theory they're currently working on is the single best theory
+  7. The values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables)
+  
 
 ## Strategies
 
@@ -870,12 +881,12 @@ This is the amount of time researchers spent so far on this theory. Every tick d
   * research-time-pluralist
     * format: float
     * example: 2000.51
-This is how long and by how many researchers the theory has been considered to be among the best theories (this is basicially an integral over `myscientists-pluralists`). Each tick this theory is considered to be best by a particular researcher this counter will increase by one. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher. This is done by the `compute-popularity` procedure.
+This is how long and by how many researchers the theory has been considered to be among the best theories (i.e. it is a time integral over `myscientists-pluralists`). Each tick this theory is considered to be best by a particular researcher this counter will increase by one. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher. This is done by the `compute-popularity` procedure.
 
   * myscientists-pluralist
-    * format: integer
-    * example: 100
-How many researchers currently cosider this theory to be a best theory. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher.
+    * format: float
+    * example: 74.5
+How many researchers currently cosider this theory to be a best theory. If there is more than one best theory in the memory of a particular researcher the start will count this researcher as adding 1 / (number of best theories) to its `myscientists-pluralist` counter. This is done by the `compute-popularity` procedure.
 
   * objective-admissibility
     * format: integer
