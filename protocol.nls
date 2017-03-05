@@ -102,3 +102,69 @@ to-report perc-best-th-discoverd
   let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
   report perc-disc-best-argu
 end
+
+; reports the objective admissibility of th#
+to-report objective-admiss-of [th#]  
+  let objective-admiss-ap [[] -> objective-admissibility]
+  if th# = "th1" [
+    set th# item 0 sort starts
+  ]
+  if th# = "th2" [
+    set th# item 1 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 3 [
+    set th# item 2 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 2 [
+    set th# item 0 sort starts
+    set objective-admiss-ap [[] -> 0]
+  ]
+  report [runresult objective-admiss-ap] of th#  
+end
+
+; reports time researchers spent on th#: 
+; "monist" - cf. `research-time-monist`
+; or time researchers considered theory th# to be a best theory:
+; "pluralist" - cf. `research-time-pluralist`
+to-report research-time [pluralist-monist th#]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [[] -> research-time-monist]
+  ][
+    set pluralist-monist [[] -> research-time-pluralist]
+  ]
+  if th# = "th1" [
+    set th# item 0 sort starts
+  ]
+  if th# = "th2" [
+    set th# item 1 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 3 [
+    set th# item 2 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 2 [
+    set th# item 0 sort starts
+    set pluralist-monist [[] -> 0]
+  ]  
+  report [runresult pluralist-monist] of th#
+end
+
+; This metric tracks how well researchers perform during a run as opposed to 'at the 
+; end' - and therefore also after - a run like the `pluralist-/monist-success` 
+; metric does. It also takes the objective admissibility of the landscape into 
+; account and is normalized to a [0,100] interval where 100 corresponds to the best 
+; performance. For details cf. infotab
+to-report in-run-performance [pluralist-monist]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [[] -> research-time-monist]
+  ][
+    set pluralist-monist [[] -> research-time-pluralist]
+  ]
+  let performance 0
+  ask starts [
+    set performance (performance 
+      + runresult pluralist-monist * objective-admissibility)
+  ]  
+  set performance ((performance * 100) / (scientists * 
+  (ticks + 1) * [objective-admissibility] of first sort starts))
+  report performance
+end

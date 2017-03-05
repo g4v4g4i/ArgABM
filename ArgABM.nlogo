@@ -680,19 +680,19 @@ If researchers think often enough that they should jump to another theory, often
 Procedure in which the variables that are not mentioned in the interface can be set.
  1. This determines amount of information learned via intergroup-communication (_share-with-other-networks_)that a researcher can digest each tick. To learn one argument which was unknown before (= cyan = 85) all the way to the highest degree of exploration (= red = 15) costs 70. By default an attack relation costs as much as a full argument (`rel-costfactor`) and researchers can digest three full arguments / relations (= attacks) per day (`max-learn`).
  2. only every 5 ticks (= days) researchers move with full move-probability during the _move-around_ procedure. In between the move-probability is lower by the factor `small-movement` i.e. by default they move only with 1/5 th of the move probability on the days in between.
- 3. During the _move-around_ procedure the move probability is influenced by the color of the argument a researcher is standing on (`color-move`). The further researched an argument is (= lower color) the higher the move-probability is. Researchers move if 
+ 3. During the _move-around_ procedure the move probability is influenced by the color of the argument a researcher is standing on (`color-move`). The further researched an argument is (= lower color) the higher the move-probability is. Researchers move if
  `move-random < move-probability * (1 - ([color] of myargu / color-move))` where `move-random` is a random float on the interval [0,1] and myargu is the argument the researcher is currently standing/working on.
- 
+
   * _compute-popularity_
-  Computations for the Popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables). 
+  Computations for the Popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
   1.  mystart is the theory the current researcher is investigating
   2. For each researcher the myscientists variable of the theory this researcher is working on is increased by one
-  3. The `myscientists-pluralist` variable (cf. Variables) is updated. As all members of a group (except for the rep-researcher) have the same best theories it suffices if one of the non rep-researchers and the rep-researcher are doing this update  
+  3. The `myscientists-pluralist` variable (cf. Variables) is updated. As all members of a group (except for the rep-researcher) have the same best theories it suffices if one of the non rep-researchers and the rep-researcher are doing this update
   4. If multiple theories are considered best the group will contribute their group size without the rep-researcher (= 4) divided by (number of theories they consider best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist)
-  5. If multiple theories are considered best the rep-researcher of the group will contribute one divided by (number of theories she considers best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist) 
+  5. If multiple theories are considered best the rep-researcher of the group will contribute one divided by (number of theories she considers best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist)
   6. As long as researchers haven't done any admissibility calculations it is assumed that they think the theory they're currently working on is the single best theory
   7. The values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables)
-  
+
 
 ## Strategies
 
@@ -702,22 +702,22 @@ The core of the admissibility calculation procedure. It takes a link-set
 outgoing or incoming to this theoy) as input and reports the arguments
 which are successfully attacked i.e. non-admissible as a turtle-set
 processed? is a boolean dummy variable which marks arguments which have
-are sucessfull attackers during the secondary-attackers phase (cf. also global variables). 
+are sucessfull attackers during the secondary-attackers phase (cf. also global variables).
 
 1. take the attacks which are themselves uncontested (cf. infotab) in  the objective landscape. The destination of this attacks will be non-admissible and attacks coming from there are void.
 
 2. the attacks which are not uncontested but also were not rendered void by
   the prime attackers form the secondary-attackers link-set. If they don't
   have any incoming attack from the secondary-attackers themselves their
-  attack is successfull 
-  
- 3. Of those secondary-attackers which were successfull, the destination 
+  attack is successfull
+
+ 3. Of those secondary-attackers which were successfull, the destination
   (= end2) gets added to the non-admissible turtle-set and attacks
   starting from there are rendered void and are therefore removed from
   the set. Then the successfull secondary attacks themselves are removed.
   This repeats until there are no secondary-attackers left or non of the
   left is able to attack successfully anymore.
-  
+
   * _compute-subjective-attacked_
 procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible/defensible because researcher in a collaborator network share all information with each other only one agent needs to do the defensibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
 
@@ -731,15 +731,15 @@ procedure that computes for each collaborator network (= groups) which of the ar
 
 ## Behavior
 
-  * _update-memories_ 
+  * _update-memories_
 Researchers will update their memory every week right before the sharing with other researchers (intra- and inter-group-sharing) takes place. In between researchers will update their memory if needed, i.e. if they move. For this _update-memories_ will be called by the _move-to-nextargu_ procedure.
 The memory management is comprised of two parts:
 (a) The researchers save arguments and relations in the form of turtle-sets / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu` `to-add-mem-rel`) which will be synchronized every week with the group in the `share-with-group` procedure
-(b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory. 
+(b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory.
 
   * _move-to-nextargu_
 Procedure which is called by researchers when they move (to nextargu). It makes sure that the researcher has an updated memory of her surrounding before moving by calling _update-memories_.
-Then `mygps` (cf. Variables) - i.e. the argument she is working on - will be set to her new destination ( = nextargu). 
+Then `mygps` (cf. Variables) - i.e. the argument she is working on - will be set to her new destination ( = nextargu).
 
   * _share-with-group_
 intra-group sharing: researchers share their memory with other researchers from their collaborator-network (=group). The memory update is twofold (cf. update-memories)
@@ -771,14 +771,14 @@ all information gets cached and will be integrated into the group memory during 
 2. The rep-researcher from the first group in the current share-structure entry is the askresearcher
 3. The askresearcher collects all the information from the other rep-researchers she is to sharing with i.e. the share-researchers from the other groups in her share-structure entry (= the entry where her group is first).
 4. The arguments which are known by the askresearcher in a less recent version (= higher color) are selected
-5. The difference between the more recent color and the less recent one gets added to the absolute communication costs 
+5. The difference between the more recent color and the less recent one gets added to the absolute communication costs
 6. The more recent version of the argument gets cached ((a) & (b))
 7. The relations (= attacks) which were unknown to the askresearcher get cached (a)
 8. The absolute communication costs are those paid for the difference to the more recent arguments + (the newly learned relations * rel-costfactor cf. `rel-costfactor`)
 9. The absolute costs are transformed into relative costs (in days) and distributed among the group
 
   * _distribute-com-costs_
-Distributes the absolute communication costs (com-costs) among the group and transform them into relative costs (in days) which are then saved in the researcher-owned variable `communicating`. 
+Distributes the absolute communication costs (com-costs) among the group and transform them into relative costs (in days) which are then saved in the researcher-owned variable `communicating`.
 The absolute costs are the difference between the information the rep-researcher posessed before vs. after the inter-group-sharing. For details on the costsfunction cf. infotab: initialize-hidden-variables. The researchers have to digest all information within a work-week (= 5 days/ticks) while still reserving one day for doing their own research, which leaves them with 4 days for digesting. The rep researcher herself only has 3 days b/c the day she visits the conference (inter-group-sharing) is also lost. Every day a researcher can digest information of value `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned variable will be set to how many days the researcher will be occupied by digesting information (+ one day in the case of the rep-researchers: the day of visiting the conference itself)
 1. the rep-researcher pays for as much information as she can.
 2. If the (absolute) costs are higher than what she can pay (= 3 * max-learn), the next researcher from her group will be picked and pay for as much of the rest of the communication costs as she can ( = 4 * max-learn). If there are still communication costs left this continues until all researchers of the group have paid the maximum relative costs (= communicating 4 = 4 days) or all communication costs have been paid
@@ -786,15 +786,40 @@ The absolute costs are the difference between the information the rep-researcher
 
 ## Protocol
 
-  * _exit-condition_
-  The exit-condition is a reporter that determines when a given run is considered to be finished. A run is over as soon as there exists one theory which is fully discovered (i.e. has only red arguments). When this happens researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best. This is facilitated by the `final-commands` procedure which is called as soon as  `exit-condition` reports `true` and therefore ends the run. 
-  
-  * _final-commands_
+### _exit-condition_
+  The exit-condition is a reporter that determines when a given run is considered to be finished. A run is over as soon as there exists one theory which is fully discovered (i.e. has only red arguments). When this happens researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best. This is facilitated by the `final-commands` procedure which is called as soon as  `exit-condition` reports `true` and therefore ends the run.
+
+### _final-commands_
  As soon as a run is finished (cf. _exit-condition_) researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best.
+
+### _in-run-performance [parameter]_
+  * parameter: "monist" or "pluralist"
+
+This metric tracks how well researchers perform during a run as opposed to 'at the end' - and therefore also after - a run like the `pluralist-/monist-success` metric does. It also takes the objective admissibility of the landscape into account and is normalized to a [0,100] interval where 100 corresponds to the best performance. The metric is calculated by using either the `research-time-monist` ("monist") or `research-time-pluralist` ("pluralist") Variable (cf. Variables). This variable (for each theory) together with their different admissibilities form the basis of the in-run-performance metric.
+
+  * research-time-x is either research-time-monist or research-time-pluralist (cf. Variables) depending on the parameter with which the procedure was called.
+  * th<sub>i</sub>: Theory<sub>i</sub> where i \in {1,2,3}  i.e. there exist up to three theories
+  * researchers: number of researchers in this run
+  * ticks: length of the run in ticks. 
+  Technically it's the number of ticks + 1 b/c final-commands called by the exit condition (cf. final-commands) are adding to the research-time-x counters like an additional tick would.
+  
+  The formula of the in-run-performance metric is:
+  
+100 * Σ<sub>i</sub> (research-time-x-th<sub>i</sub> * objective-admissibility-th<sub>i</sub>)  / (researchers * ticks * objective-admissibility-best-theory)
+
+The denominator corresponds to the best score the researchers could get. This score is the product of the admissibility of the best theory , the length of the run and the number of researchers. 
+The numerator on the other hand is the score the researchers actually archived this run. As the denominator is the maximum score, the whole fraction can take a maximum value of 1 which would be the case when all researchers actually spent all their time on the best theory ("monist") / considered the best theory to be their single subjective best theory for the whole run ("pluralist"). Any deviations from this will lower the score correspondingly. Some examples make this clearer:
+  
+  * If the researchers spend all their time on a theory which only has half the admissibility of the best theory the fraction would be 1/2 ( => in-run-performance = 50 ).
+  * The same would be true if half of the researchers spent all their time on a theory which has an admissibility of 0 while the other half spent their time on the best-th.
+  * If all theories had full admissibility researchers would always get the maximum score (in-run-performance = 100).	
+  * If all researchers spend all their time on a theory which has an admissibility of 0, in-run-performance would be 0.
+
+
 
 ## Variables
 
-globals: 
+globals:
 
   * startsargum
     * format: turtle-set
@@ -857,7 +882,7 @@ Contains the arguments which the rep-researcher from every group will share with
     * format: link-set
     * example: (agentset, 1 link)
 Contains all the relations (= attacks) the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). In case of "reliable" social-actions the attacks are all non-gray attacks **to- and from** the argument the researcher is currently working on (cf. mygps), while in the case of "biased" social-actions this will only be the outgoing non-gray attacks **from** her current argument.
-  
+
 
 arguments-own, starts-own:
 
@@ -876,7 +901,7 @@ Additionally starts-own:
   * research-time-monist
     * format: integer
     * example: 3200
-This is the amount of time researchers spent so far on this theory. Every tick during the `compute-popularity` procedure the starts check for the number of researchers on their theory and increase their `research-time-monist` value by this number.
+This is the amount of time researchers spent so far on this theory. Every tick during the `compute-popularity` procedure the starts check for the number of researchers on their theory and increase their `research-time-monist` value by this number (i.e. this is a time integral over `myscientists`).
 
   * research-time-pluralist
     * format: float
@@ -904,7 +929,7 @@ This is the mytheory value of end1 of the attack relation i.e. the theory this a
   * mytheory-end2
     * format: turtle
     * example: (start 85)
-This is the mytheory value of end2 of the attack relation i.e. the theory which will be attacked by this attack. 
+This is the mytheory value of end2 of the attack relation i.e. the theory which will be attacked by this attack.
 
   * uncontested
     * format: boolean
