@@ -1,5 +1,3 @@
-globals [#moved-prospectively #failed-move-prosp]
-
 ; the procedures that determine
 ; the basic behavior of the researchers:
 ; 1. how they update their memory
@@ -522,18 +520,10 @@ to find-defense
                   mytheory = cur-th ; (b)
                   and item cur-group-id group-color-mem != cyan ; (c)
                   and not member? color [gray red turquoise] ; (d)
-                  and not group-member-here curresearcher ; (e)
-                ]
-                ifelse nextargu != nobody [
+                  and not group-member-here curresearcher] ; (e)                
+                if nextargu != nobody [
                   ask curresearcher [
-                    if [mytheory] of [mygps] of curresearcher = (start 0) [
-                      set #moved-prospectively #moved-prospectively + 1
-                    ]
                     move-to-nextargu nextargu
-                  ]
-                ][
-                  if [mytheory] of [mygps] of curresearcher = (start 0) [
-                    set #failed-move-prosp #failed-move-prosp + 1
                   ]
                 ]
               ]
