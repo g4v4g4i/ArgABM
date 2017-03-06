@@ -946,7 +946,6 @@ As with `group-color-mem` this contains the status in which group-i knows argume
     * format: boolean
     * initialization-value: false
 This is a helper variable utilized during the `compute-subjective-attacked` procedure. It will mark whether a certain attack has already been processed during the calculations. For details cf. the procedure itself.
-
 @#$#@#$#@
 default
 true
@@ -1275,11 +1274,22 @@ NetLogo 6.0
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="behavior space controlled run" repetitions="100" runMetricsEveryStep="false">
+  <experiment name="experiment-full" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="4000"/>
     <exitCondition>exit-condition</exitCondition>
+    <metric>objective-admiss-of "th1"</metric>
+    <metric>objective-admiss-of "th2"</metric>
+    <metric>objective-admiss-of "th3"</metric>
+    <metric>research-time "monist" "th1"</metric>
+    <metric>research-time "monist" "th2"</metric>
+    <metric>research-time "monist" "th3"</metric>
+    <metric>research-time "pluralist" "th1"</metric>
+    <metric>research-time "pluralist" "th2"</metric>
+    <metric>research-time "pluralist" "th3"</metric>
+    <metric>in-run-performance "monist"</metric>
+    <metric>in-run-performance "pluralist"</metric>
     <metric>monist-success</metric>
     <metric>pluralist-success</metric>
     <metric>perc-landscape-discoverd</metric>
@@ -1310,6 +1320,7 @@ NetLogo 6.0
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="number-of-theories">
+      <value value="2"/>
       <value value="3"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="move-probability">
