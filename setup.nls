@@ -211,8 +211,8 @@ end
 
 
 ; creates an incoming attack to the askargu from another argument which 
-; a) musn't be from the same theory and
-; b) musn't be conected with askargu by an attack already
+; a) must not be from the same theory and
+; b) must not be conected with askargu by an attack already
 ; for details on the attack-owned variables cf. infotab
 to create-incoming-attack [curtheory askargu]
   create-attack-from one-of other startsargum with [mytheory != curtheory

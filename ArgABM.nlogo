@@ -701,15 +701,15 @@ The core of the admissibility calculation procedure. It takes a link-set
 (attackset) for a certain theory (i.e. all attacks which are either
 outgoing or incoming to this theoy) as input and reports the arguments
 which are successfully attacked i.e. non-admissible as a turtle-set
-processed? is a boolean dummy variable which marks arguments which have
-are sucessfull attackers during the secondary-attackers phase (cf. also global variables).
+processed? is a boolean dummy variable which marks attacks which have
+sucessfully attacked during the secondary-attackers phase (cf. also global variables).
 
-1. take the attacks which are themselves uncontested (cf. infotab) in  the objective landscape. The destination of this attacks will be non-admissible and attacks coming from there are void.
+1. take the attacks which are themselves uncontested in  the objective landscape. The destination of this attacks will be non-admissible and attacks coming from there are void.
 
 2. the attacks which are not uncontested but also were not rendered void by
   the prime attackers form the secondary-attackers link-set. If they don't
   have any incoming attack from the secondary-attackers themselves their
-  attack is successfull
+  attack is successfull and therefore they set their `processed?` variable to `true`
 
  3. Of those secondary-attackers which were successfull, the destination
   (= end2) gets added to the non-admissible turtle-set and attacks
