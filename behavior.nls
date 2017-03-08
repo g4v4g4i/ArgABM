@@ -291,8 +291,9 @@ to distribute-com-costs [com-costs]
           (list com-cost-remaining (4 * max-learn))
         set communicating ceiling (com-payment-curresearcher / max-learn)
         set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
+        set rep-researcher true
       ]
-    ]      
+    ]
   ][
     ; cf. infotab 1.
     set communicating ((ceiling (com-costs / max-learn)) + 1)

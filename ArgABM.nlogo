@@ -722,11 +722,10 @@ Procedure in which the variables that are not mentioned in the interface can be 
   Computations for the Popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
   1.  mystart is the theory the current researcher is investigating
   2. For each researcher the myscientists variable of the theory this researcher is working on is increased by one
-  3. The `myscientists-pluralist` variable (cf. Variables) is updated. As all members of a group (except for the rep-researcher) have the same best theories it suffices if one of the non rep-researchers and the rep-researcher are doing this update
-  4. If multiple theories are considered best the group will contribute their group size without the rep-researcher (= 4) divided by (number of theories they consider best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist)
-  5. If multiple theories are considered best the rep-researcher of the group will contribute one divided by (number of theories she considers best) to the myscientists-pluralist counter (cf. Variables - myscientists-pluralist)
-  6. As long as researchers haven't done any admissibility calculations it is assumed that they think the theory they're currently working on is the single best theory
-  7. The values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables)
+  3. The `myscientists-pluralist` variable (cf. Variables) is updated. 
+  4. If there is more than one best theory in the memory of the researcher the start will count this researcher as adding 1 / (number of best theories) to its `myscientists-pluralist` counter. (cf. Variables - myscientists-pluralist)
+  5. As long as researchers haven't done any admissibility calculations it is assumed that they think the theory they're currently working on is the single best theory
+  6. The values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables)
 
 
 ## Strategies
@@ -816,7 +815,7 @@ all information gets cached and will be integrated into the group memory during 
 Distributes the absolute communication costs (com-costs) among the group and transform them into relative costs (in days) which are then saved in the researcher-owned variable `communicating`.
 The absolute costs are the difference between the information the rep-researcher posessed before vs. after the inter-group-sharing. For details on the costsfunction cf. infotab: initialize-hidden-variables. The researchers have to digest all information within a work-week (= 5 days/ticks) while still reserving one day for doing their own research, which leaves them with 4 days for digesting. The rep researcher herself only has 3 days b/c the day she visits the conference (inter-group-sharing) is also lost. Every day a researcher can digest information of value `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned variable will be set to how many days the researcher will be occupied by digesting information (+ one day in the case of the rep-researchers: the day of visiting the conference itself)
 1. the rep-researcher pays for as much information as she can.
-2. If the (absolute) costs are higher than what she can pay (= 3 * max-learn), the next researcher from her group will be picked and pay for as much of the rest of the communication costs as she can ( = 4 * max-learn). If there are still communication costs left this continues until all researchers of the group have paid the maximum relative costs (= communicating 4 = 4 days) or all communication costs have been paid
+2. If the (absolute) costs are higher than what she can pay (= 3 * max-learn), the next researcher from her group will be picked and pay for as much of the rest of the communication costs as she can ( = 4 * max-learn). She will also become a rep-researcher and therefore exempt from pursuing strategies this week. If there are still communication costs left this continues until all researchers of the group have paid the maximum relative costs (= communicating 4 = 4 days) or all communication costs have been paid.
 
 
 ## Protocol

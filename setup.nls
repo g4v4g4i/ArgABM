@@ -484,49 +484,33 @@ to compute-popularity
 
     ; cf infotab 2.
     ask mystart [
-      set myscientists myscientists + 1
-    ]    
-  ]
-  ; cf. infotab 3.
-  if ticks mod 5 = 4 [
-    foreach colla-networks [ [curgroup] ->
-      let curgroup-as (turtle-set curgroup)
-      ask one-of curgroup-as with [not rep-researcher][
-        let curresearcher self
+      set myscientists myscientists + 1      
+    ]
+    ; cf. infotab 3.
+    if ticks mod 5 = 4 [
+      ifelse cur-best-th != 0 [
         foreach cur-best-th [ [curstart] ->
           ask curstart [
             ; cf. infotab 4.
-            set myscientists-pluralist (myscientists-pluralist 
-              + 4 / length [cur-best-th] of curresearcher)
+            set myscientists-pluralist (myscientists-pluralist
+              + 1 / length [cur-best-th] of curresearcher)
           ]
-        ] 
-      ]
-      ask one-of curgroup-as with [rep-researcher] [
-        let curresearcher self
-        ifelse cur-best-th != 0 [
-          foreach cur-best-th [ [curstart] ->
-            ask curstart [
-              ; cf. infotab 5.
-              set myscientists-pluralist (myscientists-pluralist 
-                + 1 / length [cur-best-th] of curresearcher)
-            ]
-          ]
-        ][
-          ; cf. infotab 6.
-          ask [mytheory] of mygps [
-            set myscientists-pluralist (myscientists-pluralist + 1)
-          ]
+        ]
+      ][
+        ; cf. infotab 5.
+        ask mystart [
+          set myscientists-pluralist (myscientists-pluralist + 1)
         ]
       ]
     ]
-  ]
-  ; cf. infotab 6.
+  ]  
+  ; cf. infotab 5.
   if ticks = 0 [
     ask starts [
       set myscientists-pluralist count researchers in-radius 0
     ]
   ]
-  ; cf. infotab 7.
+  ; cf. infotab 6.
   ask starts [
     set research-time-monist research-time-monist + myscientists
     set research-time-pluralist research-time-pluralist 
