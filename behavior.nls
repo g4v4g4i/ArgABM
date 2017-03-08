@@ -150,7 +150,7 @@ to transfer-argu-cache-to-memory
       item cur-group-id group-color-mem]
     ; ...and combined with the other arguments she learned by her own research
     ; i.e. via update-memories (a)
-    set to-add-mem-argu (turtle-set to-add-mem-argu argu-cache)
+    set to-add-mem-argu (turtle-set to-add-mem-argu cached-aguments)
     set argu-cache no-turtles
   ]
   ; the argu-cache which is most recent updates the in-argument-memory (b)
