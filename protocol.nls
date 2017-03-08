@@ -175,11 +175,42 @@ end
 
 
 
-; This metric tracks how well researchers perform during a run as opposed to 'at the 
-; end' - and therefore also after - a run like the `pluralist-/monist-success` 
-; metric does. It also takes the objective admissibility of the landscape into 
-; account and is normalized to a [0,100] interval where 100 corresponds to the best 
-; performance. For details cf. infotab
+; reports the number of researchers on th# at the end of the run ("monist")
+; or the number of scientists who consider th# to be a best theory ("pluralist")
+; i.e. it reports the `myscientists`- ("monist") or the 
+; `myscientists-pluralist`-value ("pluralist") cf. Infotab -> Variables
+to-report run-end-scientists [pluralist-monist th#]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [[] -> myscientists]
+  ][
+    set pluralist-monist [[] -> myscientists-pluralist]
+  ]
+  if th# = "th1" [
+    set th# item 0 sort starts
+  ]
+  if th# = "th2" [
+    set th# item 1 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 3 [
+    set th# item 2 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 2 [
+    set th# item 0 sort starts
+    set pluralist-monist [[] -> 0]
+  ]  
+  report [runresult pluralist-monist] of th#
+end
+
+
+
+
+
+; This metric tracks how well researchers perform during a run as opposed to 
+; 'at the  end' - and therefore also after - a run like the 
+; `pluralist-/monist-success` metric does. It also takes the objective 
+; admissibility of the landscape into account and is normalized to a [0,100] 
+; interval where 100 corresponds to the best  performance. 
+; For details cf. infotab
 to-report in-run-performance [pluralist-monist]
   ifelse pluralist-monist = "monist" [
     set pluralist-monist [[] -> research-time-monist]

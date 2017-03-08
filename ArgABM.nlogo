@@ -52,10 +52,10 @@ starts-own [mytheory current-start myscientists researcher-ticks
   research-time-monist research-time-pluralist myscientists-pluralist
   objective-admissibility group-color-mem group-color-mem-cache]
 
-  
-  
 
-  
+
+
+
 ; attack relations keep track starting from which theory (mytheory-end1) they
 ; are attacking which other theory (mytheory-end2), if they're uncontested
 ; i.e. if their end1 doesn't have an attacker from their mytheory-end2,
@@ -65,10 +65,10 @@ starts-own [mytheory current-start myscientists researcher-ticks
 attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory
  processed?]
 
- 
- 
- 
- 
+
+
+
+
 ; every researcher keeps track of how often she thinks
 ; that she should jump to another theory, how many times she jumped,
 ; the social network she belongs to, her current subjective landscape,
@@ -85,10 +85,10 @@ researchers-own [theory-jump times-jumped collaborator-network
   to-add-mem-argu to-add-mem-rel flag-updated-memory
   non-admiss-subj-argu mygps group-id argu-cache]
 
-  
-  
-  
-  
+
+
+
+
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables
 ; startsargum is an agentset which contains all arguments (including starts)
@@ -102,18 +102,18 @@ globals [times-right number-of-theories-many theory-depth-many
   max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor]
 
-  
-  
-  
-  
+
+
+
+
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"
   "protocol.nls"]
 
 
-  
-  
-  
+
+
+
 ; The setup initializes the landscape and all variables with the values from
 ; the interface
 to setup
@@ -151,7 +151,6 @@ to go
   compute-popularity
   tick
 end
-
 
 
 
@@ -1336,6 +1335,12 @@ NetLogo 6.0
     <metric>in-run-performance "pluralist"</metric>
     <metric>monist-success</metric>
     <metric>pluralist-success</metric>
+    <metric>run-end-scientists "monist" "th1"</metric>
+    <metric>run-end-scientists "monist" "th2"</metric>
+    <metric>run-end-scientists "monist" "th3"</metric>
+    <metric>run-end-scientists "pluralist" "th1"</metric>
+    <metric>run-end-scientists "pluralist" "th2"</metric>
+    <metric>run-end-scientists "pluralist" "th3"</metric>
     <metric>perc-landscape-discoverd</metric>
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
