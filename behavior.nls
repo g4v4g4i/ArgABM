@@ -68,19 +68,19 @@ end
 ; needs to be performed, while for relations (=attacks) both (a) + (b) will be
 ; performed
 to share-with-group
-  foreach colla-networks [ [cur-group] ->
-    ; after the information has been combined by the grp-share-researcher the
-    ; other group members copy that information into their own memory
+  foreach colla-networks [ [cur-group] ->    
     let group-sharing-done false
-    let grp-share-researcher []
+    let grp-share-researcher 0
     foreach cur-group [ [cur-researcher] ->
+      ; after the information has been combined by the grp-share-researcher the
+      ; other group members copy that information into their own memory
       ifelse group-sharing-done [
         ask cur-researcher [
           set rep-researcher false
           set subjective-arguments [subjective-arguments] of
-          grp-share-researcher
+            grp-share-researcher
           set subjective-relations [subjective-relations] of
-          grp-share-researcher
+            grp-share-researcher
           set to-add-mem-argu no-turtles
           set to-add-mem-rel no-links
         ]
@@ -88,7 +88,7 @@ to share-with-group
         ; one researcher combines all the information
         set group-sharing-done true
         set grp-share-researcher cur-researcher        
-        ask cur-researcher [     
+        ask cur-researcher [
           let cur-group-id group-id        
           ; reset the variables
           set rep-researcher false          
