@@ -7,6 +7,8 @@
 
 
 
+
+
 ; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
 ; The memory management is comprised of two parts:
@@ -124,6 +126,10 @@ to share-with-group
   ]
 end
 
+
+
+
+
 ; the arguments learned from the last inter-group sharing
 ; (share-with-other-networks) have been digested and are now merged with the
 ; arguments she learned via her own research (update-memories). The memory
@@ -153,6 +159,7 @@ to transfer-argu-cache-to-memory
       (item cur-group-id group-color-mem-cache)   
   ]   
 end
+
 
 
 
@@ -217,6 +224,10 @@ to share-with-other-networks
   ]
 end
 
+
+
+
+
 ; the inter-group-sharing (= share-with-other-networks) procedure for 
 ; de-facto complete networks. The memory update is twofold (cf.
 ; update-memories)
@@ -260,6 +271,9 @@ to inter-group-sharing-complete
 end
 
 
+
+
+
 ; distributes the absolute communication costs (com-costs) among the group 
 ; and transform them into relative costs (in days) which are then saved in 
 ; the researcher-owned variable `communicating`. 
@@ -284,6 +298,9 @@ to distribute-com-costs [com-costs]
     set communicating ((ceiling (com-costs / max-learn)) + 1)
   ]
 end
+
+
+
 
 
 ; the inter-group-sharing (= share-with-other-networks) procedure for 
@@ -347,6 +364,8 @@ end
 
 
 
+
+
 ; reports whether a member of the collaborative network (=group) of the
 ; curresearcher is at the position of the caller
 ; called by arguments during the movement procedures
@@ -363,6 +382,9 @@ to-report group-member-here [curresearcher]
 end
 
 
+
+
+
 ; procedure which is called by researchers when they move (to nextargu). It 
 ; makes sure that the researcher has an updated memory of her surrounding 
 ; before moving by calling `update-memories`.
@@ -376,6 +398,7 @@ to move-to-nextargu [nextargu]
   move-to mygps
   set moved true 
 end
+
 
 
 
@@ -538,6 +561,7 @@ end
 
 
 
+
 ; reports whether an appropriate researcher (i.e. one that is not digesting
 ; information from communication) is present at the current position
 ; called by arguments when the landscape is updated
@@ -549,6 +573,7 @@ to-report non-comm-scientists-here
     report false
   ]
 end
+
 
 
 
@@ -623,6 +648,9 @@ to update-landscape
 end
 
 
+
+
+
 ; once an argument is fully researched all its relations to other arguments
 ; are discovered as well; this procedure makes sure that fully
 ; researched arguments have a fully discovered neighborhood
@@ -639,6 +667,9 @@ to full-discovery [cur-argum cur-theory]
     discover-attack cur-argum cur-theory     
   ]
 end
+
+
+
 
 
 ; when an attack is discovered it turns red and gray ends turn turquoise. If 
@@ -667,6 +698,7 @@ to discover-attack [cur-argum cur-theory]
     ]  
   ]
 end
+
 
 
 

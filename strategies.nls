@@ -12,7 +12,6 @@
 
 
 
-
 ; the core of the admissibility calculation procedure. It takes a link-set
 ; (attackset) for a certain theory (i.e. all attacks which are either
 ; outgoing or incoming to this theoy) as input and reports the arguments
@@ -49,6 +48,8 @@ to-report admissibility-calc-core [attackset]
   ]
   report sucattacked
 end
+
+
 
 
 
@@ -116,10 +117,16 @@ end
 
 
 
+
+
 to-report replace-subitem [index1 index2 lists value]
   let old-sublist item index1 lists
   report replace-item index1 lists (replace-item index2 old-sublist value)
 end
+
+
+
+
 
 ; the current-theory-info will be updated with the freshly calculated
 ; admissibility values; format: list e.g. 
@@ -136,6 +143,9 @@ to set-current-theory-info [#non-admiss-argu-th]
     set i i + 1
   ]
 end
+
+
+
 
 
 ; based on their memory researchers compute lists of attacked arguments
@@ -172,6 +182,8 @@ to compute-strategies
     ]
   ]  
 end
+
+
 
 
 

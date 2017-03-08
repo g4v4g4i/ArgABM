@@ -336,6 +336,9 @@ to run-many
 end
 
 
+
+
+
 ; the setup for a run-many
 to setup-many
   ; instead of clear-all, the globals should not be cleared
@@ -348,6 +351,10 @@ to setup-many
    ]
   number-of-theories-many theory-depth-many scientists-many
 end
+
+
+
+
 
 to end-run-commands
   let popularity []

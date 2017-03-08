@@ -3,6 +3,7 @@
 
 
 
+
 ; the exit-condition determines when a given run is considered to be 
 ; finished. A run is over as soon as there exists one theory which is fully 
 ; discovered (i.e. has only red arguments). When this happens researchers can 
@@ -29,6 +30,9 @@ to-report exit-condition
 end
 
 
+
+
+
 ; as soon as a run is finished (cf. exit-condition) researchers can one final 
 ; time jump to a best theory (irrespective of their `theory-jump` value) if 
 ; they’re not already on a theory they consider best.
@@ -39,6 +43,8 @@ to final-commands
   ]
   compute-popularity
 end
+
+
 
 
 
@@ -58,6 +64,8 @@ end
 
 
 
+
+
 to-report pluralist-success
   let popularity []
   let find-good-p 0
@@ -73,6 +81,9 @@ to-report pluralist-success
 end
 
 
+
+
+
 to-report average-jumps
   let jumps 0
   let avgjumps 0
@@ -82,6 +93,8 @@ to-report average-jumps
   set avgjumps (jumps / scientists)
   report avgjumps
 end
+
+
 
 
 
@@ -95,6 +108,8 @@ end
 
 
 
+
+
 to-report perc-best-th-discoverd
   let tot-best-arguments count startsargum with [mytheory = start 0]
   let disc-best-arguments count startsargum with [
@@ -102,6 +117,10 @@ to-report perc-best-th-discoverd
   let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
   report perc-disc-best-argu
 end
+
+
+
+
 
 ; reports the objective admissibility of th#
 to-report objective-admiss-of [th#]  
@@ -121,6 +140,10 @@ to-report objective-admiss-of [th#]
   ]
   report [runresult objective-admiss-ap] of th#  
 end
+
+
+
+
 
 ; reports time researchers spent on th#: 
 ; "monist" - cf. `research-time-monist`
@@ -148,6 +171,10 @@ to-report research-time [pluralist-monist th#]
   report [runresult pluralist-monist] of th#
 end
 
+
+
+
+
 ; This metric tracks how well researchers perform during a run as opposed to 'at the 
 ; end' - and therefore also after - a run like the `pluralist-/monist-success` 
 ; metric does. It also takes the objective admissibility of the landscape into 
@@ -168,3 +195,5 @@ to-report in-run-performance [pluralist-monist]
   (ticks + 1) * [objective-admissibility] of first sort starts))
   report performance
 end
+
+

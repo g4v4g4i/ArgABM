@@ -28,6 +28,10 @@ undirected-link-breed [starters starter]
 ; connections between researchers are undirected
 undirected-link-breed [collaborators collaborator]
 
+
+
+
+
 ; properties of the arguments, each argument "knows":
 ; the theory it belongs to, during the setup if it should
 ; be considered, how many ticks a researcher was working on it,
@@ -37,6 +41,10 @@ undirected-link-breed [collaborators collaborator]
 arguments-own [mytheory current-argument researcher-ticks
   group-color-mem group-color-mem-cache]
 
+
+
+
+
 ; the roots additionally know how many researchers are working on that theory
 ; and keep track on how popular they have been over the course of the run as
 ; well as  how admissible their theory is objectively
@@ -44,6 +52,10 @@ starts-own [mytheory current-start myscientists researcher-ticks
   research-time-monist research-time-pluralist myscientists-pluralist
   objective-admissibility group-color-mem group-color-mem-cache]
 
+  
+  
+
+  
 ; attack relations keep track starting from which theory (mytheory-end1) they
 ; are attacking which other theory (mytheory-end2), if they're uncontested
 ; i.e. if their end1 doesn't have an attacker from their mytheory-end2,
@@ -53,6 +65,10 @@ starts-own [mytheory current-start myscientists researcher-ticks
 attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory
  processed?]
 
+ 
+ 
+ 
+ 
 ; every researcher keeps track of how often she thinks
 ; that she should jump to another theory, how many times she jumped,
 ; the social network she belongs to, her current subjective landscape,
@@ -69,6 +85,10 @@ researchers-own [theory-jump times-jumped collaborator-network
   to-add-mem-argu to-add-mem-rel flag-updated-memory
   non-admiss-subj-argu mygps group-id argu-cache]
 
+  
+  
+  
+  
 ; the global variables are all concerned with the
 ; run-many procedure, or the initialization of hidden variables
 ; startsargum is an agentset which contains all arguments (including starts)
@@ -82,16 +102,26 @@ globals [times-right number-of-theories-many theory-depth-many
   max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor]
 
+  
+  
+  
+  
 ; includes
 __includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"
   "protocol.nls"]
 
 
+  
+  
+  
 ; The setup initializes the landscape and all variables with the values from
 ; the interface
 to setup
   setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
 end
+
+
+
 
 
 ; procedure that lets the program run, after the landscape was setup
@@ -121,6 +151,11 @@ to go
   compute-popularity
   tick
 end
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210

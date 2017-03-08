@@ -6,6 +6,9 @@
 ; 3. populate the landscape with researchers
 
 
+
+
+
 ; the core-setup procedure:
 ; the hidden variables (not set in the interface)
 ; colla-networks temporarily contains the number of groups which will be set
@@ -24,6 +27,8 @@ to setupcore [clearing numberoftheories theorydepth scientistsno]
   calc-global-admiss
   reset-ticks
 end
+
+
 
 
 
@@ -210,6 +215,9 @@ to create-attacks
 end
 
 
+
+
+
 ; creates an incoming attack to the askargu from another argument which 
 ; a) must not be from the same theory and
 ; b) must not be conected with askargu by an attack already
@@ -223,6 +231,9 @@ to create-incoming-attack [curtheory askargu]
     set in-group-i-memory n-values colla-networks [false]
   ]
 end
+
+
+
 
 
 ; after the random attacks are created, attacks coming from the best theory
@@ -255,6 +266,10 @@ to defend-best
   ]
 end
 
+
+
+
+
 ; the uncontested values serve as a first approximation to lower the
 ; computational intensity of the calc-global-admiss (cga) procedure.
 ; They're not intended to be always correct and will be reset at the end
@@ -270,6 +285,8 @@ to set-uncontested-values
     ]
   ]
 end
+
+
 
 
 
@@ -520,6 +537,7 @@ end
 
 
 
+
 ; the social network structures for collaborator networks
 ; is created according to the choice made in the interface:
 ; cycle, wheel or complete
@@ -653,6 +671,9 @@ to create-networks
   ]
   ]
 end
+
+
+
 
 
 ; This procedure calculates the objective admissibility of each theory which is
