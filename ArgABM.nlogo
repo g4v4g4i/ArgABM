@@ -917,6 +917,16 @@ Contains the arguments which the rep-researcher from every group will share with
     * example: (agentset, 1 link)
 Contains all the relations (= attacks) the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). In case of "reliable" social-actions the attacks are all non-gray attacks **to- and from** the argument the researcher is currently working on (cf. mygps), while in the case of "biased" social-actions this will only be the outgoing non-gray attacks **from** her current argument.
 
+  * subjective-arguments
+    * format: turtle-set
+    * example: (agentset, 55 turtles)
+Contains all arguments the researcher knows.
+
+  * subjective-relations
+    * format: link-set
+    * example: (agentset, 27 links)
+Contains all attacks the researcher knows.
+
 
 arguments-own, starts-own:
 

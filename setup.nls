@@ -358,7 +358,7 @@ to researchers-create-scientists [scientistsno]
     ; the researchers are blue-colored
     set color blue
 
-    ; the researcher-own variables are initialized
+    ; some researcher-own variables are initialized
     set collaborator-network []
     set subjective-relations no-links
     set to-add-mem-rel no-links
@@ -369,9 +369,7 @@ to researchers-create-scientists [scientistsno]
     set moved false
     set rep-researcher false
     set current-theory-info theories
-  ]
-  
-  
+  ]  
 end
 
 
