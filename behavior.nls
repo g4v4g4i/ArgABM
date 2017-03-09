@@ -518,10 +518,16 @@ to find-defense
   ; argument
   ask researchers with [not moved and (communicating = 0 or ticks mod 5 = 0)
     and member? mygps non-admiss-subj-argu] [
-    let curresearcher self    
+    let curresearcher self
     let myargu mygps
     let cur-th [mytheory] of myargu
     let cur-group-id group-id
+    ; the group of the curresearcher updates their memory to see whether they
+    ; can find a defender in their neighborhood
+    ask (turtle-set item cur-group-id colla-networks) with [
+      not flag-updated-memory] [
+        update-memories
+    ]
     ask myargu [
       ask my-in-attacks with [color != gray] [
         ; check to prevent the researcher from searching for further
