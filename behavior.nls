@@ -425,17 +425,17 @@ to move-around
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myargu mygps     
-      ; the researcher owned variable which contains all the non defensible
+      ; the researcher owned variable which contains all the non admissible
       ; arguments as a list is written to not-admissible
       let not-admissible non-admiss-subj-argu
       
-      ; an researcher working on a non defensible argument will try to find a
+      ; an researcher working on a non admissible argument will try to find a
       ; defense for this attack, by working further on the attacked argument,
-      ; unless she discoveres a child-argument that that has a defense for
+      ; unless she discoveres a argument that that has a defense for
       ; the attack (it is not necessarily the case that this defense is
       ; already discovered) or until she has fully researched the argument
       ; the find-defense runs immediately for all researchers working on 
-      ; a not fully researched non defensible argument,
+      ; a not fully researched non admissible argument,
       ; hence it is only once executed
       if not run-find-defense and not moved and member? myargu not-admissible [
         find-defense
@@ -476,8 +476,7 @@ to move-around
             ; if there is no next argument and the current argument is
             ; fully researched, the researcher moves a step back
             ask myargu [set nextargu one-of in-discovery-neighbors with [
-              not member? color [gray turquoise]
-              and not group-member-here curresearcher]
+              not group-member-here curresearcher]
             ]
             ifelse nextargu != nobody [
               move-to-nextargu nextargu
@@ -504,58 +503,50 @@ end
 
 
 
-; researchers working on a not fully researched non defensible argument will
+; researchers working on a non admissible argument will
 ; try to find a defense for that attack, by staying on the current argument
-; if a child-argument is discovered that can potentially provide a defense
+; if they find a argument that can potentially provide a defense
 ; (it is not necessarily the case that this defense is already discovered),
 ; the researcher moves there
 ; once an argument is fully researched all its relations are discovered,
 ; so the researcher can move on and can try to find a defense in another
 ; branch further away
 to find-defense
-  ask researchers with [not moved][
+  ; if the current argument is not admissible and it is a 5th time step or 
+  ; the researcher is not communicating the researcher tries to move 
+  ; prospectively to a argument that provides a defense for the current 
+  ; argument
+  ask researchers with [not moved and (communicating = 0 or ticks mod 5 = 0)
+    and member? mygps non-admiss-subj-argu] [
     let curresearcher self    
-    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
-      let myargu mygps
-      let cur-th [mytheory] of myargu
-      let cur-group-id group-id
-      ; set of arguments that are not admissible
-      let not-admissible non-admiss-subj-argu
-      
-      ; if the current argument is not fully researched and not admissible
-      ; and it is a 5th time step or the researcher is not communicating
-      ; the researcher tries to move prospectively to a child-argument of the
-      ; current argument that provides a defense for the current argument
-      if member? myargu not-admissible [       
-        ask myargu [
-          ask my-in-attacks [
-            ; check to prevent the researcher from searching for further
-            ; defender-childs (nextargu) when she already has moved to one
-            if not [moved] of curresearcher [
-              ask end1 [
-              ; pick one of the arguments that provide a defense for the 
-              ; current argument, this argument:
-              ; a) attacks the attacker of the current argument;
-              ; b) is from the same theory as the curresearcher is working on
-              ; c) is an argument which is known to the researcher;
-              ; d) is discovered and not fully researched (= red); and
-              ; e) has no researcher from the same group working on it
-                let nextargu one-of in-attack-neighbors with [ ; (a)
-                  mytheory = cur-th ; (b)
-                  and item cur-group-id group-color-mem != cyan ; (c)
-                  and not member? color [gray red turquoise] ; (d)
-                  and not group-member-here curresearcher] ; (e)                
-                if nextargu != nobody [
-                  ask curresearcher [
-                    move-to-nextargu nextargu
-                  ]
-                ]
-              ]
-            ]
+    let myargu mygps
+    let cur-th [mytheory] of myargu
+    let cur-group-id group-id
+    ask myargu [
+      ask my-in-attacks with [color != gray] [
+        ; check to prevent the researcher from searching for further
+        ; defenders (nextargu) if she already has moved to one
+        if [moved] of curresearcher [stop]
+        ask end1 [
+        ; pick one of the arguments that provide a defense for the 
+        ; current argument, this argument:
+        ; a) attacks the attacker of the current argument;
+        ; b) is from the same theory as the curresearcher is working on
+        ; c) is an argument which is known to the researchers group;
+        ; d) is discovered and not fully researched (= red); and
+        ; e) has no researcher from the same group working on it
+          let nextargu one-of in-attack-neighbors with [ ; (a)
+            mytheory = cur-th ; (b)
+            and item cur-group-id group-color-mem != cyan ; (c)
+            and not member? color [gray red turquoise] ; (d)
+            and not group-member-here curresearcher] ; (e)
+          if nextargu = nobody [stop]
+          ask curresearcher [
+            move-to-nextargu nextargu
           ]
         ]
       ]
-    ]     
+    ]
   ]
 end
 

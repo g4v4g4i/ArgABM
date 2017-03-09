@@ -54,9 +54,9 @@ end
 
 
 ; procedure that computes for each collaborator network (= groups)
-; which of the arguments in their memory are admissible/defensible
+; which of the arguments in their memory are admissible
 ; because researcher in a collaborator network share all information with each
-; other only one agent needs to do the defensibility calculations 
+; other only one agent needs to do the admissibility calculations 
 ; (the calc-researcher) and the others (except for the rep-researcher) can just
 ; copy the results from her.  The details are described in the infotab under
 ; compute-subjective-attacked.
@@ -173,8 +173,8 @@ to compute-strategies
   set threshold-admissible-arguments sort threshold-admissible-arguments
 
   ; computation of the current best theories
-  ; theories with a number of defensible arguments that are
-  ; within the threshold of the theory with the most defensible arguments
+  ; theories with a number of admissible arguments that are
+  ; within the threshold of the theory with the most admissible arguments
   ; are considered as current best theories
   foreach current-theory-info [ [?1] ->
     if member? item 1 ?1 threshold-admissible-arguments [

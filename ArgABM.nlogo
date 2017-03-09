@@ -752,11 +752,11 @@ sucessfully attacked during the secondary-attackers phase (cf. also global varia
   left is able to attack successfully anymore.
 
   * _compute-subjective-attacked_
-procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible/defensible because researcher in a collaborator network share all information with each other only one agent needs to do the defensibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
+procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible because researcher in a collaborator network share all information with each other only one agent needs to do the admissibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
 
-1. if a researcher of the group already calculated defensibility other group members can copy the results into their memory
+1. if a researcher of the group already calculated admissibility other group members can copy the results into their memory
 
-2. if no group member has done the defensibility calculations, the current researcher does the calculations i.e. she becomes the groups calc-researcher
+2. if no group member has done the admissibility calculations, the current researcher does the calculations i.e. she becomes the groups calc-researcher
 
 3. if there are only two theories the admissibility calculation can be  done on the whole attackset at once
 
