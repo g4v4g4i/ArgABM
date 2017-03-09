@@ -1,32 +1,8 @@
-
 ; the setup procedures for
 ; 1. the hidden variables (not set in the interface)
 ; 2. building the argumentative landscape with
 ;    attacks and discovery relations
 ; 3. populate the landscape with researchers
-
-
-
-
-
-; the core-setup procedure:
-; the hidden variables (not set in the interface)
-; colla-networks temporarily contains the number of groups which will be set
-; up later, as an integer
-; it creates a landscape of arguments and a discovery relation
-; on this landscape; attacks are defined;
-; the researchers are distributed over the theories
-; the objective-admissibility for each theory is calculated
-to setupcore [clearing numberoftheories theorydepth scientistsno]
-  run clearing
-  initialize-hidden-variables
-  set colla-networks (scientistsno / 5)
-  create-discovery-landscape numberoftheories theorydepth 
-  define-attack-relation
-  distribute-researchers scientistsno 
-  calc-global-admiss
-  reset-ticks
-end
 
 
 
@@ -53,7 +29,7 @@ end
 
 ; a landscape of arguments and a discovery relation
 ; on these arguments is defined
-to create-discovery-landscape [numberoftheories theorydepth]
+to create-discovery-landscape
   ; at the start arguments and starts are a circle
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
@@ -63,7 +39,7 @@ to create-discovery-landscape [numberoftheories theorydepth]
  ; group-color-mem. This is set that way such that the smaller color the more
  ; discovered. Same goes for group-color-mem-cache (cf. infotab)
   let group-colors-list n-values colla-networks [cyan]
-  repeat numberoftheories [ ; trees are created theory for theory
+  repeat number-of-theories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
       ; and whether it just turned red are initialized
@@ -76,8 +52,8 @@ to create-discovery-landscape [numberoftheories theorydepth]
       set disc-startsargum-non-red (turtle-set disc-startsargum-non-red self)
     ]
     let i 0
-    while [i < theorydepth] [
-      create-arguments ( 4 ^ (theorydepth - i))[
+    while [i < theory-depth] [
+      create-arguments ( 4 ^ (theory-depth - i))[
         ; variables for color, the theory it belongs to
         ; and whether it just turned red are initialized
         set color gray
@@ -309,12 +285,12 @@ end
 ; in this procedure the researchers are created,
 ; including their memory and the social netoworks
 ; and they are distributed randomly over the theories
-to distribute-researchers [scientistsno]
+to distribute-researchers
   set-default-shape researchers "person"
 
   ; the right number of researchers is created
   ; and the researcher variables are initialized
-  researchers-create-scientists scientistsno
+  researchers-create-scientists
   
   ; the researchers are moved to the roots of the theories where they will
   ; beginn their research
@@ -342,7 +318,7 @@ end
 
 
 ; create researchers and initialize their variables
-to researchers-create-scientists [scientistsno]
+to researchers-create-scientists
   ; an researcher is always aware of all the theories
   ; the information the researcher has about a theory
   ; is collected in current-theory-info which has
@@ -354,7 +330,7 @@ to researchers-create-scientists [scientistsno]
     set start-add lput 0 start-add
     set theories lput start-add theories
   ]
-  create-researchers scientistsno [
+  create-researchers scientists [
     ; the researchers are blue-colored
     set color blue
 

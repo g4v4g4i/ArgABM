@@ -107,17 +107,29 @@ globals [times-right number-of-theories-many theory-depth-many
 
 
 ; includes
-__includes ["setup.nls" "behavior.nls" "strategies.nls" "run-many.nls"
-  "protocol.nls"]
+__includes ["setup.nls" "behavior.nls" "strategies.nls" "protocol.nls"]
 
 
 
 
 
-; The setup initializes the landscape and all variables with the values from
-; the interface
+; the setup procedure:
+; the hidden variables (not set in the interface)
+; colla-networks temporarily contains the number of groups which will be set
+; up later, as an integer
+; it creates a landscape of arguments and a discovery relation
+; on this landscape; attacks are defined;
+; the researchers are distributed over the theories
+; the objective-admissibility for each theory is calculated
 to setup
-  setupcore [ [] -> clear-all ] number-of-theories theory-depth scientists
+  clear-all
+  initialize-hidden-variables
+  set colla-networks (scientists / 5)
+  create-discovery-landscape
+  define-attack-relation
+  distribute-researchers
+  calc-global-admiss
+  reset-ticks
 end
 
 
@@ -151,7 +163,6 @@ to go
   compute-popularity
   tick
 end
-
 
 
 
@@ -490,23 +501,6 @@ attack-probability-3rd
 1
 NIL
 HORIZONTAL
-
-BUTTON
-130
-10
-185
-43
-NIL
-run-many
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 CHOOSER
 9
