@@ -236,7 +236,7 @@ end
 ; is remembered by the group
 ; all information gets cached and will be integrated into the group memory 
 ; during the next intra-group-sharing (= share-with-group) one week later
-; The details are described in the infotab under _inter-group-sharing-complete_
+; The details are described in the infotab under inter-group-sharing-complete
 to inter-group-sharing-complete
   let rep-researchers researchers with [rep-researcher]
   ; number of groups
@@ -274,36 +274,6 @@ end
 
 
 
-; distributes the absolute communication costs (com-costs) among the group 
-; and transform them into relative costs (in days) which are then saved in 
-; the researcher-owned variable `communicating`. 
-; The details are described in the infotab under _distribute-com-costs_
-to distribute-com-costs [com-costs]
-  ifelse com-costs > (3 * max-learn) [
-    ; cf. infotab 1.
-    set communicating 4
-    let com-cost-remaining (com-costs - 3 * max-learn)
-    let cur-group (turtle-set item group-id colla-networks)
-    ask cur-group [
-      ; cf. infotab 2.
-      if com-cost-remaining > 0 and not [rep-researcher] of self [
-        let com-payment-curresearcher min 
-          (list com-cost-remaining (4 * max-learn))
-        set communicating ceiling (com-payment-curresearcher / max-learn)
-        set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
-        set rep-researcher true
-      ]
-    ]
-  ][
-    ; cf. infotab 1.
-    set communicating ((ceiling (com-costs / max-learn)) + 1)
-  ]
-end
-
-
-
-
-
 ; the inter-group-sharing (= share-with-other-networks) procedure for 
 ; non-complete networks. The memory update is twofold (cf. update-memories)
 ; (a) the agentset which contains the arguments / relations themselves and
@@ -311,7 +281,7 @@ end
 ; is remembered by the group
 ; all information gets cached and will be integrated into the group memory 
 ; during the next intra-group-sharing (= share-with-group) one week later
-; The details are described in the infotab under _inter-group-sharing-default_
+; The details are described in the infotab under inter-group-sharing-default
 to inter-group-sharing-default
   ; cf. infotab 1.
   ask (turtle-set [th-args] of researchers with [rep-researcher]) [
@@ -360,6 +330,36 @@ to inter-group-sharing-default
       ; cf. infotab 9.
       distribute-com-costs com-costs 
     ]
+  ]
+end
+
+
+
+
+
+; distributes the absolute communication costs (com-costs) among the group 
+; and transform them into relative costs (in days) which are then saved in 
+; the researcher-owned variable `communicating`. 
+; The details are described in the infotab under distribute-com-costs
+to distribute-com-costs [com-costs]
+  ifelse com-costs > (3 * max-learn) [
+    ; cf. infotab 1.
+    set communicating 4
+    let com-cost-remaining (com-costs - 3 * max-learn)
+    let cur-group (turtle-set item group-id colla-networks)
+    ask cur-group [
+      ; cf. infotab 2.
+      if com-cost-remaining > 0 and not [rep-researcher] of self [
+        let com-payment-curresearcher min 
+          (list com-cost-remaining (4 * max-learn))
+        set communicating ceiling (com-payment-curresearcher / max-learn)
+        set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
+        set rep-researcher true
+      ]
+    ]
+  ][
+    ; cf. infotab 1.
+    set communicating ((ceiling (com-costs / max-learn)) + 1)
   ]
 end
 

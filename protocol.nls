@@ -8,7 +8,7 @@
 ; finished. A run is over as soon as there exists one theory which is fully 
 ; discovered (i.e. has only red arguments). When this happens researchers can 
 ; one final time jump to a best theory (irrespective of their `theory-jump` 
-; value) if they’re not already on a theory they consider best. This is 
+; value) if theyâ€™re not already on a theory they consider best. This is 
 ; facilitated by the `final-commands` procedure which is called as soon as  
 ; `exit-condition` reports `true` and therefore ends the run.  
 to-report exit-condition
@@ -35,7 +35,7 @@ end
 
 ; as soon as a run is finished (cf. exit-condition) researchers can one final 
 ; time jump to a best theory (irrespective of their `theory-jump` value) if 
-; they’re not already on a theory they consider best.
+; theyâ€™re not already on a theory they consider best.
 to final-commands
   ask researchers with [not member? [mytheory] of mygps cur-best-th][
      move-to-nextargu one-of cur-best-th

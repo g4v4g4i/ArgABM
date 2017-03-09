@@ -18,7 +18,7 @@
 ; which are successfully attacked i.e. non-admissible as a turtle-set
 ; processed? is a boolean dummy variable which marks attacks which have
 ; sucessfully attacked during the secondary-attackers phase. The details
-; are described in the infotab under _admissibility-calc-core_.
+; are described in the infotab under admissibility-calc-core.
 to-report admissibility-calc-core [attackset]
   ; cf infotab 1)
   let prime-attackers attackset with [uncontested]
@@ -59,7 +59,7 @@ end
 ; other only one agent needs to do the defensibility calculations 
 ; (the calc-researcher) and the others (except for the rep-researcher) can just
 ; copy the results from her.  The details are described in the infotab under
-; _compute-subjective-attacked_.
+; compute-subjective-attacked.
 to compute-subjective-attacked
   foreach colla-networks [ [cur-group] ->
     let calc-done false
