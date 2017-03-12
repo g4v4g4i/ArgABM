@@ -602,17 +602,19 @@ to update-landscape
         ][
           ; depending on the color a new child-argument is discovered, 
           ; until all child-arguments are discovered
-          let my-out-disc-neighbor-gt one-of 
-            out-discovery-neighbors with [color = gray or color = turquoise]
-          if my-out-disc-neighbor-gt != nobody [
-            ask my-out-disc-neighbor-gt [
-              set color lime
-              ; new discovered arguments are added to the turtle-set 
-              ; disc-startsargum-non-red (cf. infotab disc-startsargum-non-red)
-              set disc-startsargum-non-red 
-                (turtle-set disc-startsargum-non-red self)
-              ask my-in-discoveries [
-                set color cyan
+          if color <= yellow [
+            let my-out-disc-neighbor-gt one-of 
+              out-discovery-neighbors with [color = gray or color = turquoise]
+            if my-out-disc-neighbor-gt != nobody [
+              ask my-out-disc-neighbor-gt [
+                set color lime
+                ; new discovered arguments are added to the turtle-set 
+                ; disc-startsargum-non-red (cf. infotab disc-startsargum-non-red)
+                set disc-startsargum-non-red 
+                  (turtle-set disc-startsargum-non-red self)
+                ask my-in-discoveries [
+                  set color cyan
+                ]
               ]
             ]
           ]
@@ -657,12 +659,13 @@ to full-discovery [cur-argum cur-theory]
   ; attack and discovery, are discovered
   ask out-discovery-neighbors with [member? color [gray turquoise]] [
     set color lime
+    set disc-startsargum-non-red (turtle-set disc-startsargum-non-red self)
     ask my-in-discoveries [
       set color cyan
     ]
-  ]  
+  ]
   ask my-attacks with [color = gray] [
-    discover-attack cur-argum cur-theory     
+    discover-attack cur-argum cur-theory
   ]
 end
 
