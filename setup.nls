@@ -8,18 +8,36 @@
 
 
 
-; procedure in which the variables that are not mentioned
-; in the interface can be set (cf. infotab initialize-hidden-variables)
+; Procedure in which the variables that are not mentioned in the interface can 
+; be set.
+; 1. This determines amount of information learned via 
+; intergroup-communication (share-with-other-networks)that a researcher can 
+; digest each tick. To learn one argument which was unknown before (= cyan = 
+; 85) all the way to the highest degree of exploration (= red = 15) costs 70. 
+; By default an attack relation costs as much as one color step of an argument 
+; (`rel-costfactor` = 10) and researchers can digest two full arguments per 
+; day (`max-learn`).
+; 2. only every 5 ticks (= days) researchers move with full move-probability 
+; during the _move-around_ procedure. In between the move-probability is lower 
+; by the factor `small-movement` i.e. by default they move only with 1/5 th of 
+; the move probability on the days in between.
+; 3. During the _move-around_ procedure the move probability is influenced by 
+; the color of the argument a researcher is standing on (`color-move`). The 
+; further researched an argument is (= lower color) the higher the 
+; move-probability is. Researchers move if
+; `move-random < move-probability * (1 - ([color] of myargu / color-move))` 
+; where `move-random` is a random float on the interval [0,1] and myargu is the 
+; argument the researcher is currently standing/working on.
 to initialize-hidden-variables
-  ; cf. infotab 1.
-  set rel-costfactor 70
-  set max-learn (70 * 3)
+  ; cf. 1.
+  set rel-costfactor 10
+  set max-learn (70 * 2)
 
   ; the probability that researchers move every round is
-  ; only small-movement * move-probability (cf. infotab 2.)
+  ; only small-movement * move-probability (cf. 2.)
   set small-movement 0.2
 
-  ; influence color on move probability (cf. infotab 3.)
+  ; influence color on move probability (cf. 3.)
   set color-move 200
 end
 
