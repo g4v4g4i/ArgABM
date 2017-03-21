@@ -903,7 +903,8 @@ Contains the relations (= attacks) a researcher learned via the `update-memories
   * th-args
     * format: turtle-set
     * example: (agentset, 3 turtles)
-Contains the arguments which the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). Those arguments are the one the researcher is currently working on (cf. mygps) as well as all the arguments which are known by her group (cf. group-color-mem) and directly connected to her current argument by a link (either attack or discovery).
+Contains the arguments which the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). Those arguments are the one the researcher is currently working on (cf. mygps) as well as all the arguments which are directly connected to her current argument by a non-gray (i.e. discovered) link: a discovery or an attack (in any direction for reliable-researchers and outgoing-only for biased-researchers).
+
 
   * th-relations
     * format: link-set

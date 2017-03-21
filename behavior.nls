@@ -180,27 +180,25 @@ to create-share-memory
   ; only the representative researchers create a memory
   ; that they want to share with researchers from other networks
   ask rep-researchers [
-    let cur-argum mygps  
-    let cur-researcher self
-    let cur-th [mytheory] of cur-argum
-    let cur-group-id group-id
+    let cur-argum mygps
     ; create a set of arguments and a set of relations (= attacks) that the
     ; researcher can share with researchers from other collaborative networks
     ; which relations researchers share depends on the "social-action" from the
     ; interface (cf. infotab: th-relations and th-args)
-    let th-relations-cache no-links
-    let th-args-cache no-turtles
-    ask cur-argum [     
-      set th-args-cache link-neighbors with [
-        color != gray and item cur-group-id group-color-mem != cyan] 
+    let th-relations-cache 0
+    let th-args-cache 0
+    ask cur-argum [
       ifelse social-actions = "biased" [
-        set th-relations-cache my-out-attacks with [color != gray]        
+        set th-relations-cache my-out-attacks with [color != gray]
       ][
         set th-relations-cache my-attacks with [color != gray]
       ]
-    ] 
+      let my-share-links (link-set my-discoveries with [color != gray]
+        th-relations-cache)
+      set th-args-cache (turtle-set [other-end] of my-share-links cur-argum)
+    ]
     set th-relations th-relations-cache
-    set th-args (turtle-set th-args-cache cur-argum)
+    set th-args th-args-cache
   ]
 end
 
