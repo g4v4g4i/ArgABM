@@ -653,7 +653,10 @@ end
 
 
 ; This procedure calculates the objective admissibility of each theory which is
-; saved in the objective-admissibility value of each start (cf. infotab)
+; saved in the `objective-admissibility` value of each start (cf. infotab).
+; The calculation for the best theory (start 0) is redundant as it will always 
+; have full admissibility, but is still performed as a kind of check for the 
+; model.
 to calc-global-admiss
   let startslist sort starts 
   foreach startslist [[curtheory] ->
