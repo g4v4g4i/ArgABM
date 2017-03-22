@@ -817,7 +817,7 @@ The absolute costs are the difference between the information the rep-researcher
   The exit-condition is a reporter that determines when a given run is considered to be finished. A run is over as soon as there exists one theory which is fully discovered (i.e. has only red arguments). When this happens researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best. This is facilitated by the `final-commands` procedure which is called as soon as  `exit-condition` reports `true` and therefore ends the run.
 
 ### _final-commands_
- As soon as a run is finished (cf. _exit-condition_) researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best.
+ As soon as a run is finished (cf. _exit-condition_) researchers can one final time jump to a best theory (irrespective of their `theory-jump` value) if they’re not already on a theory they consider best. To determine what their final best theories are, they do a final update of their memory, share with their group and do an admissibility calculation.
 
 ### _in-run-performance [parameter]_
   * parameter: "monist" or "pluralist"

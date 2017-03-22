@@ -35,8 +35,13 @@ end
 
 ; as soon as a run is finished (cf. exit-condition) researchers can one final 
 ; time jump to a best theory (irrespective of their `theory-jump` value) if 
-; they’re not already on a theory they consider best.
+; they’re not already on a theory they consider best. To determine what their 
+; final best theories are, they do a final update of their memory, share with 
+; their group and do an admissibility calculation.
 to final-commands
+  ask researchers [update-memories]
+  share-with-group
+  compute-subjective-attacked
   ask researchers with [not member? [mytheory] of mygps cur-best-th][
      move-to-nextargu one-of cur-best-th
      set times-jumped times-jumped + 1
