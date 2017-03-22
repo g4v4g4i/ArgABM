@@ -89,13 +89,15 @@ researchers-own [theory-jump times-jumped collaborator-network
 
 
 
-; the global variables are all concerned with the
-; run-many procedure, or the initialization of hidden variables
+; the global variables are concerned with the
+; initialization of hidden variables,
 ; startsargum is an agentset which contains all arguments (including starts)
 ; and disc-startsargum-non-red are those startsargum which are non red and
 ; properly discovered (i.e. non gray and non turquoise).
 ; rel-costfactor is a hidden variable which determines how costly it is
-; to learn relations via inter-group communication
+; to learn relations via inter-group communication and rep-researchers are the
+; current representative researchers which share / shared information.
+; cf. Infotab - Variables
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers]
 
