@@ -165,7 +165,6 @@ to go
 end
 
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -1290,28 +1289,11 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0
+NetLogo 6.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="Zollman-networks run" repetitions="1" runMetricsEveryStep="true">
-    <go>run-many</go>
-    <timeLimit steps="1"/>
-    <enumeratedValueSet variable="network-structure">
-      <value value="&quot;cycle&quot;"/>
-      <value value="&quot;wheel&quot;"/>
-      <value value="&quot;complete&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;reliable&quot;"/>
-      <value value="&quot;biased&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="within-theory">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-  </experiment>
   <experiment name="experiment-full" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
