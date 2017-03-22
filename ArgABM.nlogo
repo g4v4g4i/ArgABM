@@ -141,7 +141,9 @@ end
 ; researchers always move around and update the landscape (with the
 ; probabilities as set in the interface)
 to go
+  let update-pluralist? false
   if ticks mod 5 = 4 [
+    set update-pluralist? true
     ask researchers [
       update-memories
     ]
@@ -159,7 +161,7 @@ to go
   if ticks mod 5 != 0 [
     communication-regress
   ]
-  compute-popularity
+  compute-popularity update-pluralist?
   tick
 end
 
@@ -710,7 +712,8 @@ Procedure in which the variables that are not mentioned in the interface can be 
  `move-random < move-probability * (1 - ([color] of myargu / color-move))` where `move-random` is a random float on the interval [0,1] and myargu is the argument the researcher is currently standing/working on.
 
   * _compute-popularity_
-  Computations for the Popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
+  Computations for the popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
+  Arguments: update-pluralist? format: boolean. Determines whether the myscientists-pluralist value has to be updated (only true if ticks mod 5 = 4 or at the end of a run)
   1.  mystart is the theory the current researcher is investigating
   2. For each researcher the myscientists variable of the theory this researcher is working on is increased by one
   3. The `myscientists-pluralist` variable (cf. Variables) is updated. 

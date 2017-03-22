@@ -46,7 +46,7 @@ to final-commands
      move-to-nextargu one-of cur-best-th
      set times-jumped times-jumped + 1
   ]
-  compute-popularity
+  compute-popularity true
 end
 
 

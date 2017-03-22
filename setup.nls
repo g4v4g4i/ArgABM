@@ -455,54 +455,69 @@ end
 
 
 
-; computations for the Popularity plot and the reporters in behaviorspace runs
+; Computations for the popularity plot and the reporters in behaviorspace runs
 ; it computes for every theory the number of researchers working on it
 ; (myscientists) and how many researchers consider a theory to be among the
 ; best (myscientists-pluralist). This values are added up in their respective 
-; global variables: research-time-monist/pluralist. For details cf. infotab
-to compute-popularity
+; global variables: research-time-monist/pluralist (cf. Infotab - Variables).
+; Arguments: update-pluralist? format: boolean. Determines whether the 
+; myscientists-pluralist value has to be updated (only true if ticks mod 5 = 4 
+; or at the end of a run)
+; 1.  mystart is the theory the current researcher is investigating
+; 2. For each researcher the myscientists variable of the theory this 
+; researcher is working on is increased by one
+; 3. The `myscientists-pluralist` variable (cf. Infotab - Variables) is updated.
+; 4. If there is more than one best theory in the memory of the researcher the 
+; start will count this researcher as adding 1 / (number of best theories) to 
+; its `myscientists-pluralist` counter. (cf. Infotab - Variables)
+; 5. As long as researchers haven't done any admissibility calculations it is 
+; assumed that they think the theory they're currently working on is the 
+; single best theory
+; 6. The values are added up in their respective global variables: 
+; research-time-monist/pluralist (cf. Infotab - Variables)
+to compute-popularity [update-pluralist?]
   ; initialize the variables at 0
-  ask starts [ 
+  ask starts [
     set myscientists 0
     if ticks mod 5 = 4 [
       set myscientists-pluralist 0
     ]
   ]
   ask researchers [
-  ; cf infotab 1.
+  ; (1.)
     let curresearcher self
     let myargu mygps
     let mystart [mytheory] of myargu
 
-    ; cf infotab 2.
+    ; (2.)
     ask mystart [
-      set myscientists myscientists + 1      
+      set myscientists myscientists + 1
     ]
-    ; cf. infotab 3.
-    if ticks mod 5 = 4 [
+    ; (3.)
+    if update-pluralist? [
       ifelse cur-best-th != 0 [
         foreach cur-best-th [ [curstart] ->
           ask curstart [
-            ; cf. infotab 4.
+            ; (4.)
             set myscientists-pluralist (myscientists-pluralist
               + 1 / length [cur-best-th] of curresearcher)
           ]
         ]
       ][
-        ; cf. infotab 5.
+        ; (5.)
         ask mystart [
           set myscientists-pluralist (myscientists-pluralist + 1)
         ]
       ]
     ]
   ]  
-  ; cf. infotab 5.
+  ; (5.)
   if ticks = 0 [
     ask starts [
       set myscientists-pluralist count researchers in-radius 0
     ]
   ]
-  ; cf. infotab 6.
+  ; (6.)
   ask starts [
     set research-time-monist research-time-monist + myscientists
     set research-time-pluralist research-time-pluralist 
