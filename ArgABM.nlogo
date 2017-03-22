@@ -96,10 +96,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; properly discovered (i.e. non gray and non turquoise).
 ; rel-costfactor is a hidden variable which determines how costly it is
 ; to learn relations via inter-group communication
-globals [times-right number-of-theories-many theory-depth-many
-  scientists-many setup-successful-m setup-successful-p setup-time
-  setup-discovered setup-discovered-best setup-jumps
-  max-learn small-movement color-move colla-networks share-structure
+globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers]
 
 
