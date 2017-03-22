@@ -100,7 +100,7 @@ globals [times-right number-of-theories-many theory-depth-many
   scientists-many setup-successful-m setup-successful-p setup-time
   setup-discovered setup-discovered-best setup-jumps
   max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor]
+  startsargum disc-startsargum-non-red rel-costfactor rep-researchers]
 
 
 
@@ -861,6 +861,11 @@ This variable contains all those those arguments including starts (=startsargum)
     * format: float
     * default value: 70
 This is a hidden variable which determines how costly it is to learn relations via inter-group communication cf. _initialize-hidden-variables_
+
+  * rep-researchers
+    * format: turtle-set
+    * example: (agentset, 13 turtles)
+This variable will contain all the actual representative researchers (i.e. those who share information during the inter-group sharing). It is set during the `create-share-memory` procedure.
 
 researchers-own:
 
