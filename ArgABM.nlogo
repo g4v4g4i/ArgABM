@@ -166,6 +166,20 @@ to go
   compute-popularity update-pluralist?
   tick
 end
+
+
+
+
+
+; runs until the exit-condition is met
+to go-stop
+  let stop? 0
+  with-local-randomness [set stop? exit-condition]
+  while [not stop?][
+    go
+    with-local-randomness [set stop? exit-condition]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -515,10 +529,10 @@ network-structure
 BUTTON
 70
 10
-125
+142
 43
+NIL
 go-stop
-setup new-seed\nwhile [not exit-condition][\n  go\n]
 NIL
 1
 T
