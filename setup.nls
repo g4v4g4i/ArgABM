@@ -2,24 +2,42 @@
 ; 1. the hidden variables (not set in the interface)
 ; 2. building the argumentative landscape with
 ;    attacks and discovery relations
-; 3. populate the landscape with agents
+; 3. populate the landscape with researchers
 
 
 
 
 
-; procedure in which the variables that are not mentioned 
-; in the interface can be set
+; Procedure in which the variables that are not mentioned in the interface can 
+; be set.
+; 1. This determines amount of information learned via 
+; intergroup-communication (share-with-other-networks)that a researcher can 
+; digest each tick. To learn one argument which was unknown before (= cyan = 
+; 85) all the way to the highest degree of exploration (= red = 15) costs 70. 
+; By default an attack relation costs as much as one color step of an argument 
+; (`rel-costfactor` = 10) and researchers can digest two full arguments per 
+; day (`max-learn`).
+; 2. only every 5 ticks (= days) researchers move with full move-probability 
+; during the _move-around_ procedure. In between the move-probability is lower 
+; by the factor `small-movement` i.e. by default they move only with 1/5 th of 
+; the move probability on the days in between.
+; 3. During the _move-around_ procedure the move probability is influenced by 
+; the color of the argument a researcher is standing on (`color-move`). The 
+; further researched an argument is (= lower color) the higher the 
+; move-probability is. Researchers move if
+; `move-random < move-probability * (1 - ([color] of myargu / color-move))` 
+; where `move-random` is a random float on the interval [0,1] and myargu is the 
+; argument the researcher is currently standing/working on.
 to initialize-hidden-variables
-  ; probability that communication among agents from 
-  ; different networks is undirected
-  set undirected-communication 0.5
-  
-  ; the probability that agents move every round is
-  ; only small-movement * move-probability
+  ; cf. 1.
+  set rel-costfactor 10
+  set max-learn (70 * 2)
+
+  ; the probability that researchers move every round is
+  ; only small-movement * move-probability (cf. 2.)
   set small-movement 0.2
-  
-  ; influence color on move probability
+
+  ; influence color on move probability (cf. 3.)
   set color-move 200
 end
 
@@ -33,7 +51,12 @@ to create-discovery-landscape
   ; at the start arguments and starts are a circle
   set-default-shape arguments "circle"
   set-default-shape starts "circle"
-  
+  set startsargum no-turtles
+  set disc-startsargum-non-red no-turtles  
+ ; The color equivalent to gray in the landscape is cyan (= 85) in the
+ ; group-color-mem. This is set that way such that the smaller color the more
+ ; discovered. Same goes for group-color-mem-cache
+  let group-colors-list n-values colla-networks [cyan]
   repeat number-of-theories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
@@ -41,7 +64,10 @@ to create-discovery-landscape
       set color lime
       set current-start true
       set mytheory self
-      set full-research false
+      set group-color-mem group-colors-list
+      set group-color-mem-cache group-colors-list
+      set startsargum (turtle-set startsargum self)
+      set disc-startsargum-non-red (turtle-set disc-startsargum-non-red self)
     ]
     let i 0
     while [i < theory-depth] [
@@ -51,15 +77,17 @@ to create-discovery-landscape
         set color gray
         set current-argument true
         set mytheory one-of starts with [current-start]
-        set full-research false
+        set group-color-mem group-colors-list
+        set group-color-mem-cache group-colors-list
+        set startsargum (turtle-set startsargum self)
       ]
       set i i + 1
     ]
-    
+
     ; with the created turtles (arguments and roots)
     ; trees are build, one for each start/root
     create-discovery-trees
-    
+
     ask starts [ ; to make sure that all theories are visible
       create-starters-with other starts [set color black]
       set current-start false
@@ -67,8 +95,7 @@ to create-discovery-landscape
     ask arguments [set current-argument false]
   ]
   ; set the shape of the arguments of the best theory different from a circle
-  ask turtles with [(breed = starts or breed = arguments) and
-    mytheory = start 0 ][
+  ask startsargum with [mytheory = start 0][
     set shape "triangle"
   ]
 end
@@ -101,8 +128,8 @@ to create-discovery-trees
         if any? other arguments with [count in-discovery-neighbors = 0 and
           current-argument and not out-discovery-neighbor? curarg][
           create-discovery-to one-of other arguments with
-	        [count in-discovery-neighbors = 0 and current-argument]
-          ]
+          [count in-discovery-neighbors = 0 and current-argument]
+        ]
       ]
     ]
   ]
@@ -118,15 +145,18 @@ end
 ; depends on the attack-probability for the theory the attacked
 ; argument belongs to, as can be set in the interface
 ; one theory, the objective best, defends all its arguments
-to define-attack-relation
+to define-attack-relation 
   ; first the random attacks are defined
-  define-attack-relation-create-attacks
-  
+  create-attacks 
+
   ; then the best theory defends itself
-  define-attack-relation-defend-best
+  defend-best
   
+  ; the uncontested values of the attacks are set
+  set-uncontested-values
+
   ; the arguments and relations are spread over the patches
-  define-attack-relation-visualize
+  visualize
 end
 
 
@@ -134,8 +164,8 @@ end
 
 
 ; this procedure creates the random attacks from one theory to another
-to define-attack-relation-create-attacks
-  ask turtles with [breed = starts or breed = arguments][
+to create-attacks
+  ask startsargum [
     ; variables for the current argument, the theory it belongs to,
     ; a random number between 0.00 and 1.00 and a list of theories
     let askargu self
@@ -146,55 +176,52 @@ to define-attack-relation-create-attacks
       set starts-list lput who starts-list
     ]
     set starts-list sort starts-list
-    
+
     ; with attack-probability-2nd from the interface an attack towards
     ; the current argument is created
-    ifelse number-of-theories = 2[
+    ifelse number-of-theories = 2 [
       if attack-random < attack-probability-2nd and curtheory != start 0 [
-        create-attack-from one-of other turtles with [(breed = starts or
-	      breed = arguments)and mytheory != curtheory and not
-	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-            ]
+        create-incoming-attack curtheory askargu
       ]
     ][
-    
-    ; when there are three theories both attack-probability-2nd and -3rd are
-    ; considered to create attacks, depending on the theory the current argument
-    ; belongs to first for the third theory
-    ifelse [who] of curtheory = max starts-list and attack-random <
-      attack-probability-3rd [
-      create-attack-to one-of other turtles with [(breed = starts or
-        breed = arguments) and mytheory != curtheory and not
-	      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	      out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-          ]
-    ][
-    ; then attacks towards arguments of the 2nd theory are created
-    if [who] of curtheory != max starts-list and curtheory != start 0 and
-      attack-random < attack-probability-2nd [
-      create-attack-from one-of other turtles with [(breed = starts or
-      breed = arguments) and mytheory != curtheory and not
-      (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-          ]
+
+      ; when there are three theories both attack-probability-2nd and -3rd are
+      ; considered to create attacks, depending on the theory the current
+      ; argument belongs to first for the third theory
+      ifelse [who] of curtheory = max starts-list and attack-random <
+        attack-probability-3rd [
+        create-incoming-attack curtheory askargu
+      ][
+        ; then attacks towards arguments of the 2nd theory are created
+        if [who] of curtheory != max starts-list and curtheory != start 0 and
+          attack-random < attack-probability-2nd [
+          create-incoming-attack curtheory askargu
+        ]
+      ]
     ]
-    ]
-    ]
-    
+
     ; if the current argument belongs to the objective best theory
     ; an attack towards this argument is created with attack-probability-best
     if attack-random < attack-probability-best and curtheory = start 0 [
-      create-attack-from one-of other turtles with [(breed = starts or
-      breed = arguments) and mytheory != curtheory and not
-	    (in-discovery-neighbor? askargu or in-attack-neighbor? askargu or
-	    out-discovery-neighbor? askargu or out-attack-neighbor? askargu)][
-        set color gray
-          ]
+      create-incoming-attack curtheory askargu
     ]
+  ]
+end
+
+
+
+
+
+; creates an incoming attack to the askargu from another argument which 
+; a) must not be from the same theory and
+; b) must not be conected with askargu by an attack already
+to create-incoming-attack [curtheory askargu]
+  create-attack-from one-of other startsargum with [mytheory != curtheory
+    and not attack-neighbor? askargu][
+    set color gray
+    set mytheory-end1 [mytheory] of end1
+    set mytheory-end2 curtheory
+    set in-group-i-memory n-values colla-networks [false]
   ]
 end
 
@@ -204,12 +231,14 @@ end
 
 ; after the random attacks are created, attacks coming from the best theory
 ; are added such that it defends itself completely
-to define-attack-relation-defend-best
-  ask turtles with [(breed = starts or breed = arguments) and
-    mytheory = start 0][
+to defend-best
+  ; best-th-args is a turtle-set containing all the arguments (including the
+  ; start) from the best theory
+  let best-th-args startsargum with [mytheory = start 0]
+  ask best-th-args [
     ; variable for the current argument
     let askargu self
-    
+
     if any? in-attack-neighbors [
       ask in-attack-neighbors [
         ; variable for the attacking argument, if such an argument exists
@@ -217,12 +246,12 @@ to define-attack-relation-defend-best
         ; a defending attack is only created if there is not yet an attack
         ; from an argument of the best theory towards the attacking argument
         if not any? in-attack-neighbors with [mytheory = start 0][
-          create-attack-from one-of turtles with [(breed = starts or
-	        breed = arguments) and mytheory = start 0 and not
-	        (in-discovery-neighbor? askattack or in-attack-neighbor?
-	        askattack or out-discovery-neighbor? askattack or
-	        out-attack-neighbor? askattack) and not (self = askargu)][
+          create-attack-from one-of best-th-args with [
+            not attack-neighbor? askattack and not (self = askargu)][
             set color gray
+            set mytheory-end1 (start 0)
+            set mytheory-end2 [mytheory] of end2
+            set in-group-i-memory n-values colla-networks [false]            
           ]
         ]
       ]
@@ -234,101 +263,127 @@ end
 
 
 
-; creates the visible tree, centered around 
+; the uncontested values serve as a first approximation to lower the
+; computational intensity of the calc-global-admiss (cga) procedure.
+; They're not intended to be always correct and will be reset at the end
+; of the cga procedure. For the cga procedure to work correctly it is only 
+; important that the attacks with uncontested = true are really not attacked
+; themselves
+to set-uncontested-values
+  ask attacks [
+    ifelse [any? my-in-attacks] of end1 [
+      set uncontested false
+    ][
+      set uncontested true
+    ]
+  ]
+end
+
+
+
+
+
+; creates the visible tree, centered around
 ; the root of the best theory
-to define-attack-relation-visualize
+to visualize
   layout-radial
-  turtles with [breed = arguments or breed = starts]
+  startsargum
   links with [breed = discoveries or breed = starters]
   start 0
+  ; to to prevent potential conflicts when asking for general link
+  ; primitives e.g. during update-memories the starters links are removed
+  ask starters [die]
 end
 
 
 
 
 
-; in this procedure the agents are created,
+; in this procedure the researchers are created,
 ; including their memory and the social netoworks
 ; and they are distributed randomly over the theories
-to distribute-agents
-  set-default-shape agents "person"
+to distribute-researchers
+  set-default-shape researchers "person"
+
+  ; the right number of researchers is created
+  ; and the researcher variables are initialized
+  researchers-create-scientists
   
-  ; the right number of agents is created
-  ; and the agent variables are initialized
-  agents-create-scientists
-  
+  ; the researchers are moved to the roots of the theories where they will
+  ; beginn their research
+  move-researchers-to-roots
+
   ; create the network of collaborators
-  ; if in the interface "within-theory" is on, collaborative networks are created
-  ; among agents that start from the same theory
-  ; a network has at most 5 agents in it
+  ; if in the interface "within-theory" is on, collaborative networks are
+  ; created among researchers that start from the same theory 
+  ; (i.e. homogeneous-groups). A network has 5 researchers in it
+  set colla-networks []
   ifelse within-theory [
-    distribute-agents-within-theory-on
+    create-homogeneous-groups
   ][
   ; if "within-theory" is off in the interface, random collaborative networks
-  ; are created, all of size 5
-  distribute-agents-within-theory-off    
+  ; (i.e. heterogeneous-groups) are created, all of size 5
+    create-heterogeneous-groups
   ]
-  
-  ; the memory of the agents is created
-  agents-create-memory
+
+  ; the networks in which researchers share with other groups is created
+  create-networks
 end
 
 
 
 
 
-; create agents and initialize their variables
-to agents-create-scientists
-  create-agents scientists [
-    ; the agents are blue-colored
-    ; and start on one of the roots
+; create researchers and initialize their variables
+to researchers-create-scientists
+  ; an researcher is always aware of all the theories
+  ; the information the researcher has about a theory
+  ; is collected in current-theory-info which has
+  ; the form [[(start 0) no. adm args] ...]
+  let theories []
+  foreach sort starts [ [curstart] ->
+    let start-add []
+    set start-add lput curstart start-add
+    set start-add lput 0 start-add
+    set theories lput start-add theories
+  ]
+  create-researchers scientists [
+    ; the researchers are blue-colored
     set color blue
-    move-to one-of starts
-    
-    ; the agent-own variables are initialized
+
+    ; some researcher-own variables are initialized
     set collaborator-network []
-    set subjective-relations []
-    set subjective-arguments []
-    set times-jumped 0
+    set subjective-relations no-links
+    set to-add-mem-rel no-links
+    set argu-cache no-turtles
+    set non-admiss-subj-argu no-turtles
+    set to-add-mem-argu no-turtles    
+    set flag-updated-memory false
     set moved false
-    
-    ; an agent is always aware of all the theories
-    ; the information the agent has about a theory
-    ; is collected in current-theory-info which has
-    ; the form [[(start 0) no. adm args] ...]
-    let theories []
-    ask starts [
-      let start-add []
-      set start-add lput self start-add
-      set start-add lput 0 start-add
-      set theories lput start-add theories
-    ]
+    set rep-researcher false
     set current-theory-info theories
-  ]
+  ]  
 end
 
 
 
 
 
-; create the memory of the agent
-; keep track of the theories and arguments that the agent has visited
-; an argument memory entry has two elements: the argument and its color:
-; [[(argument a) colora] ... [(argument i) colori] ...]
-to agents-create-memory
-  ask agents [
-    ; variables for the x and y coordinate and the theory of
-    ; the current agent
-    let myx xcor
-    let myy ycor
-    let cur-theory one-of starts with [xcor = myx and ycor = myy]
-    
-    ; the current theory is added to the subjective-arguments list:
-    ; [[(start x) lime]]
-    let add-cur []
-    set add-cur lput cur-theory add-cur
-    set add-cur lput [color] of cur-theory add-cur
-    set subjective-arguments lput add-cur subjective-arguments
+; The researchers are randomly distributed among the starts in packs of five
+; which corresponds to the number of members each collaborative network has
+; the researcher will set mygps (the argument she's currently working on)
+; to be the root where she starts and she will add this root to her
+; subjective-arguments
+to move-researchers-to-roots
+  let remaining-researchers researchers
+  while [any? remaining-researchers][
+    let start-destination one-of starts
+    ask n-of 5 remaining-researchers [      
+      move-to start-destination
+      set mygps start-destination
+      set subjective-arguments start-destination
+      set remaining-researchers other remaining-researchers
+    ]
   ]
 end
 
@@ -337,43 +392,31 @@ end
 
 
 ; if in the interface "within-theory" is on, collaborative networks are created
-; among agents that start from the same theory
-; a network has at most 5 agents in it
-to distribute-agents-within-theory-on
+; among researchers that start from the same theory (i.e. homogeneous-groups)
+; a network has 5 researchers in it
+to create-homogeneous-groups
+  let i 0
   ask starts [
-    ; variables for the x and y coordinates of the root
-    ; and an empty list for the created network
-    let myx xcor
-    let myy ycor
-    let cur-col []
+    ; while there are more than five researchers on the root without a network
+    ; networks of five researchers are created 
     
-    ; while there are more than five agents on the root without a network
-    ; networks of exactly five agents are created
-    if any? agents with [xcor = myx and ycor = myy and
-      empty? collaborator-network][
-      while [count agents with [xcor = myx and ycor = myy and
-        empty? collaborator-network] > 5][
-        ; five agents are added to the list cur-col
-        ; which is then set as the collaborator-network of each of these agents
-        ask n-of 5 agents with [xcor = myx and ycor = myy and
-	        empty? collaborator-network] [
-          set cur-col lput self cur-col
-        ]
-        ask agents with [member? self cur-col][
-          set collaborator-network cur-col
-        ]
-        set cur-col []
+    while [any? researchers in-radius 0 with [empty? collaborator-network]] [
+      let cur-col no-turtles
+      ; five researchers are added to the turtle-set cur-col which is then
+      ; set as the collaborator-network of each of these researchers
+      ask n-of 5 researchers in-radius 0 with [empty? collaborator-network] [
+        set cur-col (turtle-set cur-col self) 
       ]
-      ; once there are five or less agents without a network
-      ; they form a network together
-      ask agents with [xcor = myx and ycor = myy and
-        empty? collaborator-network] [
-        set cur-col lput self cur-col
+      ; initialize variables for the collection of the networks
+      ; and the networks that will share with each other
+      set colla-networks lput sort cur-col colla-networks
+      set group-color-mem replace-item i group-color-mem color
+      ask cur-col [
+        set collaborator-network sort cur-col
+        set group-id i
       ]
-      ask agents with [member? self cur-col][
-        set collaborator-network cur-col
-      ]
-    ]
+      set i i + 1 
+    ]    
   ]
 end
 
@@ -382,17 +425,28 @@ end
 
 
 ; if "within-theory" is off in the interface random collaborative networks
-; are created, all of size 5
-to distribute-agents-within-theory-off
-  while [any? agents with [empty? collaborator-network]][
-    ; variable that collects exactly five agents for a network
-    let cur-col []
-    ask n-of 5 agents with [empty? collaborator-network][
-      set cur-col lput self cur-col
+; are created (i.e. heterogeneous-groups), all of size 5
+to create-heterogeneous-groups
+  let i 0
+  while [any? researchers with [empty? collaborator-network]][
+    ; variable that collects five researchers for a network
+    let cur-col no-turtles
+    ; five researchers are added to the turtle-set cur-col which is then
+    ; set as the collaborator-network of each of these researchers
+    ask n-of 5 researchers with [empty? collaborator-network][
+      set cur-col (turtle-set cur-col self) 
     ]
-    ask agents with [member? self cur-col][
-      set collaborator-network cur-col
+    ; initialize variables for the collection of the networks
+    ; and the networks that will share with each other
+    set colla-networks lput sort cur-col colla-networks
+    ask cur-col [
+      set collaborator-network sort cur-col
+      set group-id i
+      ask starts in-radius 0 [
+        set group-color-mem replace-item i group-color-mem color
+      ]
     ]
+    set i i + 1
   ]
 end
 
@@ -400,27 +454,225 @@ end
 
 
 
-; computations for the Popularity plot
-; it computes for every theory the number of
-; agents working on it
-to compute-popularity
-  ; initialize the variable at 0 
-  ask starts [ set myscientists 0 ]
-  
-  ask agents [
-    ; variables for x and y coordinate of the current agent,
-    ; the argument it is currently working on and the 
-    ; theory this argument belongs to
-    let myx xcor
-    let myy ycor
-    let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]
+; Computations for the popularity plot and the reporters in behaviorspace runs
+; it computes for every theory the number of researchers working on it
+; (myscientists) and how many researchers consider a theory to be among the
+; best (myscientists-pluralist). This values are added up in their respective 
+; global variables: research-time-monist/pluralist (cf. start-owned-variables).
+; Arguments: update-pluralist? format: boolean. Determines whether the 
+; myscientists-pluralist value has to be updated (only true if ticks mod 5 = 4 
+; or at the end of a run)
+to compute-popularity [update-pluralist?]
+  ask starts [
+    set myscientists 0
+    if update-pluralist? [
+      set myscientists-pluralist 0
+    ]
+  ]
+  ; As long as researchers haven't done any admissibility calculations it is 
+  ; assumed that they think the theory they're currently working on is the 
+  ; single best theory
+  if ticks = 0 [
+    ask starts [
+      set myscientists-pluralist count researchers in-radius 0
+    ]
+  ]
+  ask researchers [
+    let curresearcher self
+    let myargu mygps
     let mystart [mytheory] of myargu
-    
-    ; the myscientists variable of the theory the agent
-    ; is working on is increased by one
     ask mystart [
       set myscientists myscientists + 1
     ]
+    if update-pluralist? [
+      ifelse cur-best-th != 0 [
+        foreach cur-best-th [ [curstart] ->
+          ask curstart [
+            set myscientists-pluralist (myscientists-pluralist
+              + 1 / length [cur-best-th] of curresearcher)
+          ]
+        ]
+      ][
+        ; As long as researchers haven't done any admissibility calculations 
+        ; it is assumed that they think the theory they're currently working 
+        ; on is the single best theory
+        ask mystart [
+          set myscientists-pluralist (myscientists-pluralist + 1)
+        ]
+      ]
+    ]
+  ]
+  ask starts [
+    set research-time-monist research-time-monist + myscientists
+    set research-time-pluralist research-time-pluralist 
+      + myscientists-pluralist
+  ]
+end
+
+
+
+
+
+; the social network structures for collaborator networks
+; is created according to the choice made in the interface:
+; cycle, wheel or complete
+to create-networks  
+  ; a temporary colla-networks variable is created such that the groups are in 
+  ; random order
+  let colla-networks-temp shuffle colla-networks
+  ; an entry in share-structure starts with the network that
+  ; is the network that initializes the sharing
+  set share-structure []
+  ; in the case that the choice in the interface is cycle
+  ifelse network-structure = "cycle" [
+    let connect-networks colla-networks-temp
+
+    ; when there are only two collaborator-networks
+    ; they always share with each other
+    ifelse length colla-networks-temp = 2 [
+      set share-structure lput colla-networks-temp share-structure
+      set share-structure lput reverse colla-networks-temp share-structure
+    ][
+
+    ; in all other cases networks share with two neighboring networks
+    ; for three networks this is still a complete case
+    while [length connect-networks > 2] [
+      ; first the entries for the beginning and end of the list
+      ifelse empty? share-structure[
+        let to-add-structure1 []
+        let to-add-structure2 []
+        set to-add-structure1 lput first connect-networks to-add-structure1
+        set to-add-structure1 lput first but-first connect-networks
+        to-add-structure1
+        set to-add-structure1 lput last connect-networks to-add-structure1
+        set to-add-structure2 lput last connect-networks to-add-structure2
+        set to-add-structure2 lput first connect-networks to-add-structure2
+        set to-add-structure2 lput last but-last connect-networks
+        to-add-structure2
+        set share-structure lput to-add-structure1 share-structure
+        set share-structure lput to-add-structure2 share-structure
+      ][
+      ; then the networks in between
+      let to-add-structure []
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set to-add-structure lput first connect-networks to-add-structure
+      set connect-networks remove-item 0 connect-networks
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set share-structure lput to-add-structure share-structure
+      ]
+    ]
+    ]
+  ][
+
+  ; in the case that the choice in the interface is wheel
+  ifelse network-structure = "wheel" [
+    let connect-networks colla-networks-temp
+
+    ; when there are only two or three collaborator-networks
+    ; they always share with each other
+    ifelse length colla-networks-temp < 4 [
+      set share-structure lput colla-networks-temp share-structure
+      set share-structure lput reverse colla-networks-temp share-structure
+      if length colla-networks-temp = 3 [
+        let add-colla-networks []
+        set add-colla-networks lput first but-first colla-networks-temp
+        add-colla-networks
+        set add-colla-networks lput first colla-networks-temp
+          add-colla-networks
+        set add-colla-networks lput last colla-networks-temp add-colla-networks
+        set share-structure lput add-colla-networks share-structure
+      ]
+    ][
+
+    ; the first network is defined to be the royal family:
+    ; the network that shares with all other networks
+    let middle first connect-networks
+    set connect-networks remove-item 0 connect-networks
+    let add-middle []
+    set add-middle lput middle add-middle
+    foreach connect-networks [ [?1] ->
+      if ?1 != middle [
+        set add-middle lput ?1 add-middle
+      ]
+    ]
+    ; the other networks are put in a cycle, with the
+    ; addition that every networks shares with middle (the royal family)
+    while [length connect-networks > 2] [
+      ifelse empty? share-structure[
+        let to-add-structure1 []
+        let to-add-structure2 []
+        set to-add-structure1 lput first connect-networks to-add-structure1
+        set to-add-structure1 lput first but-first connect-networks
+        to-add-structure1
+        set to-add-structure1 lput last connect-networks to-add-structure1
+        set to-add-structure1 lput middle to-add-structure1
+        set to-add-structure2 lput last connect-networks to-add-structure2
+        set to-add-structure2 lput first connect-networks to-add-structure2
+        set to-add-structure2 lput last but-last connect-networks
+        to-add-structure2
+        set to-add-structure2 lput middle to-add-structure2
+        set share-structure lput to-add-structure1 share-structure
+        set share-structure lput to-add-structure2 share-structure
+      ][
+      let to-add-structure []
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set to-add-structure lput first connect-networks to-add-structure
+      set connect-networks remove-item 0 connect-networks
+      set to-add-structure lput first but-first connect-networks to-add-structure
+      set to-add-structure lput middle to-add-structure
+      set share-structure lput to-add-structure share-structure
+      ]
+    ]
+
+    ; the first entry of share-structure is the royal family entry
+    set share-structure fput add-middle share-structure
+    ]
+  ][
+
+  ; the other cases: a completely connected graph
+  ; for each collaborator-network an entry is created with at the
+  ; first position the network and then all others
+  foreach colla-networks-temp [ [?1] ->
+    let cur-network ?1
+    let to-add-structure []
+    set to-add-structure lput cur-network to-add-structure
+    foreach colla-networks-temp [ [??1] ->
+      if ??1 != cur-network [
+        set to-add-structure lput ??1 to-add-structure
+      ]
+    ]
+    set share-structure lput to-add-structure share-structure
+  ]
+  ]
+  ]
+end
+
+
+
+
+
+; This procedure calculates the objective admissibility of each theory which is
+; saved in the `objective-admissibility` value of each start.
+; The calculation for the best theory (start 0) is redundant as it will always 
+; have full admissibility, but is still performed as a kind of check for the 
+; model.
+to calc-global-admiss
+  let startslist sort starts 
+  foreach startslist [[curtheory] ->
+    ; all attacks which are concerning the curtheory (i.e. incoming or
+    ; outgoing) form the link-set curtheory-attacks (e.g. (agentset, 90 links))
+    let curtheory-attacks attacks with [mytheory-end1 = curtheory 
+      or mytheory-end2 = curtheory]
+    ask curtheory [
+      let non-admiss-argu admissibility-calc-core curtheory-attacks
+      set objective-admissibility (count startsargum with [
+        mytheory = curtheory] 
+        - count non-admiss-argu with [mytheory = curtheory])
+    ]
+  ]
+  ; the attacks are reset b/c none of them is yet discovered so 
+  ; they're currently all uncontested
+  ask attacks [
+    set uncontested true    
   ]
 end

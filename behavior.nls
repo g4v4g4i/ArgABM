@@ -1,5 +1,5 @@
 ; the procedures that determine
-; the basic behavior of the agents:
+; the basic behavior of the researchers:
 ; 1. how they update their memory
 ; 2. how they share information
 ; 3. how they walk around on the landscape
@@ -9,324 +9,120 @@
 
 
 
-; every round, the agents update their memory:
+; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
-; every fifth round the agents share their updated memory within their
-; collaborator-network
+; The memory management is comprised of two parts:
+; (a) The researchers save arguments and relations in the form of turtle-sets
+; / link-sets in their memory (cf. Variables -> `to-add-mem-argu`
+; `to-add-mem-rel`) which will be synchronized every week with the group in
+; the `share-with-group` procedure
+; (b) the status in which the argument / relation is known to a certain
+; collaborative network (=group) is saved in the argument / link itself. 
+; (cf. Variables -> `group-color-mem`, `in-group-i-memory`). For
+; links this will be facilitated during the `share-with-group` procedure,
+; while for arguments the color is updated right when the researchers update
+; their memory
 to update-memories
-  ask agents [
-    let myx xcor
-    let myy ycor
-    let cur-argum one-of turtles with [(breed = starts or breed = arguments)
-      and xcor = myx and ycor = myy]
-    let cur-agent self
-    ; information of current argument in the format of the memory
-    let add-cur (sentence cur-argum [color] of cur-argum)
-    set subjective-arguments lput add-cur subjective-arguments
-    ; list of relations (resp. arguments) that are added
-    let to-add []
-    let to-add-argu []
-    ; list of neighborhood arguments of the current argument
-    set neighborargs []
-    set neighborargs lput cur-argum neighborargs
-    
-    ; for the current argument
-    ; add the neighboring discovered arguments and relations
-    ; (attacks and discovery) to a to-add list
-    ask cur-argum [
-      ; add the parent argument of the discovery relation
-      if any? in-discovery-neighbors with [color != gray][
-        ask in-discovery-neighbors with [color != gray][
-          let add-disc self
-          ask cur-agent [
-            set neighborargs lput add-disc neighborargs
-          ]
-          ; construction of the to be added discovery relation
-          let add-rel []
-          set add-rel lput "d" add-rel
-          set add-rel lput add-disc add-rel
-          set add-rel lput cur-argum add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-disc color)
-          set to-add-argu lput add-other to-add-argu
-        ]
+  ; the argument the researcher is standing on is written to cur-argum
+  let cur-argum mygps
+  let cur-researcher self
+  let cur-group-id group-id  
+  ; the argument the researcher is standing on is added to her memory (a)
+  let to-add-mem-argu-cache cur-argum
+  let to-add-mem-rel-cache no-links
+  ask cur-argum [
+    ; the most recent version (=color) of the argument the researcher is 
+    ; standing on is now known by the group (b) 
+    set group-color-mem replace-item cur-group-id group-color-mem color   
+    ask my-links with [color != gray ] [
+      ; discovered attacks are added to the researchers memory (a)
+      if breed = attacks [
+        set to-add-mem-rel-cache (link-set to-add-mem-rel-cache self)
       ]
-      
-      ; add the child argument of the discovery relation
-      if any? out-discovery-neighbors with [color != gray][
-        ask out-discovery-neighbors with [color != gray][
-          let add-disc self
-          ask cur-agent [
-            set neighborargs lput add-disc neighborargs
-          ]
-          ; construction of the to be added discovery relation
-          let add-rel []
-          set add-rel lput "d" add-rel
-          set add-rel lput cur-argum add-rel
-          set add-rel lput add-disc add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-disc color)
-          set to-add-argu lput add-other to-add-argu
-        ]
-      ]
-      
-      ; add the parent argument of the attack relation
-      if any? my-in-attacks with [color != gray][
-        ask my-in-attacks with [color != gray][
-          let add-other-end other-end
-          ask cur-agent [
-            set neighborargs lput add-other-end neighborargs
-          ]
-          ; construction of the to be added attack relation
-          let add-rel []
-          set add-rel lput "a" add-rel
-          set add-rel lput add-other-end add-rel
-          set add-rel lput cur-argum add-rel
-          set to-add lput add-rel to-add
-          ; the to be added argument
-          let add-other (sentence add-other-end [color] of add-other-end)
-          set to-add-argu lput add-other to-add-argu
-        ]
-      ]
-      
-      ; add the child argument of the attack relation
-      if any? my-out-attacks with [color != gray][
-        ask my-out-attacks with [color != gray][
-          let add-other-end other-end
-          ask cur-agent [
-            set neighborargs lput add-other-end neighborargs
-          ]
-          ; construction of the to be added attack relation
-          let add-argu []
-          set add-argu lput "a" add-argu
-          set add-argu lput cur-argum add-argu
-          set add-argu lput other-end add-argu
-          set to-add lput add-argu to-add
-          ; the to be added argument
-          let add-other (sentence add-other-end [color] of add-other-end)
-          set to-add-argu lput add-other to-add-argu
-        ]
+      ; the same update as above for the cur-argum is done for all arguments 
+      ; connected to cur-argum by non gray links
+      ask other-end [ 
+        ;(a)
+        set to-add-mem-argu-cache (turtle-set to-add-mem-argu-cache self)
+        ;(b)
+        set group-color-mem replace-item cur-group-id group-color-mem color
       ]
     ]
-    
-    ; remove duplicates from the list
-    set subjective-relations remove-duplicates sentence
-      subjective-relations to-add
-    set subjective-arguments remove-duplicates sentence
-      subjective-arguments to-add-argu
   ]
-  
-  ; every 5 plus 4 time-steps the collected information
-  ; is shared with other agents
-  if ticks mod 5 = 4 [
-    share-with-others
-  ] 
-  
+  set to-add-mem-argu (turtle-set to-add-mem-argu to-add-mem-argu-cache)
+  set to-add-mem-rel (link-set to-add-mem-rel to-add-mem-rel-cache)
+  set flag-updated-memory true  
 end
 
 
 
 
 
-; procedure in which agents share (part of) their memory with other agents
-; first they share their whole memory with agents from their
-; collaborator-network
-; second, with a certain probability, they share information with
-; agents from other networks
-to share-with-others
-  ask agents [
-    ; variables to keep track of the current agents own memory
-    ; and the combined memory of all the sharing agents
-    let own-memory-argu subjective-arguments
-    let own-memory-rel subjective-relations
-    let comb-memory-argu []
-    let comb-memory-rel []
-    ; collaborator network of the current agent
-    let cur-network collaborator-network
-    
-    ; the information in the memories of the single agents in the network
-    ; are combined 
-    ask turtles with [member? self cur-network] [
-      set comb-memory-argu sentence subjective-arguments comb-memory-argu
-      set comb-memory-rel sentence subjective-relations comb-memory-rel
-    ]
-    
-    ; each agent adds the combined memory to its own
-    ; then removing duplicates
-    set subjective-arguments remove-duplicates sentence
-      own-memory-argu comb-memory-argu
-    set subjective-relations remove-duplicates sentence
-      own-memory-rel comb-memory-rel
-    
-    foreach subjective-arguments [
-      ; the argument of the current subjective-arguments entry
-      let argu first ?
-      ; the color of the current subjective-arguments entry
-      let my-color first but-first ?
-      ; a list of subjective-arguments entries that concern
-      ; the same argument
-      let color-argu filter [first ? = argu] subjective-arguments
-      set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
-      ; keep only the argument-entry that is researched the most
-      ; entries from the same argument but with higher color-value are deleted
-      while [length color-argu != 1] [
-        set subjective-arguments remove last color-argu subjective-arguments
-        set color-argu but-last color-argu
-      ]
-    ]
-  ]
-  
-  ; then agents can share some of their information with agents 
-  ; from other collaborator-networks
-  create-share-memory
-  share-with-other-network
-  
-end
-
-
-
-
-
-; procedure in which agents collect the information from their
-; memory that they want to share with agents that do not 
-; belong to their own collaborator-network
-to create-share-memory
-  ask agents [
-    let myx xcor
-    let myy ycor
-    ; variables for the argument the agent is currently working on,
-    ; the agent itself and the theory it is working on
-    let cur-argum one-of turtles with [(breed = starts or breed = arguments)
-      and xcor = myx and ycor = myy]
-    let cur-agent self 
-    let cur-th [mytheory] of cur-argum
-    ; create a list of arguments and a list of relations that the agent can
-    ; share with agents from other collaborative networks
-    ; what agents share depends on the "social-action" and "sharing"
-    ; from the interface
-    set th-args []
-    set th-relations []
-    
-    ; the case that agents share their whole network
-    ifelse sharing = "all" [
-      ; collect all the arguments that belong to the
-      ; current theory from the agent's memory
-      foreach subjective-arguments [
-        if [mytheory] of item 0 ? = cur-th [
-          set th-args lput ? th-args
-        ]
-      ]
-      ; collect all the relations that have one end
-      ; in the current theory from the agent's memory
-      foreach subjective-relations [
-        if [mytheory] of item 1 ? = cur-th or [mytheory] of item 2 ? = cur-th [
-          set th-relations lput ? th-relations
-        ]
-      ]
-    ][
-    
-    ; the case that agents share only information obtained
-    ; in the neighborhood they are currently working on
-    if sharing = "neighborhood" [
-      ; collect the arguments from the agent's memory
-      ; that belong also to the neighborargs
-      foreach subjective-arguments [
-        if member? item 0 ? [neighborargs] of cur-agent [
-          set th-args lput ? th-args
-        ]
-      ]
-      ; collect the relations from/to the current argument
-      ; from the agent's memory
-      foreach subjective-relations [
-        if item 1 ? = cur-argum or item 2 ? = cur-argum [
-          set th-relations lput ? th-relations
-        ]
-      ]
-    ]
-    ]
-    
-    ; if the agent behaves biased it does not share the attack relations that
-    ; attack its current theory, these relations are removed
-    if social-actions = "biased"[
-      foreach th-relations [
-        if item 0 ? = "a" and [mytheory] of item 2 ? = cur-th [
-          set th-relations remove ? th-relations
-        ]
-      ]
-    ]
-  ]
-end
-
-
-
-
-
-; procedure in which the actual sharing with agents from other
-; networks happens with probability social-collaboration
-; in 50% of the cases this is done by exchanging information (undirected)
-; as in a discussion
-; in the other cases the agent provides information (directed)
-; information sharing is done from one agent to another, when new information
-; is obtained they share this information with their own network after the
-; next five time-steps
-to share-with-other-network
-  ask agents [
-    ; variables for the combined information (arguments and relations),
-    ; the network of the current agent and the theory it is working on
-    let comb-memory-argu th-args
-    let comb-memory-rel th-relations
-    let cur-network collaborator-network
-    let my-cur-theory [mytheory] of item 0 item 0 th-args
-    
-    if random-float 1 < social-collaboration [
-      ; information is exchanged (undirected)
-      ; both agents cannot do further research in this round
-      ifelse random-float 1 < undirected-communication [
-        set communicating true ; the current agent communicates
-        ; the agent with which the information is exchanged
-        let share-agent one-of agents with [not member? self cur-network]
-        if share-agent != nobody [
-          ; the combined memory is updated to contain that of the sharing agent
-          set comb-memory-argu sentence th-args [th-args] of share-agent
-          set comb-memory-rel sentence th-relations [th-relations] of share-agent
-          ; update of the memory from the current agent,
-	  ; incl. removing duplicates
-          set subjective-arguments remove-duplicates sentence
-	    subjective-arguments comb-memory-argu
-          set subjective-relations remove-duplicates sentence
-	    subjective-relations comb-memory-rel
-          ; then the memory of the agent from the other network is updated
-          ask share-agent [
-            set communicating true ; the sharing agent communicates
-            set subjective-arguments remove-duplicates sentence
-	      subjective-arguments comb-memory-argu
-            set subjective-relations remove-duplicates sentence
-	      subjective-relations comb-memory-rel
-          ]
+; intra-group sharing: researchers share their memory with other researchers
+; from their collaborator-network (=group).
+; The memory update is twofold (cf. update-memories)
+; (a) the agentset which contains the arguments / relations themselves and
+; (b) the information saved within the arguments /relations on how the item is 
+; remembered by the group
+; For arguments (b) has already been done during `update-memories` so only (a)
+; needs to be performed, while for relations (=attacks) both (a) + (b) will be
+; performed
+to share-with-group
+  foreach colla-networks [ [cur-group] ->    
+    let group-sharing-done false
+    let grp-share-researcher 0
+    foreach cur-group [ [cur-researcher] ->
+      ; after the information has been combined by the grp-share-researcher the
+      ; other group members copy that information into their own memory
+      ifelse group-sharing-done [
+        ask cur-researcher [
+          set rep-researcher false
+          set subjective-arguments [subjective-arguments] of
+            grp-share-researcher
+          set subjective-relations [subjective-relations] of
+            grp-share-researcher
+          set to-add-mem-argu no-turtles
+          set to-add-mem-rel no-links
         ]
       ][
-      
-      ; now the current agent only provides the information, like writing a paper
-      ; in this case the agent can still do research/move: it does not set its
-      ; communicating to true the agent which receives the information
-      let share-agent one-of agents with [not member? self cur-network]
-      if share-agent != nobody [
-        ; the combined memory is updated ot contain that of the sharing agent
-        set comb-memory-argu sentence th-args [th-args] of share-agent
-        set comb-memory-rel sentence th-relations [th-relations] of share-agent
-        ; the agent that receives the information updates its memory
-        ask share-agent [
-          set communicating true ; the receiving agent communicates
-          set subjective-arguments remove-duplicates sentence
-	    subjective-arguments comb-memory-argu
-          set subjective-relations remove-duplicates sentence
-	    subjective-relations comb-memory-rel
+        ; one researcher combines all the information
+        set group-sharing-done true
+        set grp-share-researcher cur-researcher        
+        ask cur-researcher [
+          let cur-group-id group-id        
+          ; reset the variables
+          set rep-researcher false          
+          ; variables to keep track the combined memory of all the sharing
+          ; researchers
+          let comb-memory-argu no-turtles
+          let comb-memory-rel no-links 
+          ; the last rep-researcher of the group integrates the arguments
+          ; learned via this communication into her memory
+          transfer-argu-cache-to-memory     
+          ; the information in the memories of the single researchers in
+          ; the network are combined (a)
+          foreach cur-group [ [input-researcher] ->
+            set comb-memory-argu (turtle-set comb-memory-argu 
+              [to-add-mem-argu] of input-researcher)
+            set comb-memory-rel (link-set comb-memory-rel
+              [to-add-mem-rel] of input-researcher)
+          ]
+          ; (b) is performed for the combined new relations of the group
+          ask comb-memory-rel [
+            set in-group-i-memory replace-item 
+              cur-group-id in-group-i-memory true
+          ]
+          ; the group-share-researcher adds the combined memory to her own
+          ; (a)
+          set subjective-arguments (turtle-set subjective-arguments 
+            comb-memory-argu)
+          set subjective-relations (link-set subjective-relations
+            comb-memory-rel)
+          set to-add-mem-argu no-turtles
+          set to-add-mem-rel no-links
         ]
       ]
-      ]
-    ]    
+    ]
   ]
 end
 
@@ -334,30 +130,226 @@ end
 
 
 
-; procedure that removes all duplicates from the memory of an agent
-; duplicates also include arguments that are part of the memory with
-; different colors in these cases only the entry with the lowest color value
-; is kept these arguments are furthest researched
-to duplicate-remover
-  ask agents [
-    ; list of arguments of which the duplicates will be removed
-    let new-args subjective-arguments
-    foreach new-args [
-      ; the argument of the current entry and its color
-      let argu first ?
-      let my-color first but-first ?
-      ; list of entries with the same argument, but maybe different color
-      let color-argu filter [first ? = argu] new-args
-      ; remove entries of arguments that are also present as
-      ; better researched entries
-      set color-argu sort-by [first but-first ?1 < first but-first ?2] color-argu
-      while [length color-argu != 1] [
-        set new-args remove last color-argu new-args
-        set color-argu but-last color-argu
+; the arguments learned from the last inter-group sharing
+; (share-with-other-networks) have been digested and are now merged with the
+; arguments she learned via her own research (update-memories). The memory
+; update is twofold (cf. update-memories)
+; (a) the agentset which contains the arguments themselves and
+; (b) the information saved within the arguments on how the item is 
+; remembered by the group
+to transfer-argu-cache-to-memory
+  let cur-group-id group-id
+  let cached-aguments no-turtles
+  ; the last rep-researcher of the group has arguments she learned in the
+  ; last inter-group communication in her argu-cache
+  ask (turtle-set item cur-group-id colla-networks) with [any? argu-cache] [
+    ; arguments for which the most recent version (=color) is in the
+    ; argu-cache are selected...
+    set cached-aguments argu-cache with [
+      item cur-group-id group-color-mem-cache < 
+      item cur-group-id group-color-mem]
+    ; ...and combined with the other arguments she learned by her own research
+    ; i.e. via update-memories (a)
+    set to-add-mem-argu (turtle-set to-add-mem-argu cached-aguments)
+    set argu-cache no-turtles
+  ]
+  ; the argu-cache which is most recent updates the in-argument-memory (b)
+  ask cached-aguments  [      
+    set group-color-mem replace-item cur-group-id group-color-mem 
+      (item cur-group-id group-color-mem-cache)   
+  ]   
+end
+
+
+
+
+
+; procedure in which researchers collect the information from their
+; memory that they want to share with researchers that do not
+; belong to their own collaborator-network (i.e. for inter-group-sharing)
+to create-share-memory
+  ; for each collaborator-network one researcher is set to be
+  ; the representative researcher
+  set rep-researchers no-turtles
+  foreach colla-networks [ [curgroup] ->
+    ask one-of curgroup [
+      set rep-researcher true
+      set rep-researchers (turtle-set rep-researchers self)
+    ]
+  ]
+  ; only the representative researchers create a memory
+  ; that they want to share with researchers from other networks
+  ask rep-researchers [
+    let cur-argum mygps
+    ; create a set of arguments and a set of relations (= attacks) that the
+    ; researcher can share with researchers from other collaborative networks
+    ; which relations researchers share depends on the "social-action" from the
+    ; interface
+    let th-relations-cache 0
+    let th-args-cache 0
+    ask cur-argum [
+      ifelse social-actions = "biased" [
+        set th-relations-cache my-out-attacks with [color != gray]
+      ][
+        set th-relations-cache my-attacks with [color != gray]
+      ]
+      let my-share-links (link-set my-discoveries with [color != gray]
+        th-relations-cache)
+      set th-args-cache (turtle-set [other-end] of my-share-links cur-argum)
+    ]
+    set th-relations th-relations-cache
+    set th-args th-args-cache
+  ]
+end
+
+
+
+
+
+; inter-group sharing: representative researchers of the networks
+; share information according to the social structure
+; in  cases where the network structure is de-facto complete i.e. all 
+; complete cases + when there are equal or less than 3 groups + when there 
+; are equal or less than 4 groups and the structure is not a ‘cycle’ it calls 
+; the  subprocedure `inter-group-sharing-complete`, else 
+; `inter-group-sharing-default`.
+to share-with-other-networks
+  ifelse network-structure = "complete" or (length colla-networks <= 3)
+    or (length colla-networks <= 4 and network-structure != "cycle") [  
+    inter-group-sharing-complete
+  ][
+    inter-group-sharing-default 
+  ]
+end
+
+
+
+
+
+; the inter-group-sharing (= share-with-other-networks) procedure for 
+; de-facto complete networks. The memory update is twofold (cf.
+; update-memories)
+; (a) the agentset which contains the arguments / relations themselves and
+; (b) the information saved within the arguments /relations on how the item 
+; is remembered by the group
+; all information gets cached and will be integrated into the group memory 
+; during the next intra-group-sharing (= share-with-group) one week later
+to inter-group-sharing-complete
+  ; number of groups
+  let #groups length colla-networks
+  ; all arguments the rep-researchers are going to share (a)
+  let comb-memory-argu (turtle-set [th-args] of rep-researchers)
+  ; all relations the rep-researchers are going to share (a)
+  let comb-memory-rel (link-set [th-relations] of rep-researchers)
+  ; The absolute costs each group has to pay to incorporate the information 
+  ; learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 
+  ; groups). This costvector is initialized with the value 0 for each group and 
+  ; for each information which is new to the group the respective absolute costs 
+  ; will be added to their entry. The i-th entry is the absolute cost the 
+  ; rep-researcher from group i has to pay (cf. group-id and 
+  ; distribute-com-costs).
+  let costvector n-values #groups [0]
+  ask comb-memory-argu [
+    ; For each argument the most researched version (= lowest color) will be 
+    ; exchanged: i.e. cached until it is consolidated  into the group memory 
+    ; during the next intra-group-sharing (= share-with-group) one week later
+    let best-color min group-color-mem
+    set group-color-mem-cache n-values #groups [best-color] ; (b)
+    ; Each group pays the difference between the version (= color) they know an 
+    ; argument in and the most recent version. For details on the costs cf. 
+    ; initialize-hidden-variables
+    let costvector-cur-argu (map - group-color-mem group-color-mem-cache)
+    set costvector (map + costvector costvector-cur-argu)
+  ]   
+  ask comb-memory-rel [
+    ; For each relation (= attack) the researcher didn't know she has to pay 
+    ; the absolute costs 'rel-costfactor'
+    let costvector-cur-rel map [ [group-i-rel-memory] -> 
+    ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
+    set costvector (map + costvector costvector-cur-rel)
+  ]
+  ask rep-researchers [
+    set argu-cache comb-memory-argu ; (a)
+    set to-add-mem-rel comb-memory-rel ; (a)
+    let com-costs item group-id costvector
+    distribute-com-costs com-costs
+  ]
+end
+
+
+
+
+
+; the inter-group-sharing (= share-with-other-networks) procedure for 
+; non-complete networks. The memory update is twofold (cf. update-memories)
+; (a) the agentset which contains the arguments / relations themselves and
+; (b) the information saved within the arguments /relations on how the item 
+; is remembered by the group
+; all information gets cached and will be integrated into the group memory 
+; during the next intra-group-sharing (= share-with-group) one week later
+to inter-group-sharing-default
+  ; for all arguments the rep-researchers are going to share the cache is 
+  ; updated to contain the most recent version (=color) they know the arguments 
+  ; in (b).
+  ask (turtle-set [th-args] of rep-researchers) [
+    set group-color-mem-cache group-color-mem
+  ]
+  let costvector n-values (length colla-networks) [0]
+  foreach share-structure [ [cur-share-groups] ->
+    let comb-memory-argu no-turtles ; (a)
+    let comb-memory-rel no-links ; (a)
+    ; The rep-researcher from the first group in the current share-structure 
+    ; entry is the askresearcher
+    let askresearcher one-of (turtle-set first cur-share-groups) with [
+    rep-researcher]
+    let askresearcher-id [group-id] of askresearcher
+    let com-costs 0
+    ; The askresearcher collects all the information from the other 
+    ; rep-researchers she is to sharing with i.e. the share-researchers from the 
+    ; other groups in her share-structure entry (= the entry where her group is 
+    ; first).
+    foreach but-first cur-share-groups [[cur-other-group] -> 
+      let other-researcher one-of (turtle-set cur-other-group) with [
+        rep-researcher] 
+      ask other-researcher [
+        let other-researcher-id group-id
+        ; The arguments which are known by the askresearcher in a less recent 
+        ; version (= higher color) are selected
+        ask th-args with [item other-researcher-id group-color-mem 
+          < item askresearcher-id group-color-mem-cache][ 
+          ; the color the other-researcher knows the argument in (more recent)
+          let other-researcher-color item other-researcher-id group-color-mem
+          ; the color the askresearcher knows the argument in (less recent)
+          let askresearcher-cur-color item askresearcher-id 
+            group-color-mem-cache
+          ; The difference between the more recent color and the less recent 
+          ; one gets added to the absolute communication costs
+          set com-costs (com-costs
+            + (askresearcher-cur-color - other-researcher-color))
+          ; the more recent version of the argument gets cached; ((a) & (b))
+          set group-color-mem-cache replace-item askresearcher-id 
+            group-color-mem-cache other-researcher-color ; (b)
+          set comb-memory-argu (turtle-set comb-memory-argu self) ; (a)
+        ]
+        ; The relations (= attacks) which were unknown to the askresearcher get 
+        ; cached (a)
+        set comb-memory-rel (link-set comb-memory-rel th-relations with [
+          not item askresearcher-id in-group-i-memory]) ; (a)
       ]
     ]
-    ; update the agent's memory
-    set subjective-arguments new-args
+    set com-costs (com-costs + (count comb-memory-rel) * rel-costfactor)
+    set costvector replace-item askresearcher-id costvector com-costs
+    ask askresearcher [
+      set argu-cache comb-memory-argu
+      set to-add-mem-rel comb-memory-rel
+      
+    ]
+  ]
+  ask rep-researchers [
+    let com-costs item group-id costvector
+    ; The absolute costs are transformed into relative costs (in days) and 
+    ; distributed among the group
+    distribute-com-costs com-costs
   ]
 end
 
@@ -365,179 +357,177 @@ end
 
 
 
-; procedure that describes how the agents move around over the landscape
-; they only "see" the colored part of the landscape and hence can only move
-; there, the probability of moving increases (a little) when the argument is
-; further researched in one time step agents can either receive information or
+; Distributes the absolute communication costs (com-costs) among the group and 
+; transform them into relative costs (in days) which are then saved in the 
+; researcher-owned variable `communicating`.
+; The absolute costs are the difference between the information the 
+; rep-researcher possessed before vs. after the inter-group-sharing. For 
+; details on the costs function cf. : initialize-hidden-variables. The 
+; researchers have to digest all information within a work-week (= 5 
+; days/ticks) while still reserving one day for doing their own research, 
+; which leaves them with 4 days for digesting. The rep researcher herself only 
+; has 3 days b/c the day she visits the conference (inter-group-sharing) is 
+; also lost. Every day a researcher can digest information of value 
+; `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned 
+; variable will be set to how many days the researcher will be occupied by 
+; digesting information (+ one day in the case of the rep-researchers: the day 
+; of visiting the conference itself)
+to distribute-com-costs [com-costs]
+  ifelse com-costs > (3 * max-learn) [
+    ; the rep-researcher pays for as much information as she can.
+    set communicating 4
+    let com-cost-remaining (com-costs - 3 * max-learn)
+    let cur-group (turtle-set item group-id colla-networks)
+    ask cur-group [
+      ; 2. If the (absolute) costs are higher than what she can pay (= 3 * 
+      ; max-learn), the next researcher from her group will be picked and pay 
+      ; for as much of the rest of the communication costs as she can ( = 4 * 
+      ; max-learn). She will also become a rep-researcher and therefore exempt 
+      ; from pursuing strategies this week. If there are still communication 
+      ; costs left this continues until all researchers of the group have paid 
+      ; the maximum relative costs (= communicating 4 = 4 days) or all 
+      ; communication costs have been paid.
+      if com-cost-remaining > 0 and not [rep-researcher] of self [
+        let com-payment-curresearcher min 
+          (list com-cost-remaining (4 * max-learn))
+        set communicating ceiling (com-payment-curresearcher / max-learn)
+        set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
+        set rep-researcher true
+      ]
+    ]
+  ][
+    ; the rep-researcher pays for as all the information costs.
+    set communicating ((ceiling (com-costs / max-learn)) + 1)
+  ]
+end
+
+
+
+
+
+; reports whether a member of the collaborative network (=group) of the
+; curresearcher is at the position of the caller
+; called by arguments during the movement procedures
+; represents the fact that agents will coordinate with their their
+; collaborative network (=group) to not to move to an argument where a group
+; member is already working, in order to keep redundancy of their research low
+to-report group-member-here [curresearcher]
+  ifelse any? researchers in-radius 0 with [
+    member? self [collaborator-network] of curresearcher][
+    report true
+  ][
+    report false
+  ]
+end
+
+
+
+
+
+; procedure which is called by researchers when they move (to nextargu). It 
+; makes sure that the researcher has an updated memory of her surrounding 
+; before moving by calling `update-memories`.
+; Then `mygps` - i.e. the argument she is working on - 
+; will  be set to her new destination ( = nextargu)
+to move-to-nextargu [nextargu]
+  if not flag-updated-memory [
+    update-memories
+  ]
+  set mygps nextargu
+  move-to mygps
+  set moved true 
+end
+
+
+
+
+
+; procedure that describes how the researchers move around over the landscape
+; they only "see" the colored (i.e. non gray) part of the landscape and hence
+; can only move there, the probability of moving increases (a little) when the
+; argument is further researched
+; agents will coordinate with their their collaborative network (=group) to 
+; not to move to an argument where a group member is already working
+; in order to keep redundancy of their research low
+; in one time step researchers can either receive/digest information or
 ; move, but not both
 to move-around
   ; variable to make sure that the procedure find-defense
   ; is only run once
-  let run-find-defense false 
-  ; at the beginning of the procedure no agent has moved yet
-  ask agents [
+  let run-find-defense false
+  ; at the beginning of the procedure no researcher has moved yet
+  ask researchers [
     set moved false
   ]
-  ask agents with [not communicating][
-    let myx xcor
-    let myy ycor
-    ; variable for the argument the agent is currently working on and
-    ; the agent itself
-    let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]
-    let curagent self
-    
-    ; a list of not-admissible arguments is created
-    let not-admissible []
-    if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-      let info-not-admissible filter [not member? ? admissible-subj-argu]
-        subjective-arguments
-      foreach info-not-admissible [
-        set not-admissible lput item 0 ? not-admissible
-      ]
-    ]
-   
-    ; an agent working on an attacked argument will try to find a defense for
-    ; this attack, by working further on the attacked argument, unless it
-    ; discoveres a child-argument that that has a defense for the attack
-    ; (it is not necessarily the case that this defense is already discovered)
-    ; the find-defense runs immediately for all agents working on a not
-    ; fully researched not-admissible argument, hence it is only once executed
-    if member? myargu not-admissible and not moved[
+  ask researchers [
+    let curresearcher self
+    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+      let myargu mygps     
+      ; the researcher owned variable which contains all the non admissible
+      ; arguments as a list is written to not-admissible
+      let not-admissible non-admiss-subj-argu
       
-      if not run-find-defense [
+      ; an researcher working on a non admissible argument will try to find a
+      ; defense for this attack, by working further on the attacked argument,
+      ; unless she discoveres a argument that that has a defense for
+      ; the attack (it is not necessarily the case that this defense is
+      ; already discovered) or until she has fully researched the argument
+      ; the find-defense runs immediately for all researchers working on 
+      ; a not fully researched non admissible argument,
+      ; hence it is only once executed
+      if not run-find-defense and not moved and member? myargu not-admissible [
         find-defense
         set run-find-defense true
       ]
       
-    ]
-    
-    if not moved and not member? myargu not-admissible or 
-      (member? myargu not-admissible and [color] of myargu = red)[
-      
-      ; when an argument exists that:
-      ; a) is a child-argument of the current argument;
-      ; b) is not gray, red or turquoise; and
-      ; c) no agent from the same collaborator-network is working on it
-      ; the agent moves there, with certain probability
-      ifelse any? turtles with [(breed = starts or breed = arguments) and
-        in-discovery-neighbor? myargu and color != gray and color != red and
-	color != turquoise and not (any? turtles with [breed = agents and
-	xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	[collaborator-network] of curagent])] [
-      let move-random random-float 1.0
-      
-      ; every time step with small-movement of the move-probability
-      ; the agent moves
-      ifelse move-random < (small-movement * move-probability *
-        (1 - (color / color-move))) [
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-          in-discovery-neighbor? myargu and color != gray and color != red and
-	  color != turquoise and not ( any? turtles with [breed = agents and
-	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [collaborator-network] of curagent])]
-        set moved true
-      ][
-      
-      ; every 5th time step the agent mover with the full move-probability,
-      ; that depends a bit on the color
-      if ticks != 0 and ticks mod 5 = 0 and move-random <
-        move-probability * (1 - (color / color-move)) [
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-          in-discovery-neighbor? myargu and color != gray and color != red and
-	  color != turquoise and not ( any? turtles with [breed = agents and
-	  xcor = [xcor] of myself and ycor = [ycor] of myself and member? self
-	  [collaborator-network] of curagent])]
-        set moved true
-      ]
-      ]
-          ][
-      
-      ; if there is no next argument and the current argument is
-      ; fully researched, the agent moves a step back
-      ifelse [color] of myargu = red and any? turtles with [color != gray and
-        out-discovery-neighbor? myargu and not any? turtles with [breed = agents
-	and xcor = [xcor] of myself and ycor = [ycor] of myself]][
-      move-to one-of turtles with [color != gray and out-discovery-neighbor?
-        myargu and not any? turtles with [breed = agents and xcor = [xcor] of
-	myself and ycor = [ycor] of myself and member? self
-	[collaborator-network] of curagent]]
-      set moved true
-        ][
-      
-      ; if moving back is not possible, it jumps to another argument in
-      ; the same tree/theory that is discovered but not fully researched
-      if [color] of myargu = red [
-        let askstart [mytheory] of myargu
-        if any? turtles with [(breed = starts or breed = arguments) and
-	  color != gray and color != turquoise and color != red and
-	  mytheory = askstart][
-        move-to one-of turtles with [(breed = starts or breed = arguments) and
-	  color != turquoise and color != gray and color != red and
-	  mytheory = askstart]
-        set moved true
-          ]
-      ]
+      if not moved and ([color] of myargu = red 
+        or not member? myargu not-admissible)[
+        ; when an argument exists that:
+        ; a) is a child-argument of the current argument;
+        ; b) is not gray, red or turquoise; and
+        ; c) no researcher from the same collaborator-network is working on it
+        ; the researcher moves there, with certain probability
+        let nextargu 0
+        ask myargu [
+          set nextargu one-of out-discovery-neighbors with [
+            not member? color [gray red turquoise]
+            and not group-member-here curresearcher]
         ]
+        ifelse nextargu != nobody [
+          let move-random random-float 1.0
+          ; every time step with small-movement of the move-probability
+          ; the researcher moves
+          ifelse move-random < (small-movement * move-probability *
+            (1 - ([color] of myargu / color-move))) [
+            move-to-nextargu nextargu
+          ][
+
+            ; every 5th time step the researcher mover with the full
+            ; move-probability, that depends a bit on the color
+            if ticks != 0 and ticks mod 5 = 0 and move-random <
+              move-probability * (1 - ([color] of myargu / color-move)) [
+              move-to-nextargu nextargu
+            ]
           ]
-    ]
-  ]
-end
-
-
-
-
-
-; agents working on a not fully researched attacked argument will try to find a
-; defense for that attack, by staying on the current argument
-; if a child-argument is discovered that can provide a defense, the 
-; agent moves there
-; once an argument is fully researched all its relations are discovered,
-; then an agent can move on and can try to find a defense in another branch,
-; further away
-to find-defense
-  ask agents with [not communicating and not moved][
-    let myx xcor
-    let myy ycor
-    ; variables for the argument the agent is working on and
-    ; for the agent itself
-    let myargu one-of turtles with [(breed = starts or breed = arguments) and
-      xcor = myx and ycor = myy]    
-    let curagent self
-    
-    ; lists of arguments that are not admissible
-    let not-admissible []
-    if admissible-subj-argu != 0 and not empty? admissible-subj-argu [
-      let info-not-admissible filter [not member? ? admissible-subj-argu]
-        subjective-arguments
-      foreach info-not-admissible [
-        set not-admissible lput item 0 ? not-admissible
-      ]
-    ]
-    
-    ; if the current argument is not fully researched and not admissible
-    ; the agent tries to move prospectively to a child-argument of the current
-    ; argument that provides a defense for the current argument
-    if member? myargu not-admissible[
-      ask myargu [
-        ask my-in-attacks [
-          ask end1 [
-            ; create a set of arguments that provide a defense for the current
-	    ; argument, these:
-            ; a) attack the attacker of the current argument;
-	    ;b) are a child-argument of the current argument;
-            ; c) are discovered; and
-	    ; d) no agent from the same network is working on it
-            let nextargu in-attack-neighbors with [in-discovery-neighbor? myargu
-	      and color != gray and color != turquoise and not (any? agents with
-	      [xcor = [xcor] of myself and ycor = [ycor] of myself and
-	      member? self [collaborator-network] of curagent])]
-            ; if such an argument exists the agent moves there
-            ; and cannot move anymore this time step
-            if any? nextargu [
-              ask curagent [
-                move-to one-of nextargu
-                set moved true
+        ][
+          if [color] of myargu = red [
+            ; if there is no next argument and the current argument is
+            ; fully researched, the researcher moves a step back
+            ask myargu [set nextargu one-of in-discovery-neighbors with [
+              not group-member-here curresearcher]
+            ]
+            ifelse nextargu != nobody [
+              move-to-nextargu nextargu
+            ][
+              ; if moving back is not possible, she jumps to another argument 
+              ; in the same tree/theory that is discovered but not fully 
+              ; researched
+              let askstart [mytheory] of myargu
+              set nextargu one-of disc-startsargum-non-red with [
+                mytheory = askstart                       
+                and not group-member-here curresearcher]
+              if nextargu != nobody [ 
+                move-to-nextargu nextargu        
               ]
             ]
           ]
@@ -551,97 +541,145 @@ end
 
 
 
+; researchers working on a non admissible argument will
+; try to find a defense for that attack, by staying on the current argument
+; if they find a argument that can potentially provide a defense
+; (it is not necessarily the case that this defense is already discovered),
+; the researcher moves there
+; once an argument is fully researched all its relations are discovered,
+; so the researcher can move on and can try to find a defense in another
+; branch further away
+to find-defense
+  ; if the current argument is not admissible and it is a 5th time step or 
+  ; the researcher is not communicating the researcher tries to move 
+  ; prospectively to a argument that provides a defense for the current 
+  ; argument
+  ask researchers with [not moved and (communicating = 0 or ticks mod 5 = 0)
+    and member? mygps non-admiss-subj-argu] [
+    let curresearcher self
+    let myargu mygps
+    let cur-th [mytheory] of myargu
+    let cur-group-id group-id
+    ; the group of the curresearcher updates their memory to see whether they
+    ; can find a defender in their neighborhood
+    ask (turtle-set item cur-group-id colla-networks) with [
+      not flag-updated-memory] [
+        update-memories
+    ]
+    ask myargu [
+      ask my-in-attacks with [color != gray] [
+        ; check to prevent the researcher from searching for further
+        ; defenders (nextargu) if she already has moved to one
+        if [moved] of curresearcher [stop]
+        ask end1 [
+        ; pick one of the arguments that provide a defense for the 
+        ; current argument, this argument:
+        ; a) attacks the attacker of the current argument;
+        ; b) is from the same theory as the curresearcher is working on
+        ; c) is an argument which is known to the researchers group;
+        ; d) is discovered and not fully researched (= red); and
+        ; e) has no researcher from the same group working on it
+          let nextargu one-of in-attack-neighbors with [ ; (a)
+            mytheory = cur-th ; (b)
+            and item cur-group-id group-color-mem != cyan ; (c)
+            and not member? color [gray red turquoise] ; (d)
+            and not group-member-here curresearcher] ; (e)
+          if nextargu = nobody [stop]
+          ask curresearcher [
+            move-to-nextargu nextargu
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+
+
+
+
+; reports whether an appropriate researcher (i.e. one that is not digesting
+; information from communication) is present at the current position
+; called by arguments when the landscape is updated
+to-report non-comm-scientists-here
+  ifelse any? researchers in-radius 0 with [communicating = 0]
+  or (ticks mod 5 = 0 and any? researchers in-radius 0)[
+    report true
+  ][
+    report false
+  ]
+end
+
+
+
+
+
 ; every five time steps the landscape is updated:
 ; new arguments become visible and attacks are discovered
 to update-landscape
-  ask turtles with [breed = arguments or breed = starts][
-    let myx xcor
-    let myy ycor
-    ; discoveries only occur when an agent is working on that argument working
-    ; on an argument means that the agent did not communicate in that round
-    if any? turtles with [breed = agents and xcor = myx and ycor = myy and not
-      communicating][
+  ask disc-startsargum-non-red [
+    let cur-argum self
+    let cur-theory mytheory
+    ; discoveries only occur when an researcher is working on that argument,
+    ; it is the 5th time step or the researcher does not communicate
+    ; working on an argument means that the researcher did
+    ; not digest information from the last inter-group-sharing in that round
+    if non-comm-scientists-here [
       set researcher-ticks researcher-ticks + 1
-      
-      ; the color of an argument is changed if agents have been working
-      ; on that argument for research-speed time steps
-      if researcher-ticks mod research-speed = 0 and color != red[
-        set color color - 10
-        if color = red [set full-research true]
-      ]
-        
-      ; depending on the color a new child-argument is discovered, until all
-      ; child-arguments are discovered
-      if color = yellow and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 4 [
-        ask one-of out-discovery-neighbors with
-	  [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-      if color = brown and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 3 [
-        ask one-of out-discovery-neighbors with
-	  [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-      if color = orange and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 2 [
-       ask one-of out-discovery-neighbors with
-         [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-      if color = red and count out-discovery-neighbors with
-	[color = gray or color = turquoise] >= 1 [
-        ask one-of out-discovery-neighbors with
-  	 [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
 
+      ; the color of an argument is changed if researchers have been working
+      ; on that argument for research-speed time steps
+      if researcher-ticks mod research-speed = 0 [
+        set color color - 10
+        ; if an argument turns red it is fully discovered
+        ifelse color = red [
+          ; red arguments are removed from the turtle-set 
+          ; disc-startsargum-non-red
+          set disc-startsargum-non-red other disc-startsargum-non-red
+          full-discovery cur-argum cur-theory
+        ][
+          ; depending on the color a new child-argument is discovered, 
+          ; until all child-arguments are discovered
+          if color <= yellow [
+            let my-out-disc-neighbor-gt one-of 
+              out-discovery-neighbors with [color = gray or color = turquoise]
+            if my-out-disc-neighbor-gt != nobody [
+              ask my-out-disc-neighbor-gt [
+                set color lime
+                ; new discovered arguments are added to the turtle-set 
+                ; disc-startsargum-non-red
+                set disc-startsargum-non-red 
+                  (turtle-set disc-startsargum-non-red self)
+                ask my-in-discoveries [
+                  set color cyan
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]      
       ; for arguments that have still undiscovered relations/neighbors and are
       ; not fully researched
-      if ticks mod 5 = 0 and color != red [
+      if ticks mod 5 = 0 [
         let attack-random random-float 1.00
-        
+
         ; with visibility-probability a new attacked/attacking argument is
         ; discovered
         if attack-random < visibility-probability [
-          if any? my-links with [breed = attacks and color = gray][
-            ask one-of my-links with [breed = attacks and color = gray][
-              set color red
-              ask other-end [if color = gray [set color turquoise]]
+          let my-gray-attack one-of my-attacks with [color = gray]
+          if my-gray-attack != nobody [
+            ask my-gray-attack [
+              discover-attack cur-argum cur-theory
             ]
           ]
         ]
       ]
     ]
-    
-    ; once an argument is fully researched all its relations to other arguments
-    ; are discovered as well
-    full-discovery
-    
     ; if both ends of a discovery relation are discovered
     ; by research, the relation is discovered as well
-    if color != gray [
-      ask my-out-discoveries with [color = gray][
-        if [color] of other-end != gray and [color] of other-end != turquoise [
-          set color cyan
-        ]
+    ask my-out-discoveries with [color = gray][
+      if [not member? color [gray turquoise]] of other-end [
+        set color cyan
       ]
     ]
   ]
@@ -651,46 +689,65 @@ end
 
 
 
-; procedure that makes sure that fully researched arguments have a fully 
-; discovered neighborhood
-to full-discovery 
-  ask turtles with [breed = arguments or breed = starts and full-research][
-    let myx xcor
-    let myy ycor
-    if any? turtles with [breed = agents and xcor = myx and ycor = myy and
-      not communicating][
-      
-      ; once an argument is fully researched all its relations,
-      ; attack and discovery, are discovered
-      if any? out-discovery-neighbors with [color = gray or color = turquoise][
-        ask out-discovery-neighbors with [color = gray or color = turquoise][
-          set color lime
-          ask my-in-discoveries [
-            set color cyan
-          ]
-        ]
-      ]
-     
-      ; note that in the case of an attack relation the other argument
-      ; is not really discovered: it needs to be discovered by a discovery
-      ; relation in the other theory to become lime
-      if any? my-in-attacks with [color = gray][
-        ask my-in-attacks with [color = gray][
-          set color red
-          ask other-end [if color = gray [set color turquoise]]
-        ]
-      ]
-      if any? my-out-attacks with [color = gray][
-        ask my-out-attacks with [color = gray][
-          set color red
-          ask other-end [if color = gray [set color turquoise]]
-        ]
-      ]
+; once an argument is fully researched all its relations to other arguments
+; are discovered as well; this procedure makes sure that fully
+; researched arguments have a fully discovered neighborhood
+to full-discovery [cur-argum cur-theory]
+  ; once an argument is fully researched all its relations,
+  ; attack and discovery, are discovered
+  ask out-discovery-neighbors with [member? color [gray turquoise]] [
+    set color lime
+    set disc-startsargum-non-red (turtle-set disc-startsargum-non-red self)
+    ask my-in-discoveries [
+      set color cyan
     ]
-    set full-research false
+  ]
+  ask my-attacks with [color = gray] [
+    discover-attack cur-argum cur-theory
   ]
 end
 
 
 
+
+
+; when an attack is discovered it turns red and gray ends turn turquoise. If 
+; the argument the attack goes to (end2) has any attacks going to the theory 
+; the attack comes from (mytheory-end1) those attacks will no longer be 
+; uncontested (cf. attack-owned-variables)
+; note that in the case of a discovery via attack relation the other
+; argument is not really discovered: it needs to be discovered by a
+; discovery relation in the other theory to become lime
+to discover-attack [cur-argum cur-theory]
+  set color red
+  let other-end-argum 0
+  let other-theory 0  
+  ask other-end [
+    set other-end-argum self
+    set other-theory mytheory
+    if color = gray [set color turquoise]
+  ]
+  ifelse mytheory-end1 = cur-theory [
+    ask [my-out-attacks with [mytheory-end2 = cur-theory]] of other-end-argum [
+      set uncontested false
+    ]  
+  ][
+    ask [my-out-attacks with [mytheory-end2 = other-theory]] of cur-argum [
+      set uncontested false
+    ]  
+  ]
+end
+
+
+
+
+
+; at the end of the time steps 1, 2, 3 and 4 communicating researchers
+; decrease their communicating value by 1 which corresponds to them having used
+; the day to digest the information they gained while communicating
+to communication-regress
+    ask researchers with [communicating > 0][
+      set communicating communicating - 1
+    ]
+end
 

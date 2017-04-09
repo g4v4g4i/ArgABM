@@ -1,0 +1,235 @@
+; holds the reporters and procedures needed for the behaviorspace runs
+
+
+
+
+
+; the exit-condition determines when a given run is considered to be 
+; finished. A run is over as soon as there exists one theory which is fully 
+; discovered (i.e. has only red arguments). When this happens researchers can 
+; one final time jump to a best theory (irrespective of their `theory-jump` 
+; value) if they’re not already on a theory they consider best. This is 
+; facilitated by the `final-commands` procedure which is called as soon as  
+; `exit-condition` reports `true` and therefore ends the run.
+to-report exit-condition
+  let stop? []
+  ask starts [
+    let curstart self
+    ifelse (any? startsargum with [mytheory = curstart and color != red]) [
+      set stop? lput false stop?
+    ][
+      set stop? lput true stop?
+    ]
+  ]
+  ifelse member? true stop? [
+    final-commands
+    report true
+  ][
+    report false
+  ]
+end
+
+
+
+
+
+; as soon as a run is finished (cf. exit-condition) researchers can one final 
+; time jump to a best theory (irrespective of their `theory-jump` value) if 
+; they’re not already on a theory they consider best. To determine what their 
+; final best theories are, they do a final update of their memory, share with 
+; their group and do an admissibility calculation.
+to final-commands
+  ask researchers [update-memories]
+  share-with-group
+  compute-subjective-attacked
+  ask researchers with [not member? [mytheory] of mygps cur-best-th][
+     move-to-nextargu one-of cur-best-th
+     set times-jumped times-jumped + 1
+  ]
+  compute-popularity true
+end
+
+
+
+
+
+to-report monist-success
+  let popularity []
+  let find-good-m 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [
+    if max popularity = myscientists and max popularity = scientists [
+      set find-good-m 1
+    ]
+  ]
+  report find-good-m
+end
+
+
+
+
+
+to-report pluralist-success
+  let popularity []
+  let find-good-p 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [   
+    if max popularity = myscientists [
+      set find-good-p 1
+    ]
+  ]
+  report find-good-p
+end
+
+
+
+
+
+to-report average-jumps
+  let jumps 0
+  let avgjumps 0
+  ask researchers [
+    set jumps times-jumped + jumps
+  ]
+  set avgjumps (jumps / scientists)
+  report avgjumps
+end
+
+
+
+
+
+to-report perc-landscape-discoverd
+  let tot-arguments count startsargum
+  let disc-arguments count startsargum with [
+    color != gray and color != turquoise]
+  let perc-disc-argu ((disc-arguments / tot-arguments) * 100)
+  report perc-disc-argu
+end
+
+
+
+
+
+to-report perc-best-th-discoverd
+  let tot-best-arguments count startsargum with [mytheory = start 0]
+  let disc-best-arguments count startsargum with [
+    mytheory = start 0 and color != gray and color != turquoise]
+  let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
+  report perc-disc-best-argu
+end
+
+
+
+
+
+; reports the objective admissibility of th#
+to-report objective-admiss-of [th#]  
+  let objective-admiss-ap [[] -> objective-admissibility]
+  if th# = "th1" [
+    set th# item 0 sort starts
+  ]
+  if th# = "th2" [
+    set th# item 1 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 3 [
+    set th# item 2 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 2 [
+    set th# item 0 sort starts
+    set objective-admiss-ap [[] -> 0]
+  ]
+  report [runresult objective-admiss-ap] of th#  
+end
+
+
+
+
+
+; reports time researchers spent on th#: 
+; "monist" - cf. `research-time-monist`
+; or time researchers considered theory th# to be a best theory:
+; "pluralist" - cf. `research-time-pluralist`
+to-report research-time [pluralist-monist th#]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [[] -> research-time-monist]
+  ][
+    set pluralist-monist [[] -> research-time-pluralist]
+  ]
+  if th# = "th1" [
+    set th# item 0 sort starts
+  ]
+  if th# = "th2" [
+    set th# item 1 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 3 [
+    set th# item 2 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 2 [
+    set th# item 0 sort starts
+    set pluralist-monist [[] -> 0]
+  ]  
+  report [runresult pluralist-monist] of th#
+end
+
+
+
+
+
+; reports the number of researchers on th# at the end of the run ("monist")
+; or the number of scientists who consider th# to be a best theory ("pluralist")
+; i.e. it reports the `myscientists`- ("monist") or the 
+; `myscientists-pluralist`-value ("pluralist") (cf. Variables)
+to-report run-end-scientists [pluralist-monist th#]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [[] -> myscientists]
+  ][
+    set pluralist-monist [[] -> myscientists-pluralist]
+  ]
+  if th# = "th1" [
+    set th# item 0 sort starts
+  ]
+  if th# = "th2" [
+    set th# item 1 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 3 [
+    set th# item 2 sort starts
+  ]
+  if th# = "th3" and number-of-theories = 2 [
+    set th# item 0 sort starts
+    set pluralist-monist [[] -> 0]
+  ]  
+  report [runresult pluralist-monist] of th#
+end
+
+
+
+
+
+; This metric tracks how well researchers perform during a run as opposed to 
+; 'at the  end' - and therefore also after - a run like the 
+; `pluralist-/monist-success` metric does. It also takes the objective 
+; admissibility of the landscape into account and is normalized to a [0,100] 
+; interval where 100 corresponds to the best  performance. 
+; For details cf. documentation
+to-report in-run-performance [pluralist-monist]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [[] -> research-time-monist]
+  ][
+    set pluralist-monist [[] -> research-time-pluralist]
+  ]
+  let performance 0
+  ask starts [
+    set performance (performance 
+      + runresult pluralist-monist * objective-admissibility)
+  ]  
+  set performance ((performance * 100) / (scientists * 
+  (ticks + 1) * [objective-admissibility] of first sort starts))
+  report performance
+end
+
+
