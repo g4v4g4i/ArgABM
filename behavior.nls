@@ -13,12 +13,12 @@
 ; arguments that have changed color, new arguments/links
 ; The memory management is comprised of two parts:
 ; (a) The researchers save arguments and relations in the form of turtle-sets
-; / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu`
+; / link-sets in their memory (cf. Variables -> `to-add-mem-argu`
 ; `to-add-mem-rel`) which will be synchronized every week with the group in
 ; the `share-with-group` procedure
 ; (b) the status in which the argument / relation is known to a certain
 ; collaborative network (=group) is saved in the argument / link itself. 
-; (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For
+; (cf. Variables -> `group-color-mem`, `in-group-i-memory`). For
 ; links this will be facilitated during the `share-with-group` procedure,
 ; while for arguments the color is updated right when the researchers update
 ; their memory
@@ -184,7 +184,7 @@ to create-share-memory
     ; create a set of arguments and a set of relations (= attacks) that the
     ; researcher can share with researchers from other collaborative networks
     ; which relations researchers share depends on the "social-action" from the
-    ; interface (cf. infotab: th-relations and th-args)
+    ; interface
     let th-relations-cache 0
     let th-args-cache 0
     ask cur-argum [
@@ -234,25 +234,6 @@ end
 ; is remembered by the group
 ; all information gets cached and will be integrated into the group memory 
 ; during the next intra-group-sharing (= share-with-group) one week later
-; 1.  The absolute costs each group has to pay to incorporate the information 
-; learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 
-; groups). This costvector is initialized with the value 0 for each group and 
-; for each information which is new to the group the respective absolute costs 
-; will be added to their entry. The i-th entry is the absolute cost the 
-; rep-researcher from group i has to pay (cf. group-id and 
-; distribute-com-costs).
-; 2. For each argument the most researched version (= lowest color) will be 
-; exchanged: i.e. cached until it is consolidated  into the group memory 
-; during the next intra-group-sharing (= share-with-group) one week later cf. 
-; infotab group-color-mem-cache.
-; 3. Each group pays the difference between the version (= color) they know an 
-; argument in and the most recent version. For details on the costs cf.  
-; initialize-hidden-variables
-; 4. For each relation (= attack) the researcher didn't know she has to pay 
-; the absolute costs of rel-costfactor (cf. infotab `rel-costfactor` and 
-; `initialize-hidden-variables`)
-; 5. The absolute costs are transformed into relative costs (in days) and 
-; distributed among the group
 to inter-group-sharing-complete
   ; number of groups
   let #groups length colla-networks
@@ -260,18 +241,29 @@ to inter-group-sharing-complete
   let comb-memory-argu (turtle-set [th-args] of rep-researchers)
   ; all relations the rep-researchers are going to share (a)
   let comb-memory-rel (link-set [th-relations] of rep-researchers)
-  ; (1.)
+  ; The absolute costs each group has to pay to incorporate the information 
+  ; learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 
+  ; groups). This costvector is initialized with the value 0 for each group and 
+  ; for each information which is new to the group the respective absolute costs 
+  ; will be added to their entry. The i-th entry is the absolute cost the 
+  ; rep-researcher from group i has to pay (cf. group-id and 
+  ; distribute-com-costs).
   let costvector n-values #groups [0]
   ask comb-memory-argu [
-    ; (2.)
+    ; For each argument the most researched version (= lowest color) will be 
+    ; exchanged: i.e. cached until it is consolidated  into the group memory 
+    ; during the next intra-group-sharing (= share-with-group) one week later
     let best-color min group-color-mem
     set group-color-mem-cache n-values #groups [best-color] ; (b)
-    ; (3.)
+    ; Each group pays the difference between the version (= color) they know an 
+    ; argument in and the most recent version. For details on the costs cf. 
+    ; initialize-hidden-variables
     let costvector-cur-argu (map - group-color-mem group-color-mem-cache)
     set costvector (map + costvector costvector-cur-argu)
   ]   
   ask comb-memory-rel [
-    ; (4.)
+    ; For each relation (= attack) the researcher didn't know she has to pay 
+    ; the absolute costs 'rel-costfactor'
     let costvector-cur-rel map [ [group-i-rel-memory] -> 
     ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
     set costvector (map + costvector costvector-cur-rel)
@@ -280,7 +272,6 @@ to inter-group-sharing-complete
     set argu-cache comb-memory-argu ; (a)
     set to-add-mem-rel comb-memory-rel ; (a)
     let com-costs item group-id costvector
-    ; (5.)
     distribute-com-costs com-costs
   ]
 end
@@ -296,29 +287,10 @@ end
 ; is remembered by the group
 ; all information gets cached and will be integrated into the group memory 
 ; during the next intra-group-sharing (= share-with-group) one week later
-; 1. for all arguments the rep-researchers are going to share the cache is 
-; updated to contain the most recent version (=color) they know the arguments 
-; in (b).
-; 2. The rep-researcher from the first group in the current share-structure 
-; entry is the askresearcher
-; 3. The askresearcher collects all the information from the other 
-; rep-researchers she is to sharing with i.e. the share-researchers from the 
-; other groups in her share-structure entry (= the entry where her group is 
-; first).
-; 4. The arguments which are known by the askresearcher in a less recent 
-; version (= higher color) are selected
-; 5. The difference between the more recent color and the less recent one gets 
-; added to the absolute communication costs
-; 6. The more recent version of the argument gets cached ((a) & (b))
-; 7. The relations (= attacks) which were unknown to the askresearcher get 
-; cached (a)
-; 8. The absolute communication costs are those paid for the difference to the 
-; more recent arguments + (the newly learned relations * rel-costfactor cf. 
-; `rel-costfactor`)
-; 9. The absolute costs are transformed into relative costs (in days) and 
-; distributed among the group
 to inter-group-sharing-default
-  ; (1.)
+  ; for all arguments the rep-researchers are going to share the cache is 
+  ; updated to contain the most recent version (=color) they know the arguments 
+  ; in (b).
   ask (turtle-set [th-args] of rep-researchers) [
     set group-color-mem-cache group-color-mem
   ]
@@ -326,18 +298,23 @@ to inter-group-sharing-default
   foreach share-structure [ [cur-share-groups] ->
     let comb-memory-argu no-turtles ; (a)
     let comb-memory-rel no-links ; (a)
-    ; (2.)
+    ; The rep-researcher from the first group in the current share-structure 
+    ; entry is the askresearcher
     let askresearcher one-of (turtle-set first cur-share-groups) with [
     rep-researcher]
     let askresearcher-id [group-id] of askresearcher
     let com-costs 0
-     ; (3.)
+    ; The askresearcher collects all the information from the other 
+    ; rep-researchers she is to sharing with i.e. the share-researchers from the 
+    ; other groups in her share-structure entry (= the entry where her group is 
+    ; first).
     foreach but-first cur-share-groups [[cur-other-group] -> 
       let other-researcher one-of (turtle-set cur-other-group) with [
         rep-researcher] 
       ask other-researcher [
         let other-researcher-id group-id
-        ; (4.)
+        ; The arguments which are known by the askresearcher in a less recent 
+        ; version (= higher color) are selected
         ask th-args with [item other-researcher-id group-color-mem 
           < item askresearcher-id group-color-mem-cache][ 
           ; the color the other-researcher knows the argument in (more recent)
@@ -345,20 +322,21 @@ to inter-group-sharing-default
           ; the color the askresearcher knows the argument in (less recent)
           let askresearcher-cur-color item askresearcher-id 
             group-color-mem-cache
-          ; (5.)
+          ; The difference between the more recent color and the less recent 
+          ; one gets added to the absolute communication costs
           set com-costs (com-costs
             + (askresearcher-cur-color - other-researcher-color))
-          ; the more recent version of the argument gets cached;  (6.)
+          ; the more recent version of the argument gets cached; ((a) & (b))
           set group-color-mem-cache replace-item askresearcher-id 
             group-color-mem-cache other-researcher-color ; (b)
           set comb-memory-argu (turtle-set comb-memory-argu self) ; (a)
         ]
-        ; (7.)
+        ; The relations (= attacks) which were unknown to the askresearcher get 
+        ; cached (a)
         set comb-memory-rel (link-set comb-memory-rel th-relations with [
           not item askresearcher-id in-group-i-memory]) ; (a)
       ]
     ]
-    ; (8.)
     set com-costs (com-costs + (count comb-memory-rel) * rel-costfactor)
     set costvector replace-item askresearcher-id costvector com-costs
     ask askresearcher [
@@ -369,7 +347,8 @@ to inter-group-sharing-default
   ]
   ask rep-researchers [
     let com-costs item group-id costvector
-    ; (9.)
+    ; The absolute costs are transformed into relative costs (in days) and 
+    ; distributed among the group
     distribute-com-costs com-costs
   ]
 end
@@ -382,8 +361,8 @@ end
 ; transform them into relative costs (in days) which are then saved in the 
 ; researcher-owned variable `communicating`.
 ; The absolute costs are the difference between the information the 
-; rep-researcher posessed before vs. after the inter-group-sharing. For 
-; details on the costsfunction cf. infotab: initialize-hidden-variables. The 
+; rep-researcher possessed before vs. after the inter-group-sharing. For 
+; details on the costs function cf. : initialize-hidden-variables. The 
 ; researchers have to digest all information within a work-week (= 5 
 ; days/ticks) while still reserving one day for doing their own research, 
 ; which leaves them with 4 days for digesting. The rep researcher herself only 
@@ -393,22 +372,21 @@ end
 ; variable will be set to how many days the researcher will be occupied by 
 ; digesting information (+ one day in the case of the rep-researchers: the day 
 ; of visiting the conference itself)
-; 1. the rep-researcher pays for as much information as she can.
-; 2. If the (absolute) costs are higher than what she can pay (= 3 * 
-; max-learn), the next researcher from her group will be picked and pay for as 
-; much of the rest of the communication costs as she can ( = 4 * max-learn). 
-; She will also become a rep-researcher and therefore exempt from pursuing 
-; strategies this week. If there are still communication costs left this 
-; continues until all researchers of the group have paid the maximum relative 
-; costs (= communicating 4 = 4 days) or all communication costs have been paid.
 to distribute-com-costs [com-costs]
   ifelse com-costs > (3 * max-learn) [
-    ; the rep-researcher pays for as much information as she can. (1.)
+    ; the rep-researcher pays for as much information as she can.
     set communicating 4
     let com-cost-remaining (com-costs - 3 * max-learn)
     let cur-group (turtle-set item group-id colla-networks)
     ask cur-group [
-      ; (2.)
+      ; 2. If the (absolute) costs are higher than what she can pay (= 3 * 
+      ; max-learn), the next researcher from her group will be picked and pay 
+      ; for as much of the rest of the communication costs as she can ( = 4 * 
+      ; max-learn). She will also become a rep-researcher and therefore exempt 
+      ; from pursuing strategies this week. If there are still communication 
+      ; costs left this continues until all researchers of the group have paid 
+      ; the maximum relative costs (= communicating 4 = 4 days) or all 
+      ; communication costs have been paid.
       if com-cost-remaining > 0 and not [rep-researcher] of self [
         let com-payment-curresearcher min 
           (list com-cost-remaining (4 * max-learn))
@@ -418,7 +396,7 @@ to distribute-com-costs [com-costs]
       ]
     ]
   ][
-    ; the rep-researcher pays for as much information as she can. (1.)
+    ; the rep-researcher pays for as all the information costs.
     set communicating ((ceiling (com-costs / max-learn)) + 1)
   ]
 end
@@ -449,8 +427,8 @@ end
 ; procedure which is called by researchers when they move (to nextargu). It 
 ; makes sure that the researcher has an updated memory of her surrounding 
 ; before moving by calling `update-memories`.
-; Then `mygps` (cf. Infotab - Variables) - i.e. the argument she is working 
-; on - will  be set to her new destination ( = nextargu)
+; Then `mygps` - i.e. the argument she is working on - 
+; will  be set to her new destination ( = nextargu)
 to move-to-nextargu [nextargu]
   if not flag-updated-memory [
     update-memories
@@ -656,7 +634,7 @@ to update-landscape
         ; if an argument turns red it is fully discovered
         ifelse color = red [
           ; red arguments are removed from the turtle-set 
-          ; disc-startsargum-non-red (cf. infotab disc-startsargum-non-red)
+          ; disc-startsargum-non-red
           set disc-startsargum-non-red other disc-startsargum-non-red
           full-discovery cur-argum cur-theory
         ][
@@ -669,7 +647,7 @@ to update-landscape
               ask my-out-disc-neighbor-gt [
                 set color lime
                 ; new discovered arguments are added to the turtle-set 
-                ; disc-startsargum-non-red (cf. infotab disc-startsargum-non-red)
+                ; disc-startsargum-non-red
                 set disc-startsargum-non-red 
                   (turtle-set disc-startsargum-non-red self)
                 ask my-in-discoveries [
@@ -736,7 +714,7 @@ end
 ; when an attack is discovered it turns red and gray ends turn turquoise. If 
 ; the argument the attack goes to (end2) has any attacks going to the theory 
 ; the attack comes from (mytheory-end1) those attacks will no longer be 
-; uncontested (cf. infotab `uncontested`)
+; uncontested (cf. attack-owned-variables)
 ; note that in the case of a discovery via attack relation the other
 ; argument is not really discovered: it needs to be discovered by a
 ; discovery relation in the other theory to become lime

@@ -55,7 +55,7 @@ to create-discovery-landscape
   set disc-startsargum-non-red no-turtles  
  ; The color equivalent to gray in the landscape is cyan (= 85) in the
  ; group-color-mem. This is set that way such that the smaller color the more
- ; discovered. Same goes for group-color-mem-cache (cf. infotab)
+ ; discovered. Same goes for group-color-mem-cache
   let group-colors-list n-values colla-networks [cyan]
   repeat number-of-theories [ ; trees are created theory for theory
     create-starts 1 [
@@ -152,7 +152,7 @@ to define-attack-relation
   ; then the best theory defends itself
   defend-best
   
-  ; the uncontested values of the attacks are set (cf. infotab)
+  ; the uncontested values of the attacks are set
   set-uncontested-values
 
   ; the arguments and relations are spread over the patches
@@ -215,7 +215,6 @@ end
 ; creates an incoming attack to the askargu from another argument which 
 ; a) must not be from the same theory and
 ; b) must not be conected with askargu by an attack already
-; for details on the attack-owned variables cf. infotab
 to create-incoming-attack [curtheory askargu]
   create-attack-from one-of other startsargum with [mytheory != curtheory
     and not attack-neighbor? askargu][
@@ -267,7 +266,7 @@ end
 ; the uncontested values serve as a first approximation to lower the
 ; computational intensity of the calc-global-admiss (cga) procedure.
 ; They're not intended to be always correct and will be reset at the end
-; of the cag procedure. For the cag procedure to work correctly it is only 
+; of the cga procedure. For the cga procedure to work correctly it is only 
 ; important that the attacks with uncontested = true are really not attacked
 ; themselves
 to set-uncontested-values
@@ -459,65 +458,50 @@ end
 ; it computes for every theory the number of researchers working on it
 ; (myscientists) and how many researchers consider a theory to be among the
 ; best (myscientists-pluralist). This values are added up in their respective 
-; global variables: research-time-monist/pluralist (cf. Infotab - Variables).
+; global variables: research-time-monist/pluralist (cf. start-owned-variables).
 ; Arguments: update-pluralist? format: boolean. Determines whether the 
 ; myscientists-pluralist value has to be updated (only true if ticks mod 5 = 4 
 ; or at the end of a run)
-; 1.  mystart is the theory the current researcher is investigating
-; 2. For each researcher the myscientists variable of the theory this 
-; researcher is working on is increased by one
-; 3. The `myscientists-pluralist` variable (cf. Infotab - Variables) is updated.
-; 4. If there is more than one best theory in the memory of the researcher the 
-; start will count this researcher as adding 1 / (number of best theories) to 
-; its `myscientists-pluralist` counter. (cf. Infotab - Variables)
-; 5. As long as researchers haven't done any admissibility calculations it is 
-; assumed that they think the theory they're currently working on is the 
-; single best theory
-; 6. The values are added up in their respective global variables: 
-; research-time-monist/pluralist (cf. Infotab - Variables)
 to compute-popularity [update-pluralist?]
-  ; initialize the variables at 0
   ask starts [
     set myscientists 0
-    if ticks mod 5 = 4 [
+    if update-pluralist? [
       set myscientists-pluralist 0
     ]
   ]
-  ask researchers [
-  ; (1.)
-    let curresearcher self
-    let myargu mygps
-    let mystart [mytheory] of myargu
-
-    ; (2.)
-    ask mystart [
-      set myscientists myscientists + 1
-    ]
-    ; (3.)
-    if update-pluralist? [
-      ifelse cur-best-th != 0 [
-        foreach cur-best-th [ [curstart] ->
-          ask curstart [
-            ; (4.)
-            set myscientists-pluralist (myscientists-pluralist
-              + 1 / length [cur-best-th] of curresearcher)
-          ]
-        ]
-      ][
-        ; (5.)
-        ask mystart [
-          set myscientists-pluralist (myscientists-pluralist + 1)
-        ]
-      ]
-    ]
-  ]  
-  ; (5.)
+  ; As long as researchers haven't done any admissibility calculations it is 
+  ; assumed that they think the theory they're currently working on is the 
+  ; single best theory
   if ticks = 0 [
     ask starts [
       set myscientists-pluralist count researchers in-radius 0
     ]
   ]
-  ; (6.)
+  ask researchers [
+    let curresearcher self
+    let myargu mygps
+    let mystart [mytheory] of myargu
+    ask mystart [
+      set myscientists myscientists + 1
+    ]
+    if update-pluralist? [
+      ifelse cur-best-th != 0 [
+        foreach cur-best-th [ [curstart] ->
+          ask curstart [
+            set myscientists-pluralist (myscientists-pluralist
+              + 1 / length [cur-best-th] of curresearcher)
+          ]
+        ]
+      ][
+        ; As long as researchers haven't done any admissibility calculations 
+        ; it is assumed that they think the theory they're currently working 
+        ; on is the single best theory
+        ask mystart [
+          set myscientists-pluralist (myscientists-pluralist + 1)
+        ]
+      ]
+    ]
+  ]
   ask starts [
     set research-time-monist research-time-monist + myscientists
     set research-time-pluralist research-time-pluralist 
@@ -668,7 +652,7 @@ end
 
 
 ; This procedure calculates the objective admissibility of each theory which is
-; saved in the `objective-admissibility` value of each start (cf. infotab).
+; saved in the `objective-admissibility` value of each start.
 ; The calculation for the best theory (start 0) is redundant as it will always 
 ; have full admissibility, but is still performed as a kind of check for the 
 ; model.

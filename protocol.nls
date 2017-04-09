@@ -10,7 +10,7 @@
 ; one final time jump to a best theory (irrespective of their `theory-jump` 
 ; value) if they’re not already on a theory they consider best. This is 
 ; facilitated by the `final-commands` procedure which is called as soon as  
-; `exit-condition` reports `true` and therefore ends the run.  
+; `exit-condition` reports `true` and therefore ends the run.
 to-report exit-condition
   let stop? []
   ask starts [
@@ -183,7 +183,7 @@ end
 ; reports the number of researchers on th# at the end of the run ("monist")
 ; or the number of scientists who consider th# to be a best theory ("pluralist")
 ; i.e. it reports the `myscientists`- ("monist") or the 
-; `myscientists-pluralist`-value ("pluralist") cf. Infotab -> Variables
+; `myscientists-pluralist`-value ("pluralist") (cf. Variables)
 to-report run-end-scientists [pluralist-monist th#]
   ifelse pluralist-monist = "monist" [
     set pluralist-monist [[] -> myscientists]
@@ -215,7 +215,7 @@ end
 ; `pluralist-/monist-success` metric does. It also takes the objective 
 ; admissibility of the landscape into account and is normalized to a [0,100] 
 ; interval where 100 corresponds to the best  performance. 
-; For details cf. infotab
+; For details cf. documentation
 to-report in-run-performance [pluralist-monist]
   ifelse pluralist-monist = "monist" [
     set pluralist-monist [[] -> research-time-monist]
