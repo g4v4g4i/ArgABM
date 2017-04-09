@@ -240,7 +240,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 70
@@ -257,7 +257,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 210
@@ -541,7 +541,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 # Motivation
