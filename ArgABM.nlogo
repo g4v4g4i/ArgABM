@@ -98,7 +98,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; to learn relations via inter-group communication and rep-researchers are the
 ; current representative researchers which share / shared information.
 globals [max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor rep-researchers]
+  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed]
 
 
 
@@ -112,6 +112,7 @@ __includes ["setup.nls" "behavior.nls" "strategies.nls" "protocol.nls"]
 
 
 ; the setup procedure:
+; argument: rs. The random-seed for the run
 ; the hidden variables (not set in the interface)
 ; colla-networks temporarily contains the number of groups which will be set
 ; up later, as an integer
@@ -119,8 +120,10 @@ __includes ["setup.nls" "behavior.nls" "strategies.nls" "protocol.nls"]
 ; on this landscape; attacks are defined;
 ; the researchers are distributed over the theories
 ; the objective-admissibility for each theory is calculated
-to setup
+to setup [rs]
   clear-all
+  set rndseed rs
+  random-seed rs
   initialize-hidden-variables
   set colla-networks (scientists / 5)
   create-discovery-landscape
@@ -163,7 +166,6 @@ to go
   compute-popularity update-pluralist?
   tick
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -195,10 +197,10 @@ ticks
 BUTTON
 10
 10
-65
+70
 43
-NIL
 setup
+setup new-seed
 NIL
 1
 T
@@ -516,7 +518,7 @@ BUTTON
 125
 43
 go-stop
-setup\nwhile [not exit-condition][\n  go\n]
+setup new-seed\nwhile [not exit-condition][\n  go\n]
 NIL
 1
 T
@@ -866,6 +868,11 @@ This is a hidden variable which determines how costly it is to learn relations v
     * format: turtle-set
     * example: (agentset, 13 turtles)
 This variable will contain all the actual representative researchers (i.e. those who share information during the inter-group sharing). It is set during the `create-share-memory` procedure.
+
+  * rndseed
+    * format: integer
+    * example: -2147452934
+Stores the random-seed of the current run.
 
 researchers-own:
 
@@ -1300,7 +1307,7 @@ NetLogo 6.0.1
 @#$#@#$#@
 <experiments>
   <experiment name="experiment-full" repetitions="10000" runMetricsEveryStep="false">
-    <setup>setup</setup>
+    <setup>setup new-seed</setup>
     <go>go</go>
     <timeLimit steps="4000"/>
     <exitCondition>exit-condition</exitCondition>
@@ -1326,6 +1333,7 @@ NetLogo 6.0.1
     <metric>perc-landscape-discoverd</metric>
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
+    <metric>rndseed</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1380,7 +1388,7 @@ NetLogo 6.0.1
     </enumeratedValueSet>
   </experiment>
   <experiment name="homogeneous-groups" repetitions="10000" runMetricsEveryStep="false">
-    <setup>setup</setup>
+    <setup>setup new-seed</setup>
     <go>go</go>
     <timeLimit steps="4000"/>
     <exitCondition>exit-condition</exitCondition>
@@ -1406,6 +1414,7 @@ NetLogo 6.0.1
     <metric>perc-landscape-discoverd</metric>
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
+    <metric>rndseed</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
