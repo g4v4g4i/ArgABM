@@ -1309,91 +1309,16 @@ NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment-full" repetitions="10000" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="4000"/>
-    <exitCondition>exit-condition</exitCondition>
-    <metric>objective-admiss-of "th1"</metric>
-    <metric>objective-admiss-of "th2"</metric>
-    <metric>objective-admiss-of "th3"</metric>
-    <metric>research-time "monist" "th1"</metric>
-    <metric>research-time "monist" "th2"</metric>
-    <metric>research-time "monist" "th3"</metric>
-    <metric>research-time "pluralist" "th1"</metric>
-    <metric>research-time "pluralist" "th2"</metric>
-    <metric>research-time "pluralist" "th3"</metric>
-    <metric>in-run-performance "monist"</metric>
-    <metric>in-run-performance "pluralist"</metric>
-    <metric>monist-success</metric>
-    <metric>pluralist-success</metric>
-    <metric>run-end-scientists "monist" "th1"</metric>
-    <metric>run-end-scientists "monist" "th2"</metric>
-    <metric>run-end-scientists "monist" "th3"</metric>
-    <metric>run-end-scientists "pluralist" "th1"</metric>
-    <metric>run-end-scientists "pluralist" "th2"</metric>
-    <metric>run-end-scientists "pluralist" "th3"</metric>
-    <metric>perc-landscape-discoverd</metric>
-    <metric>perc-best-th-discoverd</metric>
-    <metric>average-jumps</metric>
-    <enumeratedValueSet variable="network-structure">
-      <value value="&quot;cycle&quot;"/>
-      <value value="&quot;wheel&quot;"/>
-      <value value="&quot;complete&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;reliable&quot;"/>
-      <value value="&quot;biased&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="within-theory">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="scientists">
-      <value value="10"/>
-      <value value="20"/>
-      <value value="30"/>
-      <value value="40"/>
-      <value value="70"/>
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="visibility-probability">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-of-theories">
-      <value value="2"/>
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="move-probability">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="strategy-threshold">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="theory-depth">
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="research-speed">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="jump-threshold">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-best">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-2nd">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-3rd">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-  </experiment>
   <experiment name="homogeneous-groups" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="4000"/>
     <exitCondition>exit-condition</exitCondition>
+    <metric>monist-success</metric>
+    <metric>pluralist-success</metric>
+    <metric>perc-landscape-discoverd</metric>
+    <metric>perc-best-th-discoverd</metric>
+    <metric>average-jumps</metric>
     <metric>objective-admiss-of "th1"</metric>
     <metric>objective-admiss-of "th2"</metric>
     <metric>objective-admiss-of "th3"</metric>
@@ -1405,21 +1330,16 @@ NetLogo 6.0
     <metric>research-time "pluralist" "th3"</metric>
     <metric>in-run-performance "monist"</metric>
     <metric>in-run-performance "pluralist"</metric>
-    <metric>monist-success</metric>
-    <metric>pluralist-success</metric>
     <metric>run-end-scientists "monist" "th1"</metric>
     <metric>run-end-scientists "monist" "th2"</metric>
     <metric>run-end-scientists "monist" "th3"</metric>
     <metric>run-end-scientists "pluralist" "th1"</metric>
     <metric>run-end-scientists "pluralist" "th2"</metric>
     <metric>run-end-scientists "pluralist" "th3"</metric>
-    <metric>perc-landscape-discoverd</metric>
-    <metric>perc-best-th-discoverd</metric>
-    <metric>average-jumps</metric>
-    <enumeratedValueSet variable="network-structure">
-      <value value="&quot;cycle&quot;"/>
-      <value value="&quot;wheel&quot;"/>
-      <value value="&quot;complete&quot;"/>
+    <enumeratedValueSet variable="social-collaboration">
+      <value value="0.3"/>
+      <value value="0.5"/>
+      <value value="1"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="social-actions">
       <value value="&quot;reliable&quot;"/>
@@ -1435,6 +1355,10 @@ NetLogo 6.0
       <value value="40"/>
       <value value="70"/>
       <value value="100"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="landscape">
+      <value value="&quot;Landscape-A&quot;"/>
+      <value value="&quot;Landscape-B&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="visibility-probability">
       <value value="0.5"/>
