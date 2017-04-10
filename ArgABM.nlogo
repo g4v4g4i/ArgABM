@@ -97,8 +97,8 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; rel-costfactor is a hidden variable which determines how costly it is
 ; to learn relations via inter-group communication and rep-researchers are the
 ; current representative researchers which share / shared information.
-globals [max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor rep-researchers]
+globals [small-movement color-move colla-networks share-structure startsargum
+  disc-startsargum-non-red rep-researchers undirected-communication]
 
 
 
@@ -535,6 +535,21 @@ landscape
 landscape
 "Landscape-A" "Landscape-B"
 0
+
+SLIDER
+5
+660
+177
+693
+social-collaboration
+social-collaboration
+0.00
+1.00
+0.5
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 # Motivation

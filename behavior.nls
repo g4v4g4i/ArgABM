@@ -206,150 +206,90 @@ end
 
 
 
-; inter-group sharing: representative researchers of the networks
-; share information according to the social structure
-; in  cases where the network structure is de-facto complete i.e. all 
-; complete cases + when there are equal or less than 3 groups + when there 
-; are equal or less than 4 groups and the structure is not a ‘cycle’ it calls 
-; the  subprocedure `inter-group-sharing-complete`, else 
-; `inter-group-sharing-default`.
+; procedure in which the sharing with researchers from other networks 
+; happens with probability social-collaboration
+; with probability undirected communication this is done by exchanging 
+; information (undirected) as in a discussion
+; in the other cases the researcher provides information (directed)
+; information sharing is done from one researcher to another, when new
+; information is obtained they share this information with their own network
+; after the next five time-steps
 to share-with-other-networks
-  ifelse network-structure = "complete" or (length colla-networks <= 3)
-    or (length colla-networks <= 4 and network-structure != "cycle") [  
-    inter-group-sharing-complete
-  ][
-    inter-group-sharing-default 
-  ]
-end
-
-
-
-
-
-; the inter-group-sharing (= share-with-other-networks) procedure for 
-; de-facto complete networks. The memory update is twofold (cf.
-; update-memories)
-; (a) the agentset which contains the arguments / relations themselves and
-; (b) the information saved within the arguments /relations on how the item 
-; is remembered by the group
-; all information gets cached and will be integrated into the group memory 
-; during the next intra-group-sharing (= share-with-group) one week later
-to inter-group-sharing-complete
-  ; number of groups
-  let #groups length colla-networks
-  ; all arguments the rep-researchers are going to share (a)
-  let comb-memory-argu (turtle-set [th-args] of rep-researchers)
-  ; all relations the rep-researchers are going to share (a)
-  let comb-memory-rel (link-set [th-relations] of rep-researchers)
-  ; The absolute costs each group has to pay to incorporate the information 
-  ; learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 
-  ; groups). This costvector is initialized with the value 0 for each group and 
-  ; for each information which is new to the group the respective absolute costs 
-  ; will be added to their entry. The i-th entry is the absolute cost the 
-  ; rep-researcher from group i has to pay (cf. group-id and 
-  ; distribute-com-costs).
-  let costvector n-values #groups [0]
-  ask comb-memory-argu [
-    ; For each argument the most researched version (= lowest color) will be 
-    ; exchanged: i.e. cached until it is consolidated  into the group memory 
-    ; during the next intra-group-sharing (= share-with-group) one week later
-    let best-color min group-color-mem
-    set group-color-mem-cache n-values #groups [best-color] ; (b)
-    ; Each group pays the difference between the version (= color) they know an 
-    ; argument in and the most recent version. For details on the costs cf. 
-    ; initialize-hidden-variables
-    let costvector-cur-argu (map - group-color-mem group-color-mem-cache)
-    set costvector (map + costvector costvector-cur-argu)
-  ]   
-  ask comb-memory-rel [
-    ; For each relation (= attack) the researcher didn't know she has to pay 
-    ; the absolute costs 'rel-costfactor'
-    let costvector-cur-rel map [ [group-i-rel-memory] -> 
-    ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
-    set costvector (map + costvector costvector-cur-rel)
-  ]
-  ask rep-researchers [
-    set argu-cache comb-memory-argu ; (a)
-    set to-add-mem-rel comb-memory-rel ; (a)
-    let com-costs item group-id costvector
-;    distribute-com-costs com-costs
-  ]
-end
-
-
-
-
-
-; the inter-group-sharing (= share-with-other-networks) procedure for 
-; non-complete networks. The memory update is twofold (cf. update-memories)
-; (a) the agentset which contains the arguments / relations themselves and
-; (b) the information saved within the arguments /relations on how the item 
-; is remembered by the group
-; all information gets cached and will be integrated into the group memory 
-; during the next intra-group-sharing (= share-with-group) one week later
-to inter-group-sharing-default
-  ; for all arguments the rep-researchers are going to share the cache is 
-  ; updated to contain the most recent version (=color) they know the arguments 
-  ; in (b).
-  ask (turtle-set [th-args] of rep-researchers) [
+  ask (turtle-set [th-args] of researchers) [
     set group-color-mem-cache group-color-mem
   ]
-  let costvector n-values (length colla-networks) [0]
-  foreach share-structure [ [cur-share-groups] ->
-    let comb-memory-argu no-turtles ; (a)
-    let comb-memory-rel no-links ; (a)
-    ; The rep-researcher from the first group in the current share-structure 
-    ; entry is the askresearcher
-    let askresearcher one-of (turtle-set first cur-share-groups) with [
-    rep-researcher]
+  let comb-memory-argu-a no-turtles
+  let comb-memory-rel-a no-links
+  let comb-memory-argu-s no-turtles
+  let comb-memory-rel-s no-links
+  
+  ask researchers [
+    let cur-network collaborator-network
+    let askresearcher self
     let askresearcher-id [group-id] of askresearcher
-    let com-costs 0
-    ; The askresearcher collects all the information from the other 
-    ; rep-researchers she is to sharing with i.e. the share-researchers from the 
-    ; other groups in her share-structure entry (= the entry where her group is 
-    ; first).
-    foreach but-first cur-share-groups [[cur-other-group] -> 
-      let other-researcher one-of (turtle-set cur-other-group) with [
-        rep-researcher] 
-      ask other-researcher [
-        let other-researcher-id group-id
-        ; The arguments which are known by the askresearcher in a less recent 
-        ; version (= higher color) are selected
-        ask th-args with [item other-researcher-id group-color-mem 
-          < item askresearcher-id group-color-mem-cache][ 
-          ; the color the other-researcher knows the argument in (more recent)
-          let other-researcher-color item other-researcher-id group-color-mem
-          ; the color the askresearcher knows the argument in (less recent)
-          let askresearcher-cur-color item askresearcher-id 
-            group-color-mem-cache
-          ; The difference between the more recent color and the less recent 
-          ; one gets added to the absolute communication costs
-          set com-costs (com-costs
-            + (askresearcher-cur-color - other-researcher-color))
-          ; the more recent version of the argument gets cached; ((a) & (b))
-          set group-color-mem-cache replace-item askresearcher-id 
-            group-color-mem-cache other-researcher-color ; (b)
-          set comb-memory-argu (turtle-set comb-memory-argu self) ; (a)
-        ]
-        ; The relations (= attacks) which were unknown to the askresearcher get 
-        ; cached (a)
-        set comb-memory-rel (link-set comb-memory-rel th-relations with [
-          not item askresearcher-id in-group-i-memory]) ; (a)
+    let askresearcher-rel [th-relations] of askresearcher
+    
+    if random-float 1 < social-collaboration [
+      let share-researcher one-of researchers with [not member? self cur-network]
+      let share-researcher-id [group-id] of share-researcher
+      let share-researcher-rel [th-relations] of share-researcher
+      let comb-th-args (turtle-set [th-args] of askresearcher [th-args] of
+        share-researcher)
+      ask share-researcher [
+        set communicating true
       ]
+      ifelse random-float 1 < undirected-communication [
+        ask askresearcher [
+          set communicating true
+        ]
+        
+        ; update of the argument memory of the share-researcher, with 
+        ; better reseachered arguments from the askresearcher
+        ask comb-th-args with [item share-researcher-id group-color-mem >
+	  item askresearcher-id group-color-mem][
+	  let askresearcher-color item askresearcher-id group-color-mem
+	  set group-color-mem-cache replace-item share-researcher-id 
+            group-color-mem-cache askresearcher-color
+          set comb-memory-argu-s (turtle-set comb-memory-argu-s self)
+        ]
+        
+        ; update of the argument memory of the askresearcher, with 
+        ; better researchered arguments from the share-researcher
+        ask comb-th-args with [item share-researcher-id group-color-mem <
+	  item  askresearcher-id group-color-mem][
+	  let share-researcher-color item share-researcher-id group-color-mem
+          set group-color-mem-cache replace-item askresearcher-id 
+            group-color-mem-cache share-researcher-color 
+          set comb-memory-argu-a (turtle-set comb-memory-argu-a self)
+        ]
+        
+        set comb-memory-rel-a (link-set comb-memory-rel-a share-researcher-rel
+	  with [not item askresearcher-id in-group-i-memory]) 
+        set comb-memory-rel-s (link-set comb-memory-rel-s askresearcher-rel
+	  with [not item share-researcher-id in-group-i-memory])
+      ][
+        
+        ; update of the argument memory of the share-researcher, with 
+        ; better reseachered arguments from the askresearcher
+        ask comb-th-args with [item share-researcher-id group-color-mem >
+	  item  askresearcher-id group-color-mem][
+	  let askresearcher-color item askresearcher-id group-color-mem
+          set group-color-mem-cache replace-item share-researcher-id 
+            group-color-mem-cache askresearcher-color
+          set comb-memory-argu-s (turtle-set comb-memory-argu-s self)
+        ]
+        set comb-memory-rel-s (link-set comb-memory-rel-s askresearcher-rel
+	  with [not item share-researcher-id in-group-i-memory])
+      ]
+      ask askresearcher [
+        set argu-cache (turtle-set argu-cache comb-memory-argu-a)
+        set to-add-mem-rel (link-set to-add-mem-rel comb-memory-rel-a)
+      ]  
+      ask share-researcher [
+        set argu-cache (turtle-set argu-cache comb-memory-argu-s)
+        set to-add-mem-rel (link-set to-add-mem-rel comb-memory-rel-s)
+      ]        
     ]
-    set com-costs (com-costs + (count comb-memory-rel) * rel-costfactor)
-    set costvector replace-item askresearcher-id costvector com-costs
-    ask askresearcher [
-      set argu-cache comb-memory-argu
-      set to-add-mem-rel comb-memory-rel
-      
-    ]
-  ]
-  ask rep-researchers [
-    let com-costs item group-id costvector
-    ; The absolute costs are transformed into relative costs (in days) and 
-    ; distributed among the group
-;    distribute-com-costs com-costs
   ]
 end
 
