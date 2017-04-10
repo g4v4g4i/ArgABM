@@ -163,7 +163,6 @@ to go
   compute-popularity update-pluralist?
   tick
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -526,6 +525,16 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+5
+605
+143
+650
+landscape
+landscape
+"Landscape-A" "Landscape-B"
+0
 
 @#$#@#$#@
 # Motivation
@@ -1294,7 +1303,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.1
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

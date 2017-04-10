@@ -190,7 +190,17 @@ to create-attacks
       ; argument belongs to first for the third theory
       ifelse [who] of curtheory = max starts-list and attack-random <
         attack-probability-3rd [
-        create-incoming-attack curtheory askargu
+        ifelse landscape = "landscape-A"[
+          create-incoming-attack curtheory askargu
+        ][
+          create-attack-to one-of other startsargum with [mytheory != curtheory
+            and not attack-neighbor? askargu][
+            set color gray
+            set mytheory-end1 [mytheory] of end1
+            set mytheory-end2 curtheory
+            set in-group-i-memory n-values colla-networks [false]
+            ]
+        ]        
       ][
         ; then attacks towards arguments of the 2nd theory are created
         if [who] of curtheory != max starts-list and curtheory != start 0 and
