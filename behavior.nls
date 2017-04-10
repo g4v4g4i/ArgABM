@@ -76,7 +76,6 @@ to share-with-group
       ; other group members copy that information into their own memory
       ifelse group-sharing-done [
         ask cur-researcher [
-          set rep-researcher false
           set subjective-arguments [subjective-arguments] of
             grp-share-researcher
           set subjective-relations [subjective-relations] of
@@ -89,14 +88,12 @@ to share-with-group
         set group-sharing-done true
         set grp-share-researcher cur-researcher        
         ask cur-researcher [
-          let cur-group-id group-id        
-          ; reset the variables
-          set rep-researcher false          
+          let cur-group-id group-id      
           ; variables to keep track the combined memory of all the sharing
           ; researchers
           let comb-memory-argu no-turtles
           let comb-memory-rel no-links 
-          ; the last rep-researcher of the group integrates the arguments
+          ; the agents that communicated integrate the arguments
           ; learned via this communication into her memory
           transfer-argu-cache-to-memory     
           ; the information in the memories of the single researchers in
@@ -140,7 +137,7 @@ end
 to transfer-argu-cache-to-memory
   let cur-group-id group-id
   let cached-aguments no-turtles
-  ; the last rep-researcher of the group has arguments she learned in the
+  ; the agents that communicated have arguments they learned in the
   ; last inter-group communication in her argu-cache
   ask (turtle-set item cur-group-id colla-networks) with [any? argu-cache] [
     ; arguments for which the most recent version (=color) is in the
@@ -168,18 +165,7 @@ end
 ; memory that they want to share with researchers that do not
 ; belong to their own collaborator-network (i.e. for inter-group-sharing)
 to create-share-memory
-  ; for each collaborator-network one researcher is set to be
-  ; the representative researcher
-  set rep-researchers no-turtles
-  foreach colla-networks [ [curgroup] ->
-    ask one-of curgroup [
-      set rep-researcher true
-      set rep-researchers (turtle-set rep-researchers self)
-    ]
-  ]
-  ; only the representative researchers create a memory
-  ; that they want to share with researchers from other networks
-  ask rep-researchers [
+  ask researchers [
     let cur-argum mygps
     ; create a set of arguments and a set of relations (= attacks) that the
     ; researcher can share with researchers from other collaborative networks

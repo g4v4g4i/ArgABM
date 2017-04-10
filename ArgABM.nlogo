@@ -81,9 +81,8 @@ attacks-own [mytheory-end1 mytheory-end2 uncontested in-group-i-memory
 ; inter-group sharing
 researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
-  th-args th-relations communicating moved rep-researcher
-  to-add-mem-argu to-add-mem-rel flag-updated-memory
-  non-admiss-subj-argu mygps group-id argu-cache]
+  th-args th-relations communicating moved to-add-mem-argu to-add-mem-rel
+  flag-updated-memory non-admiss-subj-argu mygps group-id argu-cache]
 
 
 
@@ -93,12 +92,9 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; initialization of hidden variables,
 ; startsargum is an agentset which contains all arguments (including starts)
 ; and disc-startsargum-non-red are those startsargum which are non red and
-; properly discovered (i.e. non gray and non turquoise).
-; rel-costfactor is a hidden variable which determines how costly it is
-; to learn relations via inter-group communication and rep-researchers are the
-; current representative researchers which share / shared information.
+; properly discovered (i.e. non gray and non turquoise)
 globals [small-movement color-move colla-networks share-structure startsargum
-  disc-startsargum-non-red rep-researchers undirected-communication]
+  disc-startsargum-non-red undirected-communication]
 
 
 
