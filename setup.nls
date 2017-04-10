@@ -371,6 +371,7 @@ to researchers-create-scientists
     set flag-updated-memory false
     set moved false
     set rep-researcher false
+    set communicating false
     set current-theory-info theories
   ]  
 end

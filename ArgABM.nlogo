@@ -157,7 +157,7 @@ to go
   ask researchers [
     set flag-updated-memory false
   ]
-  if ticks mod 5 != 0 [
+  if ticks mod 5 = 4 [
     communication-regress
   ]
   compute-popularity update-pluralist?

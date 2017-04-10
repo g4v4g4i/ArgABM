@@ -272,7 +272,7 @@ to inter-group-sharing-complete
     set argu-cache comb-memory-argu ; (a)
     set to-add-mem-rel comb-memory-rel ; (a)
     let com-costs item group-id costvector
-    distribute-com-costs com-costs
+;    distribute-com-costs com-costs
   ]
 end
 
@@ -349,55 +349,7 @@ to inter-group-sharing-default
     let com-costs item group-id costvector
     ; The absolute costs are transformed into relative costs (in days) and 
     ; distributed among the group
-    distribute-com-costs com-costs
-  ]
-end
-
-
-
-
-
-; Distributes the absolute communication costs (com-costs) among the group and 
-; transform them into relative costs (in days) which are then saved in the 
-; researcher-owned variable `communicating`.
-; The absolute costs are the difference between the information the 
-; rep-researcher possessed before vs. after the inter-group-sharing. For 
-; details on the costs function cf. : initialize-hidden-variables. The 
-; researchers have to digest all information within a work-week (= 5 
-; days/ticks) while still reserving one day for doing their own research, 
-; which leaves them with 4 days for digesting. The rep researcher herself only 
-; has 3 days b/c the day she visits the conference (inter-group-sharing) is 
-; also lost. Every day a researcher can digest information of value 
-; `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned 
-; variable will be set to how many days the researcher will be occupied by 
-; digesting information (+ one day in the case of the rep-researchers: the day 
-; of visiting the conference itself)
-to distribute-com-costs [com-costs]
-  ifelse com-costs > (3 * max-learn) [
-    ; the rep-researcher pays for as much information as she can.
-    set communicating 4
-    let com-cost-remaining (com-costs - 3 * max-learn)
-    let cur-group (turtle-set item group-id colla-networks)
-    ask cur-group [
-      ; 2. If the (absolute) costs are higher than what she can pay (= 3 * 
-      ; max-learn), the next researcher from her group will be picked and pay 
-      ; for as much of the rest of the communication costs as she can ( = 4 * 
-      ; max-learn). She will also become a rep-researcher and therefore exempt 
-      ; from pursuing strategies this week. If there are still communication 
-      ; costs left this continues until all researchers of the group have paid 
-      ; the maximum relative costs (= communicating 4 = 4 days) or all 
-      ; communication costs have been paid.
-      if com-cost-remaining > 0 and not [rep-researcher] of self [
-        let com-payment-curresearcher min 
-          (list com-cost-remaining (4 * max-learn))
-        set communicating ceiling (com-payment-curresearcher / max-learn)
-        set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
-        set rep-researcher true
-      ]
-    ]
-  ][
-    ; the rep-researcher pays for as all the information costs.
-    set communicating ((ceiling (com-costs / max-learn)) + 1)
+;    distribute-com-costs com-costs
   ]
 end
 
@@ -461,7 +413,7 @@ to move-around
   ]
   ask researchers [
     let curresearcher self
-    if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
+    if [communicating] of curresearcher or ticks mod 5 = 0 [
       let myargu mygps     
       ; the researcher owned variable which contains all the non admissible
       ; arguments as a list is written to not-admissible
@@ -554,7 +506,7 @@ to find-defense
   ; the researcher is not communicating the researcher tries to move 
   ; prospectively to a argument that provides a defense for the current 
   ; argument
-  ask researchers with [not moved and (communicating = 0 or ticks mod 5 = 0)
+  ask researchers with [not moved and (communicating or ticks mod 5 = 0)
     and member? mygps non-admiss-subj-argu] [
     let curresearcher self
     let myargu mygps
@@ -602,7 +554,7 @@ end
 ; information from communication) is present at the current position
 ; called by arguments when the landscape is updated
 to-report non-comm-scientists-here
-  ifelse any? researchers in-radius 0 with [communicating = 0]
+  ifelse any? researchers in-radius 0 with [communicating]
   or (ticks mod 5 = 0 and any? researchers in-radius 0)[
     report true
   ][
@@ -742,12 +694,11 @@ end
 
 
 
-; at the end of the time steps 1, 2, 3 and 4 communicating researchers
-; decrease their communicating value by 1 which corresponds to them having used
-; the day to digest the information they gained while communicating
+; at the end of the time step 2 communicating researchers
+; reset their variable communicating to false
 to communication-regress
-    ask researchers with [communicating > 0][
-      set communicating communicating - 1
+    ask researchers with [communicating][
+      set communicating false
     ]
 end
 
