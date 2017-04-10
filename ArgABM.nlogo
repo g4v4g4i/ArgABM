@@ -420,9 +420,9 @@ HORIZONTAL
 
 PLOT
 5
-450
+430
 205
-600
+580
 Popularity
 Time steps
 No. of researchers
@@ -451,9 +451,9 @@ NIL
 
 TEXTBOX
 10
-425
+405
 160
-443
+423
 Plots
 13
 0.0
@@ -495,16 +495,6 @@ attack-probability-3rd
 NIL
 HORIZONTAL
 
-CHOOSER
-9
-374
-147
-419
-network-structure
-network-structure
-"cycle" "wheel" "complete"
-2
-
 BUTTON
 70
 10
@@ -523,20 +513,20 @@ NIL
 1
 
 CHOOSER
-5
-605
-143
-650
+100
+280
+192
+325
 landscape
 landscape
 "Landscape-A" "Landscape-B"
 0
 
 SLIDER
-5
-660
-177
-693
+10
+370
+182
+403
 social-collaboration
 social-collaboration
 0.00
