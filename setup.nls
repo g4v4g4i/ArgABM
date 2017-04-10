@@ -317,17 +317,10 @@ to distribute-researchers
   move-researchers-to-roots
 
   ; create the network of collaborators
-  ; if in the interface "within-theory" is on, collaborative networks are
   ; created among researchers that start from the same theory 
   ; (i.e. homogeneous-groups). A network has 5 researchers in it
   set colla-networks []
-  ifelse within-theory [
-    create-homogeneous-groups
-  ][
-  ; if "within-theory" is off in the interface, random collaborative networks
-  ; (i.e. heterogeneous-groups) are created, all of size 5
-    create-heterogeneous-groups
-  ]
+  create-homogeneous-groups
 end
 
 
@@ -393,9 +386,8 @@ end
 
 
 
-; if in the interface "within-theory" is on, collaborative networks are created
-; among researchers that start from the same theory (i.e. homogeneous-groups)
-; a network has 5 researchers in it
+; collaborative networks are created among researchers that start from 
+; the same theory, a network has 5 researchers in it
 to create-homogeneous-groups
   let i 0
   ask starts [
@@ -419,36 +411,6 @@ to create-homogeneous-groups
       ]
       set i i + 1 
     ]    
-  ]
-end
-
-
-
-
-
-; if "within-theory" is off in the interface random collaborative networks
-; are created (i.e. heterogeneous-groups), all of size 5
-to create-heterogeneous-groups
-  let i 0
-  while [any? researchers with [empty? collaborator-network]][
-    ; variable that collects five researchers for a network
-    let cur-col no-turtles
-    ; five researchers are added to the turtle-set cur-col which is then
-    ; set as the collaborator-network of each of these researchers
-    ask n-of 5 researchers with [empty? collaborator-network][
-      set cur-col (turtle-set cur-col self) 
-    ]
-    ; initialize variables for the collection of the networks
-    ; and the networks that will share with each other
-    set colla-networks lput sort cur-col colla-networks
-    ask cur-col [
-      set collaborator-network sort cur-col
-      set group-id i
-      ask starts in-radius 0 [
-        set group-color-mem replace-item i group-color-mem color
-      ]
-    ]
-    set i i + 1
   ]
 end
 

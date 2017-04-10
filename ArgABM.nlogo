@@ -420,9 +420,9 @@ HORIZONTAL
 
 PLOT
 5
-430
+435
 205
-580
+585
 Popularity
 Time steps
 No. of researchers
@@ -451,30 +451,19 @@ NIL
 
 TEXTBOX
 10
-405
+410
 160
-423
+428
 Plots
 13
 0.0
 1
 
-SWITCH
-10
-285
-100
-318
-within-theory
-within-theory
-0
-1
--1000
-
 CHOOSER
 10
-325
+330
 148
-370
+375
 social-actions
 social-actions
 "reliable" "biased"
@@ -513,9 +502,9 @@ NIL
 1
 
 CHOOSER
-100
+10
 280
-192
+150
 325
 landscape
 landscape
@@ -524,9 +513,9 @@ landscape
 
 SLIDER
 10
-370
+375
 182
-403
+408
 social-collaboration
 social-collaboration
 0.00
@@ -1344,9 +1333,6 @@ NetLogo 6.0
     <enumeratedValueSet variable="social-actions">
       <value value="&quot;reliable&quot;"/>
       <value value="&quot;biased&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="within-theory">
-      <value value="true"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="scientists">
       <value value="10"/>
