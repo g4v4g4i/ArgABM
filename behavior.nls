@@ -204,12 +204,12 @@ to share-with-other-networks
   ask (turtle-set [th-args] of researchers) [
     set group-color-mem-cache group-color-mem
   ]
-  let comb-memory-argu-a no-turtles
-  let comb-memory-rel-a no-links
-  let comb-memory-argu-s no-turtles
-  let comb-memory-rel-s no-links
   
   ask researchers [
+    let comb-memory-argu-a no-turtles
+    let comb-memory-rel-a no-links
+    let comb-memory-argu-s no-turtles
+    let comb-memory-rel-s no-links
     let cur-network collaborator-network
     let askresearcher self
     let askresearcher-id [group-id] of askresearcher
@@ -339,7 +339,7 @@ to move-around
   ]
   ask researchers [
     let curresearcher self
-    if [communicating] of curresearcher or ticks mod 5 = 0 [
+    if [not communicating] of curresearcher or ticks mod 5 = 0 [
       let myargu mygps     
       ; the researcher owned variable which contains all the non admissible
       ; arguments as a list is written to not-admissible
@@ -430,20 +430,15 @@ end
 to find-defense
   ; if the current argument is not admissible and it is a 5th time step or 
   ; the researcher is not communicating the researcher tries to move 
-  ; prospectively to a argument that provides a defense for the current 
-  ; argument
-  ask researchers with [not moved and (communicating or ticks mod 5 = 0)
+  ; prospectively to an argument that provides a defense for the current 
+  ; argument and is a child-argument of it
+  ask researchers with [not moved and (not communicating or ticks mod 5 = 0)
     and member? mygps non-admiss-subj-argu] [
     let curresearcher self
     let myargu mygps
     let cur-th [mytheory] of myargu
     let cur-group-id group-id
-    ; the group of the curresearcher updates their memory to see whether they
-    ; can find a defender in their neighborhood
-    ask (turtle-set item cur-group-id colla-networks) with [
-      not flag-updated-memory] [
-        update-memories
-    ]
+    
     ask myargu [
       ask my-in-attacks with [color != gray] [
         ; check to prevent the researcher from searching for further
@@ -453,15 +448,13 @@ to find-defense
         ; pick one of the arguments that provide a defense for the 
         ; current argument, this argument:
         ; a) attacks the attacker of the current argument;
-        ; b) is from the same theory as the curresearcher is working on
-        ; c) is an argument which is known to the researchers group;
-        ; d) is discovered and not fully researched (= red); and
-        ; e) has no researcher from the same group working on it
+        ; b) is a child-argument of the current argument; 
+        ; c) is discovered and not fully researched (= red); and
+        ; d) has no researcher from the same group working on it
           let nextargu one-of in-attack-neighbors with [ ; (a)
-            mytheory = cur-th ; (b)
-            and item cur-group-id group-color-mem != cyan ; (c)
-            and not member? color [gray red turquoise] ; (d)
-            and not group-member-here curresearcher] ; (e)
+            in-discovery-neighbor? myargu ; (b)
+            and not member? color [gray red turquoise] ; (c)
+            and not group-member-here curresearcher] ; (d)
           if nextargu = nobody [stop]
           ask curresearcher [
             move-to-nextargu nextargu
@@ -480,7 +473,7 @@ end
 ; information from communication) is present at the current position
 ; called by arguments when the landscape is updated
 to-report non-comm-scientists-here
-  ifelse any? researchers in-radius 0 with [communicating]
+  ifelse any? researchers in-radius 0 with [not communicating]
   or (ticks mod 5 = 0 and any? researchers in-radius 0)[
     report true
   ][
@@ -620,7 +613,7 @@ end
 
 
 
-; at the end of the time step 2 communicating researchers
+; at the end of the time step 4 communicating researchers
 ; reset their variable communicating to false
 to communication-regress
     ask researchers with [communicating][
