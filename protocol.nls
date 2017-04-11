@@ -127,23 +127,33 @@ end
 
 
 
+to-report translate-from-string [string]
+  let value-to-report 0
+  if string = "th1" [
+    report item 0 sort starts
+  ]
+  if string = "th2" [
+    report item 1 sort starts
+  ]
+  if string = "th3" [
+    if number-of-theories < 3 [
+      report false
+    ]
+    report item 2 sort starts
+  ]
+end
+
+
+
+
+
 ; reports the objective admissibility of th#
 to-report objective-admiss-of [th#]  
-  let objective-admiss-ap [[] -> objective-admissibility]
-  if th# = "th1" [
-    set th# item 0 sort starts
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
   ]
-  if th# = "th2" [
-    set th# item 1 sort starts
-  ]
-  if th# = "th3" and number-of-theories = 3 [
-    set th# item 2 sort starts
-  ]
-  if th# = "th3" and number-of-theories = 2 [
-    set th# item 0 sort starts
-    set objective-admiss-ap [[] -> 0]
-  ]
-  report [runresult objective-admiss-ap] of th#  
+  report [objective-admissibility] of th#  
 end
 
 
@@ -156,23 +166,14 @@ end
 ; "pluralist" - cf. `research-time-pluralist`
 to-report research-time [pluralist-monist th#]
   ifelse pluralist-monist = "monist" [
-    set pluralist-monist [[] -> research-time-monist]
+    set pluralist-monist [ -> research-time-monist]
   ][
-    set pluralist-monist [[] -> research-time-pluralist]
+    set pluralist-monist [ -> research-time-pluralist]
   ]
-  if th# = "th1" [
-    set th# item 0 sort starts
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
   ]
-  if th# = "th2" [
-    set th# item 1 sort starts
-  ]
-  if th# = "th3" and number-of-theories = 3 [
-    set th# item 2 sort starts
-  ]
-  if th# = "th3" and number-of-theories = 2 [
-    set th# item 0 sort starts
-    set pluralist-monist [[] -> 0]
-  ]  
   report [runresult pluralist-monist] of th#
 end
 
@@ -186,23 +187,14 @@ end
 ; `myscientists-pluralist`-value ("pluralist") (cf. Variables)
 to-report run-end-scientists [pluralist-monist th#]
   ifelse pluralist-monist = "monist" [
-    set pluralist-monist [[] -> myscientists]
+    set pluralist-monist [ -> myscientists]
   ][
-    set pluralist-monist [[] -> myscientists-pluralist]
+    set pluralist-monist [ -> myscientists-pluralist]
   ]
-  if th# = "th1" [
-    set th# item 0 sort starts
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
   ]
-  if th# = "th2" [
-    set th# item 1 sort starts
-  ]
-  if th# = "th3" and number-of-theories = 3 [
-    set th# item 2 sort starts
-  ]
-  if th# = "th3" and number-of-theories = 2 [
-    set th# item 0 sort starts
-    set pluralist-monist [[] -> 0]
-  ]  
   report [runresult pluralist-monist] of th#
 end
 
@@ -218,9 +210,9 @@ end
 ; For details cf. documentation
 to-report in-run-performance [pluralist-monist]
   ifelse pluralist-monist = "monist" [
-    set pluralist-monist [[] -> research-time-monist]
+    set pluralist-monist [ -> research-time-monist]
   ][
-    set pluralist-monist [[] -> research-time-pluralist]
+    set pluralist-monist [ -> research-time-pluralist]
   ]
   let performance 0
   ask starts [
