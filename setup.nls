@@ -676,3 +676,14 @@ to calc-global-admiss
     set uncontested true    
   ]
 end
+
+
+
+
+
+; records the number of scientists on each start at the beginning of the run
+to record-initial-scientists
+  ask starts [
+    set initial-scientists count researchers in-radius 0
+  ]
+end

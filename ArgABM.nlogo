@@ -50,7 +50,8 @@ arguments-own [mytheory current-argument researcher-ticks
 ; well as  how admissible their theory is objectively
 starts-own [mytheory current-start myscientists researcher-ticks
   research-time-monist research-time-pluralist myscientists-pluralist
-  objective-admissibility group-color-mem group-color-mem-cache]
+  objective-admissibility group-color-mem group-color-mem-cache
+  initial-scientists]
 
 
 
@@ -130,6 +131,7 @@ to setup [rs]
   define-attack-relation
   distribute-researchers
   calc-global-admiss
+  record-initial-scientists
   reset-ticks
 end
 
@@ -981,6 +983,11 @@ How many researchers currently cosider this theory to be a best theory. If there
     * example: 85
 This is how many admissible arguments this theory has. The best theory always has full admissibility which corresponds e.g. in the case of theory-depth 3 to a number of 85. This is calculated at the beginning of the run during the setup.
 
+  * initial-scientists
+    * format: integer
+    * example: 25
+Records the number of scientists on each start at the beginning of the run.
+
 
 attacks-own
 
@@ -1348,6 +1355,9 @@ NetLogo 6.0.1
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
     <metric>rndseed</metric>
+    <metric>run-start-scientists "th1"</metric>
+    <metric>run-start-scientists "th2"</metric>
+    <metric>run-start-scientists "th3"</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1429,6 +1439,9 @@ NetLogo 6.0.1
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
     <metric>rndseed</metric>
+    <metric>run-start-scientists "th1"</metric>
+    <metric>run-start-scientists "th2"</metric>
+    <metric>run-start-scientists "th3"</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>

@@ -225,3 +225,14 @@ to-report in-run-performance [pluralist-monist]
 end
 
 
+
+
+
+; reports how many scientists were on each theory at the start of the run
+to-report run-start-scientists [th#]
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
+  ]
+  report [initial-scientists] of th#
+end
