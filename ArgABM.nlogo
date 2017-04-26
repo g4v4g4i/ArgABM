@@ -99,7 +99,8 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; to learn relations via inter-group communication and rep-researchers are the
 ; current representative researchers which share / shared information.
 globals [max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed]
+  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
+  g-cum-com-costs g-max-com-costs g-unpaid-com-costs]
 
 
 
@@ -127,6 +128,7 @@ to setup [rs]
   random-seed rs
   initialize-hidden-variables
   set colla-networks (scientists / 5)
+  set g-max-com-costs [0 0]
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -890,6 +892,23 @@ This variable will contain all the actual representative researchers (i.e. those
     * example: -2147452934
 Stores the random-seed of the current run.
 
+  * g-cum-com-costs 
+    * format: integer
+    * example: 211770
+    The sum of all communication cost that accrued during the run.
+
+  * g-max-com-costs
+    * format: integer-list
+    * example: [13459 74]
+    First entry: amount of communication costs that accrued in the round which had the highest communication costs. 
+    Second entry: the number of the round where the highest communication costs accrued.
+
+  * g-unpaid-com-costs
+    * format: integer
+    * example: 0
+    The cumulative communication costs which couldn’t be paid by the researchers. This value should usually be zero, and serves more as a check which signals to us that our max-learn value is too low for the chosen parameters.
+
+
 researchers-own:
 
   * flag-updated-memory
@@ -1362,6 +1381,10 @@ NetLogo 6.0.1
     <metric>perc-subj-disc-argu "best"</metric>
     <metric>perc-subj-disc-attacks "all"</metric>
     <metric>perc-subj-disc-attacks "best"</metric>
+    <metric>cum-com-costs</metric>
+    <metric>max-com-costs "value"</metric>
+    <metric>max-com-costs "round"</metric>
+    <metric>unpaid-com-costs</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1450,6 +1473,10 @@ NetLogo 6.0.1
     <metric>perc-subj-disc-argu "best"</metric>
     <metric>perc-subj-disc-attacks "all"</metric>
     <metric>perc-subj-disc-attacks "best"</metric>
+    <metric>cum-com-costs</metric>
+    <metric>max-com-costs "value"</metric>
+    <metric>max-com-costs "round"</metric>
+    <metric>unpaid-com-costs</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>

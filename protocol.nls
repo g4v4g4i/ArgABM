@@ -284,3 +284,48 @@ to-report perc-subj-disc-attacks [best-all]
   ]
   report realized-score / max-score * 100
 end
+
+
+
+
+
+; reports the input value (communication costs) in the form: comunication costs 
+; in days per researcher
+to-report normalize-days-per-scientist [input]
+  let normalization-factor (1 / (scientists * max-learn))
+  report input * normalization-factor
+end
+
+
+
+
+
+
+; reports the cumulative comunication costs per researcher in days
+to-report cum-com-costs
+  report normalize-days-per-scientist g-cum-com-costs
+end
+
+
+
+
+
+; reports the maximal comunication costs per researcher in days
+; (argument = "value") or the round in which the maximal comunication ocurred
+; (argument = "round")
+to-report max-com-costs [round-value]
+  ifelse round-value = "value"[
+    report normalize-days-per-scientist item 0 g-max-com-costs
+  ][
+    report item 1 g-max-com-costs
+  ]
+end
+
+
+
+
+
+; reports the unpaid comunication costs per researcher in days
+to-report unpaid-com-costs
+  report normalize-days-per-scientist g-unpaid-com-costs
+end
