@@ -1358,6 +1358,10 @@ NetLogo 6.0.1
     <metric>run-start-scientists "th1"</metric>
     <metric>run-start-scientists "th2"</metric>
     <metric>run-start-scientists "th3"</metric>
+    <metric>perc-subj-disc-argu "all"</metric>
+    <metric>perc-subj-disc-argu "best"</metric>
+    <metric>perc-subj-disc-attacks "all"</metric>
+    <metric>perc-subj-disc-attacks "best"</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1442,6 +1446,10 @@ NetLogo 6.0.1
     <metric>run-start-scientists "th1"</metric>
     <metric>run-start-scientists "th2"</metric>
     <metric>run-start-scientists "th3"</metric>
+    <metric>perc-subj-disc-argu "all"</metric>
+    <metric>perc-subj-disc-argu "best"</metric>
+    <metric>perc-subj-disc-attacks "all"</metric>
+    <metric>perc-subj-disc-attacks "best"</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>

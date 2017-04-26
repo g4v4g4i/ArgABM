@@ -236,3 +236,51 @@ to-report run-start-scientists [th#]
   ]
   report [initial-scientists] of th#
 end
+
+
+
+
+
+; reports the percentage of arguments which are known to an average researcher.
+; Either for the whole landscape (argument = "all") or for the best theory only
+; (argument = "best")
+to-report perc-subj-disc-argu [best-all]
+  let tot-arguments 0
+  ifelse best-all = "all" [
+    set tot-arguments startsargum
+  ][
+    set tot-arguments startsargum with [mytheory = (start 0)]
+  ]
+  let #groups scientists / 5
+  let max-score count tot-arguments * #groups
+  let realized-score 0
+  ask tot-arguments [
+   set realized-score realized-score + length filter [subj-color -> 
+    subj-color < cyan] group-color-mem
+  ]
+  report realized-score / max-score * 100
+end
+
+
+
+
+
+; reports the percentage of attacks which are known to an average researcher.
+; Either for the whole landscape (argument = "all") or from the best theory only
+; (argument = "best")
+to-report perc-subj-disc-attacks [best-all]
+  let tot-attacks 0
+  ifelse best-all = "all" [
+    set tot-attacks attacks
+  ][
+    set tot-attacks attacks with [mytheory-end1 = (start 0)]
+  ]
+  let #groups scientists / 5
+  let max-score count tot-attacks * #groups
+  let realized-score 0
+  ask tot-attacks [
+   set realized-score realized-score + length filter [subj-known -> 
+    subj-known = true] in-group-i-memory
+  ]
+  report realized-score / max-score * 100
+end
