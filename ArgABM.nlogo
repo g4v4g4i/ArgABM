@@ -100,7 +100,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; current representative researchers which share / shared information.
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
-  g-cum-com-costs g-max-com-costs g-unpaid-com-costs]
+  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-com-costs]
 
 
 
@@ -914,7 +914,7 @@ researchers-own:
   * flag-updated-memory
     * format: boolean
     * initialization value: false
-This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundance of the `update-memories` procedure.
+This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundant calls of the `update-memories` procedure.
 
   * non-admiss-subj-argu
     * format: turtle-set
