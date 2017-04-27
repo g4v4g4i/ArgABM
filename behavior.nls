@@ -363,7 +363,8 @@ end
 ; current run
 to set-global-com-costs [costvector]
   let cur-round-com-costs sum costvector
-  set g-cum-com-costs g-cum-com-costs + cur-round-com-costs
+  set g-cur-avg-com-costs normalize-days-per-scientist cur-round-com-costs
+  set g-cum-com-costs g-cum-com-costs + cur-round-com-costs 
   if cur-round-com-costs > item 0 g-max-com-costs [
     set g-max-com-costs (list cur-round-com-costs ticks)
   ]

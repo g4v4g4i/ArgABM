@@ -100,7 +100,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 ; current representative researchers which share / shared information.
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
-  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-com-costs]
+  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs]
 
 
 
@@ -547,6 +547,24 @@ NIL
 NIL
 0
 
+PLOT
+5
+610
+205
+760
+Current avg. com. costs
+Time steps
+days / scientist
+0.0
+100.0
+0.0
+0.01
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot g-cur-avg-com-costs"
+
 @#$#@#$#@
 # Motivation
 
@@ -907,6 +925,12 @@ Stores the random-seed of the current run.
     * format: integer
     * example: 0
     The cumulative communication costs which couldn’t be paid by the researchers. This value should usually be zero, and serves more as a check which signals to us that our max-learn value is too low for the chosen parameters.
+    
+  * g-cur-avg-com-costs
+    * type: float
+    * example: 1.1394
+    Average communication costs from the most recent inter-group sharing in days per researcher.
+
 
 
 researchers-own:
