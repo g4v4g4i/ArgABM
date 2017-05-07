@@ -475,10 +475,10 @@ NIL
 1
 
 TEXTBOX
-10
-425
-160
-443
+9
+426
+159
+444
 Plots
 13
 0.0
@@ -564,6 +564,16 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot g-cur-avg-com-costs"
+
+CHOOSER
+760
+80
+942
+125
+evaluation
+evaluation
+"defended-args" "non-defended-args" "non-defended-normalized" "non-defended-multiplied"
+0
 
 @#$#@#$#@
 # Motivation
@@ -736,7 +746,24 @@ If researchers think often enough that they should jump to another theory, often
 
 # Changes to be integrated into the doc (wip)
 - This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
+- Add formal definition of "defended"
 - Needs also to be integrated into the readme.
+
+## Interface
+
+### evaluation
+
+* type: chooser
+
+The evaluation criterion researchers apply when determining the score they assign to theory x (always according to their subjective memory). The four options are:
+
+* "defended-args": score = number of defended arguments in theory x. Higher score = better. 
+
+* "non-defended-args": score = number of non-defended arguments in theory x. Lower score = better.
+
+* "non-defended-normalized": score = number of non-defended arguments in theory x / number of all arguments in theory x. Lower score = better.
+
+* "non-defended-multiplied": score = number of non-defended arguments in theory x * number of all arguments in theory x. Lower score = better.
 
 ## Setup
 
@@ -1461,6 +1488,9 @@ NetLogo 6.0.1
     <enumeratedValueSet variable="attack-probability-3rd">
       <value value="0.3"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="evaluation">
+      <value value="&quot;defended-args&quot;"/>
+    </enumeratedValueSet>
   </experiment>
   <experiment name="homogeneous-groups" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup new-seed</setup>
@@ -1551,6 +1581,9 @@ NetLogo 6.0.1
     </enumeratedValueSet>
     <enumeratedValueSet variable="attack-probability-3rd">
       <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="evaluation">
+      <value value="&quot;defended-args&quot;"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>

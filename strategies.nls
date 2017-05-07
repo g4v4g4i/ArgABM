@@ -145,17 +145,33 @@ end
 
 
 ; the current-theory-info will be updated with the freshly calculated
-; admissibility values; format: list e.g. 
-;[[(start 0) 45] [(start 85) 40] [(start 170) 22]] = the first theory has 45
-; admissible arguments etc.
+; scores according to the evaluation chosen in the interface
 to set-current-theory-info [#non-admiss-argu-th]
   let i 0
   foreach current-theory-info [[curitem] ->
+    let score-th-i 0
     let curtheory item 0 curitem
-    let number-adm-argu (count subjective-arguments with [mytheory = curtheory]
-      - item i #non-admiss-argu-th)
+    if evaluation = "defended-args" [
+      set score-th-i (count subjective-arguments with [mytheory = curtheory]
+        - item i #non-admiss-argu-th)      
+    ]
+    if evaluation = "non-defended-args" [
+      set score-th-i item i #non-admiss-argu-th
+    ]
+    if evaluation = "non-defended-normalized" [
+      let count-subj-argu count subjective-arguments with [mytheory = curtheory]
+      ifelse count-subj-argu = 0 [
+        set score-th-i 0
+      ][
+        set score-th-i (item i #non-admiss-argu-th / count-subj-argu)
+      ]
+    ]
+    if evaluation = "non-defended-multiplied" [
+      set score-th-i (item i #non-admiss-argu-th * count subjective-arguments
+        with [mytheory = curtheory])
+    ]
     set current-theory-info replace-subitem i 1 current-theory-info
-    number-adm-argu
+        score-th-i
     set i i + 1
   ]
 end
@@ -164,18 +180,12 @@ end
 
 
 
-; based on their memory researchers compute lists of attacked arguments
-; with these lists the current best theory is computed
+; based on their memory researchers compute which theories they currently
+; consider to be among among the best.
 to compute-strategies
   set cur-best-th []
-  ; variables for the list that contains the number admissible arguments
-  ; per theory and a sublist which contains only the numbers that are
-  ; within the strategy-threshold
   let list-admissible-arguments []
   let threshold-admissible-arguments []
-
-  ; create a list with the number of admissible arguments
-  ; of each of the theories
   foreach current-theory-info [ [?1] ->
     set list-admissible-arguments lput item 1 ?1 list-admissible-arguments
   ]
@@ -183,14 +193,20 @@ to compute-strategies
 
   ; a list of theories with values within the strategy threshold is
   ; constructed
-  set threshold-admissible-arguments filter [ [?1] -> ?1 >=
-    ((max list-admissible-arguments) * strategy-threshold) ]
+  ifelse evaluation = "defended-args" [
+    set threshold-admissible-arguments filter [ [?1] -> ?1 >=
+      ((max list-admissible-arguments) * strategy-threshold) ]
       list-admissible-arguments
+  ][
+    set threshold-admissible-arguments filter [ [?1] -> ?1 <=
+      ((min list-admissible-arguments) / strategy-threshold) ]
+      list-admissible-arguments
+  ]
   set threshold-admissible-arguments sort threshold-admissible-arguments
 
   ; computation of the current best theories
-  ; theories with a number of admissible arguments that are
-  ; within the threshold of the theory with the most admissible arguments
+  ; theories with a score that is
+  ; within the threshold of the theory with the highest score
   ; are considered as current best theories
   foreach current-theory-info [ [?1] ->
     if member? item 1 ?1 threshold-admissible-arguments [
