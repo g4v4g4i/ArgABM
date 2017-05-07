@@ -184,35 +184,23 @@ end
 ; consider to be among among the best.
 to compute-strategies
   set cur-best-th []
-  let list-admissible-arguments []
-  let threshold-admissible-arguments []
-  foreach current-theory-info [ [?1] ->
-    set list-admissible-arguments lput item 1 ?1 list-admissible-arguments
-  ]
-  set list-admissible-arguments sort list-admissible-arguments
-
-  ; a list of theories with values within the strategy threshold is
-  ; constructed
+  let list-scores map [curitem -> item 1 curitem] current-theory-info
+  let threshold-score 0
+  let better-than 0
   ifelse evaluation = "defended-args" [
-    set threshold-admissible-arguments filter [ [?1] -> ?1 >=
-      ((max list-admissible-arguments) * strategy-threshold) ]
-      list-admissible-arguments
+    set threshold-score max list-scores * strategy-threshold
+    set better-than [ [x y] -> x >= y ]
   ][
-    set threshold-admissible-arguments filter [ [?1] -> ?1 <=
-      ((min list-admissible-arguments) / strategy-threshold) ]
-      list-admissible-arguments
+    set threshold-score min list-scores / strategy-threshold
+    set better-than [ [x y] -> x <= y ]
   ]
-  set threshold-admissible-arguments sort threshold-admissible-arguments
-
-  ; computation of the current best theories
-  ; theories with a score that is
-  ; within the threshold of the theory with the highest score
-  ; are considered as current best theories
-  foreach current-theory-info [ [?1] ->
-    if member? item 1 ?1 threshold-admissible-arguments [
-      set cur-best-th lput item 0 ?1 cur-best-th
+  ; theories with a score that is within the threshold of the theory with 
+  ; the best score, are considered as current best theories
+  foreach current-theory-info [ curentry ->
+    if (runresult better-than item 1 curentry threshold-score) [
+      set cur-best-th lput item 0 curentry cur-best-th
     ]
-  ]  
+  ]
 end
 
 
