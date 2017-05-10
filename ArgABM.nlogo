@@ -90,17 +90,10 @@ researchers-own [theory-jump times-jumped collaborator-network
 
 
 
-; the global variables are concerned with the
-; initialization of hidden variables,
-; startsargum is an agentset which contains all arguments (including starts)
-; and disc-startsargum-non-red are those startsargum which are non red and
-; properly discovered (i.e. non gray and non turquoise).
-; rel-costfactor is a hidden variable which determines how costly it is
-; to learn relations via inter-group communication and rep-researchers are the
-; current representative researchers which share / shared information.
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
-  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs]
+  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
+  round-converged last-converged-th]
 
 
 
@@ -963,6 +956,16 @@ Stores the random-seed of the current run.
     * type: float
     * example: 1.1394
     Average communication costs from the most recent inter-group sharing in days per researcher.
+    
+  * round-converged
+    * type: integer
+    * example: 124
+    The last round in which researchers converged. If they did not converge, the value will be `-1`.
+
+  * last-converged-th
+    * type: turtle
+    * example: (start 0) 
+    The theory the researchers converged on, the last time they converged. If they did not converge, the value will be `-1`.
 
 
 
@@ -1442,6 +1445,7 @@ NetLogo 6.0.1
     <metric>max-com-costs "value"</metric>
     <metric>max-com-costs "round"</metric>
     <metric>unpaid-com-costs</metric>
+    <metric>round-converged</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1537,6 +1541,7 @@ NetLogo 6.0.1
     <metric>max-com-costs "value"</metric>
     <metric>max-com-costs "round"</metric>
     <metric>unpaid-com-costs</metric>
+    <metric>round-converged</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
