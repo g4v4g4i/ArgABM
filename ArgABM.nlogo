@@ -906,7 +906,13 @@ The numerator on the other hand is the score the researchers actually archived t
   * If all theories had full admissibility researchers would always get the maximum score (in-run-performance = 100).	
   * If all researchers spend all their time on a theory which has an admissibility of 0, in-run-performance would be 0.
 
+### _heatmap_
 
+This procedure draws a heatmap where the brightness of a patch is proportional to the proportion of researcher which know the arguments (and optionally attacks) concerning this patch.  
+In order to properly see the heatmap you can reduce the clutter of the world by making the links & arguments invisible via `ask links [set hidden? true] ask startsargum [set hidden? true]`
+
+*  argument: including-attacks?, type: boolean  
+ whether or not knowledge about the attack relations connected to arguments on this patch is taken into account for drawing the heatmap
 
 ## Variables
 

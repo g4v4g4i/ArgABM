@@ -329,3 +329,56 @@ end
 to-report unpaid-com-costs
   report normalize-days-per-scientist g-unpaid-com-costs
 end
+
+
+
+
+
+; This procedure draws a heatmap where the brightness of a patch is proportional
+; to the proportion of researcher which know the arguments (and optionally 
+; attacks) concerning this patch.
+; This procedure is intended to be used for visualization purposes and is not 
+; recommended in its current form for performance critical applications
+; argument: including-attacks?, type: boolean
+; whether or not knowledge about the attack relations connected to
+; arguments on this patch is taken into account for drawing the heatmap
+to heatmap [including-attacks?]
+  let #groups length colla-networks  
+  let sorted-starts sort starts
+  ask patches with [any? turtles-here][
+    let my-startsargum-attacks 0
+    let #my-startsargum-attacks 0
+    let my-startsargum (turtle-set arguments-here starts-here)
+    if including-attacks? [
+      set my-startsargum-attacks (link-set [my-attacks] of my-startsargum)
+      set #my-startsargum-attacks count my-startsargum-attacks
+    ]
+    let #my-startsargum count my-startsargum
+    ; In case of ties, the first theory among the tied ones is picked,
+    ; in order to avoid border patches switching colors randomly
+    let my-theory first sort modes [mytheory] of my-startsargum
+    let max-score #groups * (#my-startsargum + #my-startsargum-attacks)
+    let realized-score 0
+    ask my-startsargum [
+     set realized-score realized-score + length filter [subj-color -> 
+      subj-color < cyan] group-color-mem
+    ]
+    if including-attacks? [
+      ask my-startsargum-attacks [
+        set realized-score realized-score + length filter [subj-known -> 
+          subj-known = true] in-group-i-memory
+      ]
+    ]
+    let my-color 0
+    ifelse my-theory = item 0 sorted-starts [
+      set my-color red
+    ][
+      ifelse my-theory = item 1 sorted-starts [
+        set my-color turquoise
+      ][
+        set my-color green
+      ]
+    ]
+    set pcolor scale-color my-color realized-score 0 max-score
+  ]
+end
