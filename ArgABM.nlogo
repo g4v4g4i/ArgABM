@@ -568,6 +568,17 @@ evaluation
 "defended-args" "non-defended-args" "non-defended-normalized" "non-defended-multiplied"
 0
 
+SWITCH
+765
+40
+922
+73
+heuristic-non-block
+heuristic-non-block
+1
+1
+-1000
+
 @#$#@#$#@
 # Motivation
 
@@ -1501,6 +1512,9 @@ NetLogo 6.0.1
     <enumeratedValueSet variable="evaluation">
       <value value="&quot;defended-args&quot;"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="heuristic-non-block">
+      <value value="false"/>
+    </enumeratedValueSet>
   </experiment>
   <experiment name="homogeneous-groups" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup new-seed</setup>
@@ -1595,6 +1609,9 @@ NetLogo 6.0.1
     </enumeratedValueSet>
     <enumeratedValueSet variable="evaluation">
       <value value="&quot;defended-args&quot;"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="heuristic-non-block">
+      <value value="false"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>

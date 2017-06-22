@@ -507,7 +507,8 @@ to move-around
         set run-find-defense true
       ]
       
-      if not moved [
+      if not moved and (heuristic-non-block or [color] of myargu = red 
+        or not member? myargu not-admissible)[
         ; when an argument exists that:
         ; a) is a child-argument of the current argument;
         ; b) is not gray, red or turquoise; and
