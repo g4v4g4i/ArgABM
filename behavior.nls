@@ -268,6 +268,7 @@ to inter-group-sharing-complete
     ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
     set costvector (map + costvector costvector-cur-rel)
   ]
+  set-global-com-costs costvector
   ask rep-researchers [
     set argu-cache comb-memory-argu ; (a)
     set to-add-mem-rel comb-memory-rel ; (a)
@@ -345,11 +346,37 @@ to inter-group-sharing-default
       
     ]
   ]
+  set-global-com-costs costvector
   ask rep-researchers [
     let com-costs item group-id costvector
     ; The absolute costs are transformed into relative costs (in days) and 
     ; distributed among the group
     distribute-com-costs com-costs
+  ]
+end
+
+
+
+
+
+; updates the global variables which record the communication costs of the
+; current run
+to set-global-com-costs [costvector]
+  let cur-round-com-costs sum costvector
+  set g-cur-avg-com-costs normalize-days-per-scientist cur-round-com-costs
+  set g-cum-com-costs g-cum-com-costs + cur-round-com-costs 
+  if cur-round-com-costs > item 0 g-max-com-costs [
+    set g-max-com-costs (list cur-round-com-costs ticks)
+  ]
+  ; a group can maximal pay communication costs on 3 days of the rep-researcher 
+  ; + 4 days of each of the other 4 group members
+  let max-group-learn-week 3 * max-learn + 4 * 4 * max-learn
+  if max costvector > max-group-learn-week [    
+    let max-learn-vector n-values (length costvector) [max-group-learn-week]
+    let overhang-costsvector (map - costvector max-learn-vector)
+    set overhang-costsvector filter [cur-group-overhang ->
+      cur-group-overhang > 0] overhang-costsvector
+    set g-unpaid-com-costs g-unpaid-com-costs + sum overhang-costsvector
   ]
 end
 
@@ -368,7 +395,7 @@ end
 ; which leaves them with 4 days for digesting. The rep researcher herself only 
 ; has 3 days b/c the day she visits the conference (inter-group-sharing) is 
 ; also lost. Every day a researcher can digest information of value 
-; `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned 
+; `max-learn` (a hidden variable, default: 2 * 70). The researcher-owned 
 ; variable will be set to how many days the researcher will be occupied by 
 ; digesting information (+ one day in the case of the rep-researchers: the day 
 ; of visiting the conference itself)

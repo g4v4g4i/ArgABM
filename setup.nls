@@ -507,6 +507,17 @@ to compute-popularity [update-pluralist?]
     set research-time-pluralist research-time-pluralist 
       + myscientists-pluralist
   ]
+  let most-pop-th max-one-of starts [myscientists]
+  ifelse [myscientists] of most-pop-th = scientists [
+    if last-converged-th != most-pop-th [
+      ; the +1 correction is b/c the variable is set before `tick` happens
+      set round-converged ticks + 1
+      set last-converged-th most-pop-th
+    ]
+  ][
+    set round-converged -1
+    set last-converged-th -1
+  ]
 end
 
 
@@ -674,5 +685,19 @@ to calc-global-admiss
   ; they're currently all uncontested
   ask attacks [
     set uncontested true    
+  ]
+end
+
+
+
+
+
+; records the number of scientists on each start at the beginning of the run
+to record-initial-scientists
+  ask starts [
+    set initial-scientists count researchers in-radius 0
+    if initial-scientists = scientists [
+      set last-converged-th self
+    ]
   ]
 end

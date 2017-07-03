@@ -50,7 +50,8 @@ arguments-own [mytheory current-argument researcher-ticks
 ; well as  how admissible their theory is objectively
 starts-own [mytheory current-start myscientists researcher-ticks
   research-time-monist research-time-pluralist myscientists-pluralist
-  objective-admissibility group-color-mem group-color-mem-cache]
+  objective-admissibility group-color-mem group-color-mem-cache
+  initial-scientists]
 
 
 
@@ -89,16 +90,10 @@ researchers-own [theory-jump times-jumped collaborator-network
 
 
 
-; the global variables are concerned with the
-; initialization of hidden variables,
-; startsargum is an agentset which contains all arguments (including starts)
-; and disc-startsargum-non-red are those startsargum which are non red and
-; properly discovered (i.e. non gray and non turquoise).
-; rel-costfactor is a hidden variable which determines how costly it is
-; to learn relations via inter-group communication and rep-researchers are the
-; current representative researchers which share / shared information.
 globals [max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed]
+  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
+  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
+  round-converged last-converged-th]
 
 
 
@@ -126,10 +121,12 @@ to setup [rs]
   random-seed rs
   initialize-hidden-variables
   set colla-networks (scientists / 5)
+  set g-max-com-costs [0 0]
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
   calc-global-admiss
+  record-initial-scientists
   reset-ticks
 end
 
@@ -471,10 +468,10 @@ NIL
 1
 
 TEXTBOX
-10
-425
-160
-443
+9
+426
+159
+444
 Plots
 13
 0.0
@@ -541,6 +538,34 @@ NIL
 NIL
 NIL
 NIL
+0
+
+PLOT
+5
+610
+205
+760
+Current avg. com. costs
+Time steps
+days / scientist
+0.0
+100.0
+0.0
+0.01
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot g-cur-avg-com-costs"
+
+CHOOSER
+760
+80
+942
+125
+evaluation
+evaluation
+"defended-args" "non-defended-args" "non-defended-normalized" "non-defended-multiplied"
 0
 
 @#$#@#$#@
@@ -714,7 +739,24 @@ If researchers think often enough that they should jump to another theory, often
 
 # Changes to be integrated into the doc (wip)
 - This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
+- Add formal definition of "defended"
 - Needs also to be integrated into the readme.
+
+## Interface
+
+### evaluation
+
+* type: chooser
+
+The evaluation criterion researchers apply when determining the score they assign to theory x (always according to their subjective memory). The four options are:
+
+* "defended-args": score = number of defended arguments in theory x. Higher score = better. 
+
+* "non-defended-args": score = number of non-defended arguments in theory x. Lower score = better.
+
+* "non-defended-normalized": score = number of non-defended arguments in theory x / number of all arguments in theory x. Lower score = better.
+
+* "non-defended-multiplied": score = number of non-defended arguments in theory x * number of all arguments in theory x. Lower score = better.
 
 ## Setup
 
@@ -857,7 +899,13 @@ The numerator on the other hand is the score the researchers actually archived t
   * If all theories had full admissibility researchers would always get the maximum score (in-run-performance = 100).	
   * If all researchers spend all their time on a theory which has an admissibility of 0, in-run-performance would be 0.
 
+### _heatmap_
 
+This procedure draws a heatmap where the brightness of a patch is proportional to the proportion of researcher which know the arguments (and optionally attacks) concerning this patch.  
+In order to properly see the heatmap you can reduce the clutter of the world by making the links & arguments invisible via `ask links [set hidden? true] ask startsargum [set hidden? true]`
+
+*  argument: including-attacks?, type: boolean  
+ whether or not knowledge about the attack relations connected to arguments on this patch is taken into account for drawing the heatmap
 
 ## Variables
 
@@ -888,12 +936,45 @@ This variable will contain all the actual representative researchers (i.e. those
     * example: -2147452934
 Stores the random-seed of the current run.
 
+  * g-cum-com-costs 
+    * format: integer
+    * example: 211770
+    The sum of all communication cost that accrued during the run.
+
+  * g-max-com-costs
+    * format: integer-list
+    * example: [13459 74]
+    First entry: amount of communication costs that accrued in the round which had the highest communication costs. 
+    Second entry: the number of the round where the highest communication costs accrued.
+
+  * g-unpaid-com-costs
+    * format: integer
+    * example: 0
+    The cumulative communication costs which couldn’t be paid by the researchers. This value should usually be zero, and serves more as a check which signals to us that our max-learn value is too low for the chosen parameters.
+    
+  * g-cur-avg-com-costs
+    * type: float
+    * example: 1.1394
+    Average communication costs from the most recent inter-group sharing in days per researcher.
+    
+  * round-converged
+    * type: integer
+    * example: 124
+    The last round in which researchers converged. If they did not converge, the value will be `-1`.
+
+  * last-converged-th
+    * type: turtle
+    * example: (start 0) 
+    The theory the researchers converged on, the last time they converged. If they did not converge, the value will be `-1`.
+
+
+
 researchers-own:
 
   * flag-updated-memory
     * format: boolean
     * initialization value: false
-This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundance of the `update-memories` procedure.
+This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundant calls of the `update-memories` procedure.
 
   * non-admiss-subj-argu
     * format: turtle-set
@@ -980,6 +1061,11 @@ How many researchers currently cosider this theory to be a best theory. If there
     * format: integer
     * example: 85
 This is how many admissible arguments this theory has. The best theory always has full admissibility which corresponds e.g. in the case of theory-depth 3 to a number of 85. This is calculated at the beginning of the run during the setup.
+
+  * initial-scientists
+    * format: integer
+    * example: 25
+Records the number of scientists on each start at the beginning of the run.
 
 
 attacks-own
@@ -1348,6 +1434,18 @@ NetLogo 6.0.1
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
     <metric>rndseed</metric>
+    <metric>run-start-scientists "th1"</metric>
+    <metric>run-start-scientists "th2"</metric>
+    <metric>run-start-scientists "th3"</metric>
+    <metric>perc-subj-disc-argu "all"</metric>
+    <metric>perc-subj-disc-argu "best"</metric>
+    <metric>perc-subj-disc-attacks "all"</metric>
+    <metric>perc-subj-disc-attacks "best"</metric>
+    <metric>cum-com-costs</metric>
+    <metric>max-com-costs "value"</metric>
+    <metric>max-com-costs "round"</metric>
+    <metric>unpaid-com-costs</metric>
+    <metric>round-converged</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1400,6 +1498,9 @@ NetLogo 6.0.1
     <enumeratedValueSet variable="attack-probability-3rd">
       <value value="0.3"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="evaluation">
+      <value value="&quot;defended-args&quot;"/>
+    </enumeratedValueSet>
   </experiment>
   <experiment name="homogeneous-groups" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup new-seed</setup>
@@ -1429,6 +1530,18 @@ NetLogo 6.0.1
     <metric>perc-best-th-discoverd</metric>
     <metric>average-jumps</metric>
     <metric>rndseed</metric>
+    <metric>run-start-scientists "th1"</metric>
+    <metric>run-start-scientists "th2"</metric>
+    <metric>run-start-scientists "th3"</metric>
+    <metric>perc-subj-disc-argu "all"</metric>
+    <metric>perc-subj-disc-argu "best"</metric>
+    <metric>perc-subj-disc-attacks "all"</metric>
+    <metric>perc-subj-disc-attacks "best"</metric>
+    <metric>cum-com-costs</metric>
+    <metric>max-com-costs "value"</metric>
+    <metric>max-com-costs "round"</metric>
+    <metric>unpaid-com-costs</metric>
+    <metric>round-converged</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1479,6 +1592,9 @@ NetLogo 6.0.1
     </enumeratedValueSet>
     <enumeratedValueSet variable="attack-probability-3rd">
       <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="evaluation">
+      <value value="&quot;defended-args&quot;"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>

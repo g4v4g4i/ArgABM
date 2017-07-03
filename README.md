@@ -1,5 +1,7 @@
+# UNDER CONSTRUCTION
+
 # ArgABM
-An researcher-based model for scientific inquiry based on abstract argumentation
+An agent-based model for scientific inquiry based on abstract argumentation
 
 # Motivation
 
