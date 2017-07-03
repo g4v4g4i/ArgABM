@@ -510,7 +510,8 @@ to compute-popularity [update-pluralist?]
   let most-pop-th max-one-of starts [myscientists]
   ifelse [myscientists] of most-pop-th = scientists [
     if last-converged-th != most-pop-th [
-      set round-converged ticks
+      ; the +1 correction is b/c the variable is set before `tick` happens
+      set round-converged ticks + 1
       set last-converged-th most-pop-th
     ]
   ][
@@ -695,5 +696,8 @@ end
 to record-initial-scientists
   ask starts [
     set initial-scientists count researchers in-radius 0
+    if initial-scientists = scientists [
+      set last-converged-th self
+    ]
   ]
 end
