@@ -121,7 +121,7 @@ to setup [rs]
   random-seed rs
   initialize-hidden-variables
   set scientists collaborative-groups * col-group-size
-  set colla-networks (scientists / 5)
+  set colla-networks collaborative-groups
   set g-max-com-costs [0 0]
   create-discovery-landscape
   define-attack-relation

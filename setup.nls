@@ -56,7 +56,7 @@ to create-discovery-landscape
  ; The color equivalent to gray in the landscape is cyan (= 85) in the
  ; group-color-mem. This is set that way such that the smaller color the more
  ; discovered. Same goes for group-color-mem-cache
-  let group-colors-list n-values colla-networks [cyan]
+  let group-colors-list n-values collaborative-groups [cyan]
   repeat number-of-theories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
@@ -316,13 +316,13 @@ to distribute-researchers
   ; create the network of collaborators
   ; if in the interface "within-theory" is on, collaborative networks are
   ; created among researchers that start from the same theory 
-  ; (i.e. homogeneous-groups). A network has 5 researchers in it
+  ; (i.e. homogeneous-groups). A network has col-group-size researchers in it
   set colla-networks []
   ifelse within-theory [
     create-homogeneous-groups
   ][
   ; if "within-theory" is off in the interface, random collaborative networks
-  ; (i.e. heterogeneous-groups) are created, all of size 5
+  ; (i.e. heterogeneous-groups) are created, all of size col-group-size
     create-heterogeneous-groups
   ]
 
@@ -378,7 +378,7 @@ to move-researchers-to-roots
   let remaining-researchers researchers
   while [any? remaining-researchers][
     let start-destination one-of starts
-    ask n-of 5 remaining-researchers [      
+    ask n-of col-group-size remaining-researchers [      
       move-to start-destination
       set mygps start-destination
       set subjective-arguments start-destination
@@ -393,7 +393,7 @@ end
 
 ; if in the interface "within-theory" is on, collaborative networks are created
 ; among researchers that start from the same theory (i.e. homogeneous-groups)
-; a network has 5 researchers in it
+; a network has col-group-size researchers in it
 to create-homogeneous-groups
   let i 0
   ask starts [
@@ -402,9 +402,9 @@ to create-homogeneous-groups
     
     while [any? researchers in-radius 0 with [empty? collaborator-network]] [
       let cur-col no-turtles
-      ; five researchers are added to the turtle-set cur-col which is then
+      ; col-group-size researchers are added to the turtle-set cur-col which is then
       ; set as the collaborator-network of each of these researchers
-      ask n-of 5 researchers in-radius 0 with [empty? collaborator-network] [
+      ask n-of col-group-size researchers in-radius 0 with [empty? collaborator-network] [
         set cur-col (turtle-set cur-col self) 
       ]
       ; initialize variables for the collection of the networks
@@ -425,15 +425,15 @@ end
 
 
 ; if "within-theory" is off in the interface random collaborative networks
-; are created (i.e. heterogeneous-groups), all of size 5
+; are created (i.e. heterogeneous-groups), all of size col-group-size
 to create-heterogeneous-groups
   let i 0
   while [any? researchers with [empty? collaborator-network]][
     ; variable that collects five researchers for a network
     let cur-col no-turtles
-    ; five researchers are added to the turtle-set cur-col which is then
+    ; col-group-size researchers are added to the turtle-set cur-col which is then
     ; set as the collaborator-network of each of these researchers
-    ask n-of 5 researchers with [empty? collaborator-network][
+    ask n-of col-group-size researchers with [empty? collaborator-network][
       set cur-col (turtle-set cur-col self) 
     ]
     ; initialize variables for the collection of the networks
@@ -540,7 +540,7 @@ to create-networks
 
     ; when there are only two collaborator-networks
     ; they always share with each other
-    ifelse length colla-networks-temp = 2 [
+    ifelse collaborative-groups = 2 [
       set share-structure lput colla-networks-temp share-structure
       set share-structure lput reverse colla-networks-temp share-structure
     ][
@@ -581,10 +581,10 @@ to create-networks
 
     ; when there are only two or three collaborator-networks
     ; they always share with each other
-    ifelse length colla-networks-temp < 4 [
+    ifelse collaborative-groups < 4 [
       set share-structure lput colla-networks-temp share-structure
       set share-structure lput reverse colla-networks-temp share-structure
-      if length colla-networks-temp = 3 [
+      if collaborative-groups = 3 [
         let add-colla-networks []
         set add-colla-networks lput first but-first colla-networks-temp
         add-colla-networks

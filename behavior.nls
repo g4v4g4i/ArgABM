@@ -214,8 +214,8 @@ end
 ; the  subprocedure `inter-group-sharing-complete`, else 
 ; `inter-group-sharing-default`.
 to share-with-other-networks
-  ifelse network-structure = "complete" or (length colla-networks <= 3)
-    or (length colla-networks <= 4 and network-structure != "cycle") [  
+  ifelse network-structure = "complete" or (collaborative-groups <= 3)
+    or (collaborative-groups <= 4 and network-structure != "cycle") [  
     inter-group-sharing-complete
   ][
     inter-group-sharing-default 
@@ -236,7 +236,7 @@ end
 ; during the next intra-group-sharing (= share-with-group) one week later
 to inter-group-sharing-complete
   ; number of groups
-  let #groups length colla-networks
+  let #groups collaborative-groups
   ; all arguments the rep-researchers are going to share (a)
   let comb-memory-argu (turtle-set [th-args] of rep-researchers)
   ; all relations the rep-researchers are going to share (a)
