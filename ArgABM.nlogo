@@ -93,7 +93,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th]
+  round-converged last-converged-th scientists]
 
 
 
@@ -120,6 +120,7 @@ to setup [rs]
   set rndseed rs
   random-seed rs
   initialize-hidden-variables
+  set scientists collaborative-groups * col-group-size
   set colla-networks (scientists / 5)
   set g-max-com-costs [0 0]
   create-discovery-landscape
@@ -288,15 +289,15 @@ HORIZONTAL
 
 SLIDER
 10
-125
+160
 182
-158
-scientists
-scientists
-5
-100
-100.0
-5
+193
+col-group-size
+col-group-size
+1
+20
+5.0
+1
 1
 NIL
 HORIZONTAL
@@ -331,16 +332,16 @@ TEXTBOX
 95
 165
 113
-researcher settings
+Researcher settings
 13
 0.0
 1
 
 SLIDER
 10
-165
+200
 182
-198
+233
 move-probability
 move-probability
 0
@@ -353,9 +354,9 @@ HORIZONTAL
 
 SLIDER
 10
-205
+240
 182
-238
+273
 visibility-probability
 visibility-probability
 0
@@ -368,9 +369,9 @@ HORIZONTAL
 
 SLIDER
 10
-245
+280
 182
-278
+313
 research-speed
 research-speed
 0
@@ -438,9 +439,9 @@ HORIZONTAL
 
 PLOT
 5
-450
+485
 205
-600
+635
 Popularity
 Time steps
 No. of researchers
@@ -469,9 +470,9 @@ NIL
 
 TEXTBOX
 9
-426
+461
 159
-444
+479
 Plots
 13
 0.0
@@ -479,9 +480,9 @@ Plots
 
 SWITCH
 10
-285
+320
 100
-318
+353
 within-theory
 within-theory
 0
@@ -490,9 +491,9 @@ within-theory
 
 CHOOSER
 10
-325
+360
 148
-370
+405
 social-actions
 social-actions
 "reliable" "biased"
@@ -515,9 +516,9 @@ HORIZONTAL
 
 CHOOSER
 9
-374
+409
 147
-419
+454
 network-structure
 network-structure
 "cycle" "wheel" "complete"
@@ -542,9 +543,9 @@ NIL
 
 PLOT
 5
-610
+645
 205
-760
+795
 Current avg. com. costs
 Time steps
 days / scientist
@@ -578,6 +579,21 @@ heuristic-non-block
 1
 1
 -1000
+
+SLIDER
+10
+120
+182
+153
+collaborative-groups
+collaborative-groups
+1
+50
+5.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 # Motivation
