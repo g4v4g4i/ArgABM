@@ -67,64 +67,62 @@ end
 ; which of the arguments in their memory are admissible
 ; because researcher in a collaborator network share all information with each
 ; other only one agent needs to do the admissibility calculations 
-; (the calc-researcher) and the others (except for the rep-researcher) can just
+; (the calc-researcher) and the others can just
 ; copy the results from her.
 to compute-subjective-attacked
   foreach colla-networks [ [cur-group] ->
     let calc-done false
     let calc-researcher 0
     foreach cur-group [ [cur-researcher] ->
-      if not [rep-researcher] of cur-researcher [
-       ; if a researcher of the group already calculated admissibility other 
-       ; group members can copy the results into their memory
-        ifelse calc-done [
-          ask cur-researcher [
-            set current-theory-info [current-theory-info] of calc-researcher
-            set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
-            set cur-best-th [cur-best-th] of calc-researcher
-          ]
-        ][
-          ; if no group member has done the admissibility calculations, the 
-          ; current researcher does the calculations i.e. she becomes the 
-          ; groups calc-researcher
-          set calc-done true
-          set calc-researcher cur-researcher
-          let sorted-starts sort starts
-          ask cur-researcher [
-            ; will contain the number of non-admiss-argu for each theory
-            ; format: list e.g. [10 5 30] (first theory has 10 non-admiss-argu)
-            let #non-admiss-argu-th []
-            ; will contain a turtle-set of all the non-admissible-arguments
-            set non-admiss-subj-argu no-turtles
-            ; if there are only two theories the admissibility calculation can 
-            ; be  done on the whole attackset at once
-            ifelse length sorted-starts = 2 [
-              set non-admiss-subj-argu admissibility-calc-core
-                subjective-relations
-              let #non-admiss-argu-th2 count non-admiss-subj-argu with [
-                mytheory = item 1 sorted-starts]
-              let #non-admiss-argu-th1 (count non-admiss-subj-argu
-                - #non-admiss-argu-th2)
-              set #non-admiss-argu-th (list #non-admiss-argu-th1
-                #non-admiss-argu-th2)
-             ; if there are more than two theories the calculation has to be 
-             ; done once for each attack set of a theory separately. A attack 
-             ; set of a theory corresponds to all the attacks in the set which 
-             ; are either incoming or outgoing to/from this theory
-            ][
-              foreach sorted-starts [[curtheory] ->   
-                let to-add-non-admiss-argu admissibility-calc-core
-                subjective-relations with [mytheory-end1 = curtheory
-                  or mytheory-end2 = curtheory]
-                set #non-admiss-argu-th lput count to-add-non-admiss-argu
-                  with [mytheory = curtheory] #non-admiss-argu-th
-                set non-admiss-subj-argu (turtle-set non-admiss-subj-argu
+      ; if a researcher of the group already calculated admissibility other 
+      ; group members can copy the results into their memory
+      ifelse calc-done [
+        ask cur-researcher [
+          set current-theory-info [current-theory-info] of calc-researcher
+          set non-admiss-subj-argu [non-admiss-subj-argu] of calc-researcher
+          set cur-best-th [cur-best-th] of calc-researcher
+        ]
+      ][
+        ; if no group member has done the admissibility calculations, the 
+        ; current researcher does the calculations i.e. she becomes the 
+        ; groups calc-researcher
+        set calc-done true
+        set calc-researcher cur-researcher
+        let sorted-starts sort starts
+        ask cur-researcher [
+          ; will contain the number of non-admiss-argu for each theory
+          ; format: list e.g. [10 5 30] (first theory has 10 non-admiss-argu)
+          let #non-admiss-argu-th []
+          ; will contain a turtle-set of all the non-admissible-arguments
+          set non-admiss-subj-argu no-turtles
+          ; if there are only two theories the admissibility calculation can 
+          ; be  done on the whole attackset at once
+          ifelse length sorted-starts = 2 [
+            set non-admiss-subj-argu admissibility-calc-core
+            subjective-relations
+            let #non-admiss-argu-th2 count non-admiss-subj-argu with [
+              mytheory = item 1 sorted-starts]
+            let #non-admiss-argu-th1 (count non-admiss-subj-argu
+              - #non-admiss-argu-th2)
+            set #non-admiss-argu-th (list #non-admiss-argu-th1
+              #non-admiss-argu-th2)
+            ; if there are more than two theories the calculation has to be 
+            ; done once for each attack set of a theory separately. A attack 
+            ; set of a theory corresponds to all the attacks in the set which 
+            ; are either incoming or outgoing to/from this theory
+          ][
+            foreach sorted-starts [[curtheory] ->   
+              let to-add-non-admiss-argu admissibility-calc-core
+              subjective-relations with [mytheory-end1 = curtheory
+                or mytheory-end2 = curtheory]
+              set #non-admiss-argu-th lput count to-add-non-admiss-argu
+              with [mytheory = curtheory] #non-admiss-argu-th
+              set non-admiss-subj-argu (turtle-set non-admiss-subj-argu
                 to-add-non-admiss-argu)
-              ]
             ]
-            set-current-theory-info #non-admiss-argu-th
-            compute-strategies
           ]
+          set-current-theory-info #non-admiss-argu-th
+          compute-strategies
         ]
       ]
     ]
@@ -210,7 +208,7 @@ end
 ; procedure that lets the researchers act on the just computed best theory
 ; based on their own memory
 to act-on-strategies
-  ask researchers with [not rep-researcher] [
+  ask researchers [
     ; only when there is a current best theory
     ; it makes sense for the researchers to want to work on that theory
     if not empty? cur-best-th and not member? nobody cur-best-th [
