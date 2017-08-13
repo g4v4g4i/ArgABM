@@ -209,7 +209,7 @@ ticks
 BUTTON
 10
 10
-70
+65
 43
 setup
 setup new-seed
@@ -296,7 +296,7 @@ col-group-size
 col-group-size
 1
 20
-5.0
+3.0
 1
 1
 NIL
@@ -527,7 +527,7 @@ network-structure
 BUTTON
 70
 10
-142
+125
 43
 NIL
 go-stop
@@ -589,7 +589,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-5.0
+7.0
 1
 1
 NIL

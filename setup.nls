@@ -376,14 +376,24 @@ end
 ; subjective-arguments
 to move-researchers-to-roots
   let remaining-researchers researchers
-  while [any? remaining-researchers][
-    let start-destination one-of starts
-    ask n-of col-group-size remaining-researchers [      
+  ifelse within-theory [
+    while [any? remaining-researchers][
+      let start-destination one-of starts
+      ask n-of col-group-size remaining-researchers [      
+        move-to start-destination
+        set mygps start-destination
+        set subjective-arguments start-destination
+        set remaining-researchers other remaining-researchers
+      ]
+    ]
+  ][
+    ask remaining-researchers [
+      let start-destination one-of starts
       move-to start-destination
       set mygps start-destination
       set subjective-arguments start-destination
       set remaining-researchers other remaining-researchers
-    ]
+    ] 
   ]
 end
 
@@ -402,11 +412,12 @@ to create-homogeneous-groups
     
     while [any? researchers in-radius 0 with [empty? collaborator-network]] [
       let cur-col no-turtles
-      ; col-group-size researchers are added to the turtle-set cur-col which is then
-      ; set as the collaborator-network of each of these researchers
-      ask n-of col-group-size researchers in-radius 0 with [empty? collaborator-network] [
-        set cur-col (turtle-set cur-col self) 
-      ]
+      ; col-group-size researchers are added to the turtle-set cur-col which is
+      ; then set as the collaborator-network of each of these researchers
+      ask n-of col-group-size researchers in-radius 0 with
+        [empty? collaborator-network] [
+          set cur-col (turtle-set cur-col self) 
+        ]
       ; initialize variables for the collection of the networks
       ; and the networks that will share with each other
       set colla-networks lput sort cur-col colla-networks
@@ -431,8 +442,8 @@ to create-heterogeneous-groups
   while [any? researchers with [empty? collaborator-network]][
     ; variable that collects five researchers for a network
     let cur-col no-turtles
-    ; col-group-size researchers are added to the turtle-set cur-col which is then
-    ; set as the collaborator-network of each of these researchers
+    ; col-group-size researchers are added to the turtle-set cur-col which is
+    ; then set as the collaborator-network of each of these researchers
     ask n-of col-group-size researchers with [empty? collaborator-network][
       set cur-col (turtle-set cur-col self) 
     ]
