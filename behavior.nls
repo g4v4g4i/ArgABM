@@ -369,8 +369,8 @@ to set-global-com-costs [costvector]
     set g-max-com-costs (list cur-round-com-costs ticks)
   ]
   ; a group can maximal pay communication costs on 3 days of the rep-researcher 
-  ; + 4 days of each of the other 4 group members
-  let max-group-learn-week 3 * max-learn + 4 * 4 * max-learn
+  ; + 4 days of each of the other group members
+  let max-group-learn-week 3 * max-learn + (col-group-size - 1) * 4 * max-learn
   if max costvector > max-group-learn-week [    
     let max-learn-vector n-values (length costvector) [max-group-learn-week]
     let overhang-costsvector (map - costvector max-learn-vector)
