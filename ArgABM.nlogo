@@ -296,7 +296,7 @@ col-group-size
 col-group-size
 1
 20
-3.0
+5.0
 1
 1
 NIL
@@ -589,7 +589,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-7.0
+20.0
 1
 1
 NIL
@@ -1428,16 +1428,17 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.1
+NetLogo 6.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment-full" repetitions="10000" runMetricsEveryStep="false">
+  <experiment name="default" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup new-seed</setup>
     <go>go</go>
     <timeLimit steps="4000"/>
     <exitCondition>exit-condition</exitCondition>
+    <metric>scientists</metric>
     <metric>objective-admiss-of "th1"</metric>
     <metric>objective-admiss-of "th2"</metric>
     <metric>objective-admiss-of "th3"</metric>
@@ -1486,14 +1487,6 @@ NetLogo 6.0.1
       <value value="true"/>
       <value value="false"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="scientists">
-      <value value="10"/>
-      <value value="20"/>
-      <value value="30"/>
-      <value value="40"/>
-      <value value="70"/>
-      <value value="100"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="visibility-probability">
       <value value="0.5"/>
     </enumeratedValueSet>
@@ -1531,103 +1524,16 @@ NetLogo 6.0.1
     <enumeratedValueSet variable="heuristic-non-block">
       <value value="false"/>
     </enumeratedValueSet>
-  </experiment>
-  <experiment name="homogeneous-groups" repetitions="10000" runMetricsEveryStep="false">
-    <setup>setup new-seed</setup>
-    <go>go</go>
-    <timeLimit steps="4000"/>
-    <exitCondition>exit-condition</exitCondition>
-    <metric>objective-admiss-of "th1"</metric>
-    <metric>objective-admiss-of "th2"</metric>
-    <metric>objective-admiss-of "th3"</metric>
-    <metric>research-time "monist" "th1"</metric>
-    <metric>research-time "monist" "th2"</metric>
-    <metric>research-time "monist" "th3"</metric>
-    <metric>research-time "pluralist" "th1"</metric>
-    <metric>research-time "pluralist" "th2"</metric>
-    <metric>research-time "pluralist" "th3"</metric>
-    <metric>in-run-performance "monist"</metric>
-    <metric>in-run-performance "pluralist"</metric>
-    <metric>monist-success</metric>
-    <metric>pluralist-success</metric>
-    <metric>run-end-scientists "monist" "th1"</metric>
-    <metric>run-end-scientists "monist" "th2"</metric>
-    <metric>run-end-scientists "monist" "th3"</metric>
-    <metric>run-end-scientists "pluralist" "th1"</metric>
-    <metric>run-end-scientists "pluralist" "th2"</metric>
-    <metric>run-end-scientists "pluralist" "th3"</metric>
-    <metric>perc-landscape-discoverd</metric>
-    <metric>perc-best-th-discoverd</metric>
-    <metric>average-jumps</metric>
-    <metric>rndseed</metric>
-    <metric>run-start-scientists "th1"</metric>
-    <metric>run-start-scientists "th2"</metric>
-    <metric>run-start-scientists "th3"</metric>
-    <metric>perc-subj-disc-argu "all"</metric>
-    <metric>perc-subj-disc-argu "best"</metric>
-    <metric>perc-subj-disc-attacks "all"</metric>
-    <metric>perc-subj-disc-attacks "best"</metric>
-    <metric>cum-com-costs</metric>
-    <metric>max-com-costs "value"</metric>
-    <metric>max-com-costs "round"</metric>
-    <metric>unpaid-com-costs</metric>
-    <metric>round-converged</metric>
-    <enumeratedValueSet variable="network-structure">
-      <value value="&quot;cycle&quot;"/>
-      <value value="&quot;wheel&quot;"/>
-      <value value="&quot;complete&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;reliable&quot;"/>
-      <value value="&quot;biased&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="within-theory">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="scientists">
-      <value value="10"/>
-      <value value="20"/>
-      <value value="30"/>
-      <value value="40"/>
-      <value value="70"/>
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="visibility-probability">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-of-theories">
-      <value value="2"/>
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="move-probability">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="strategy-threshold">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="theory-depth">
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="research-speed">
+    <enumeratedValueSet variable="col-group-size">
       <value value="5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="jump-threshold">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-best">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-2nd">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-3rd">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="evaluation">
-      <value value="&quot;defended-args&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="heuristic-non-block">
-      <value value="false"/>
+    <enumeratedValueSet variable="collaborative-groups">
+      <value value="2"/>
+      <value value="4"/>
+      <value value="6"/>
+      <value value="8"/>
+      <value value="14"/>
+      <value value="20"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
