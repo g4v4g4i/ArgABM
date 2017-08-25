@@ -251,7 +251,7 @@ to-report perc-subj-disc-argu [best-all]
   ][
     set tot-arguments startsargum with [mytheory = (start 0)]
   ]
-  let #groups scientists / 5
+  let #groups collaborative-groups
   let max-score count tot-arguments * #groups
   let realized-score 0
   ask tot-arguments [
@@ -275,7 +275,7 @@ to-report perc-subj-disc-attacks [best-all]
   ][
     set tot-attacks attacks with [mytheory-end1 = (start 0)]
   ]
-  let #groups scientists / 5
+  let #groups collaborative-groups
   let max-score count tot-attacks * #groups
   let realized-score 0
   ask tot-attacks [
@@ -343,7 +343,7 @@ end
 ; whether or not knowledge about the attack relations connected to
 ; arguments on this patch is taken into account for drawing the heatmap
 to heatmap [including-attacks?]
-  let #groups length colla-networks  
+  let #groups collaborative-groups
   let sorted-starts sort starts
   ask patches with [any? turtles-here][
     let my-startsargum-attacks 0
