@@ -392,7 +392,6 @@ to move-researchers-to-roots
       move-to start-destination
       set mygps start-destination
       set subjective-arguments start-destination
-      set remaining-researchers other remaining-researchers
     ] 
   ]
 end

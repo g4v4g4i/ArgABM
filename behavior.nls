@@ -369,8 +369,8 @@ to set-global-com-costs [costvector]
     set g-max-com-costs (list cur-round-com-costs ticks)
   ]
   ; a group can maximal pay communication costs on 3 days of the rep-researcher 
-  ; + 4 days of each of the other 4 group members
-  let max-group-learn-week 3 * max-learn + 4 * 4 * max-learn
+  ; + 4 days of each of the other group members
+  let max-group-learn-week 3 * max-learn + (col-group-size - 1) * 4 * max-learn
   if max costvector > max-group-learn-week [    
     let max-learn-vector n-values (length costvector) [max-group-learn-week]
     let overhang-costsvector (map - costvector max-learn-vector)
@@ -409,8 +409,7 @@ to distribute-com-costs [com-costs]
       ; 2. If the (absolute) costs are higher than what she can pay (= 3 * 
       ; max-learn), the next researcher from her group will be picked and pay 
       ; for as much of the rest of the communication costs as she can ( = 4 * 
-      ; max-learn). She will also become a rep-researcher and therefore exempt 
-      ; from pursuing strategies this week. If there are still communication 
+      ; max-learn). If there are still communication 
       ; costs left this continues until all researchers of the group have paid 
       ; the maximum relative costs (= communicating 4 = 4 days) or all 
       ; communication costs have been paid.
