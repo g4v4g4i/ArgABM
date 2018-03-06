@@ -9,6 +9,12 @@
 
 
 
+; loading extensions
+extensions[csv]
+
+
+
+
 
 ; three different kinds of turtles
 ; arguments and starts form the landscape
@@ -93,7 +99,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th scientists]
+  round-converged last-converged-th scientists g-knowledge]
 
 
 
@@ -123,6 +129,7 @@ to setup [rs]
   set scientists collaborative-groups * col-group-size
   set colla-networks collaborative-groups
   set g-max-com-costs [0 0]
+  set g-knowledge []
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -439,9 +446,9 @@ HORIZONTAL
 
 PLOT
 5
-485
+520
 205
-635
+670
 Popularity
 Time steps
 No. of researchers
@@ -470,9 +477,9 @@ NIL
 
 TEXTBOX
 9
-461
+496
 159
-479
+514
 Plots
 13
 0.0
@@ -543,9 +550,9 @@ NIL
 
 PLOT
 5
-645
+680
 205
-795
+830
 Current avg. com. costs
 Time steps
 days / scientist
@@ -594,6 +601,17 @@ collaborative-groups
 1
 NIL
 HORIZONTAL
+
+SWITCH
+10
+460
+172
+493
+knowledge-tracking
+knowledge-tracking
+1
+1
+-1000
 
 @#$#@#$#@
 # Motivation
@@ -1534,6 +1552,9 @@ NetLogo 6.0.2
       <value value="8"/>
       <value value="14"/>
       <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="knowledge-tracking">
+      <value value="false"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
