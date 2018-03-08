@@ -143,12 +143,18 @@ end
 
 
 ; the current-theory-info will be updated with the freshly calculated
-; scores according to the evaluation chosen in the interface
+; scores according to the evaluation chosen in the interface. Called during 
+; `compute-subjective-attacked`
 to set-current-theory-info [#non-admiss-argu-th]
   let i 0
-  foreach current-theory-info [[curitem] ->
+  foreach current-theory-info [[curitem] ->    
     let score-th-i 0
     let curtheory item 0 curitem
+    if knowledge-tracking [
+      with-local-randomness [
+        track-knowledge i (item i #non-admiss-argu-th) curtheory
+      ]
+    ]
     if evaluation = "defended-args" [
       set score-th-i (count subjective-arguments with [mytheory = curtheory]
         - item i #non-admiss-argu-th)      
@@ -179,7 +185,8 @@ end
 
 
 ; based on their memory researchers compute which theories they currently
-; consider to be among among the best.
+; consider to be among among the best. Called during 
+; `compute-subjective-attacked`
 to compute-strategies
   set cur-best-th []
   let list-scores map [curitem -> item 1 curitem] current-theory-info

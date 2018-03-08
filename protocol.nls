@@ -289,7 +289,7 @@ end
 
 
 
-; reports the input value (communication costs) in the form: comunication costs 
+; reports the input value (communication costs) in the form: communication costs 
 ; in days per researcher
 to-report normalize-days-per-scientist [input]
   let normalization-factor (1 / (scientists * max-learn))
@@ -301,7 +301,7 @@ end
 
 
 
-; reports the cumulative comunication costs per researcher in days
+; reports the cumulative communication costs per researcher in days
 to-report cum-com-costs
   report normalize-days-per-scientist g-cum-com-costs
 end
@@ -310,8 +310,8 @@ end
 
 
 
-; reports the maximal comunication costs per researcher in days
-; (argument = "value") or the round in which the maximal comunication ocurred
+; reports the maximal communication costs per researcher in days
+; (argument = "value") or the round in which the maximal communication occurred
 ; (argument = "round")
 to-report max-com-costs [round-value]
   ifelse round-value = "value"[
@@ -325,7 +325,7 @@ end
 
 
 
-; reports the unpaid comunication costs per researcher in days
+; reports the unpaid communication costs per researcher in days
 to-report unpaid-com-costs
   report normalize-days-per-scientist g-unpaid-com-costs
 end
@@ -381,4 +381,28 @@ to heatmap [including-attacks?]
     ]
     set pcolor scale-color my-color realized-score 0 max-score
   ]
+end
+
+
+
+
+
+; knowledge and belief tracking during the run . Called during 
+; `set-current-theory-info`. Arguments: 
+; #theory: which theory is currently processed (integer)
+; #non-admiss-argu: number of non admissible arguments for the current theory 
+; (integer)
+; curtheory: the (start x) for the current theory (turtle)
+to track-knowledge [#theory #non-admiss-argu curtheory]
+  let cur-group-id group-id
+  let known-args subjective-arguments with [mytheory = curtheory]
+  let #known-args count known-args
+  ; division by 10 to keep numbers compact as colors are multiple of 10
+  let knowledge sum [(cyan - item cur-group-id group-color-mem) / 10] of 
+    known-args
+  let #defargs #known-args - #non-admiss-argu
+  ; the +1 for #theory is for readability: so the first theory is named "1"
+  let new-knowledge-entry (list (ticks + 1) cur-group-id (#theory + 1) #defargs 
+    #known-args knowledge)
+  set g-knowledge lput new-knowledge-entry g-knowledge
 end
