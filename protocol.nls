@@ -47,6 +47,9 @@ to final-commands
      set times-jumped times-jumped + 1
   ]
   compute-popularity true
+  if knowledge-tracking [
+    with-local-randomness [save-tracked-knowledge]
+  ]
 end
 
 
@@ -405,4 +408,29 @@ to track-knowledge [#theory #non-admiss-argu curtheory]
   let new-knowledge-entry (list (ticks + 1) cur-group-id (#theory + 1) #defargs 
     #known-args knowledge)
   set g-knowledge lput new-knowledge-entry g-knowledge
+end
+
+
+
+
+
+; saves the information tracked by `track-knowledge` during the run to a csv 
+; file at the end of the run
+to save-tracked-knowledge
+  let sorted-admissibility map [start-x -> [objective-admissibility] of start-x]
+    sort starts
+  let random-start one-of starts
+  let #args-per-th count startsargum with [mytheory = (random-start)]
+  let filename behaviorspace-experiment-name
+  set filename (word filename "-in-run-knowledge.csv")
+  file-open filename
+  foreach g-knowledge [curentry ->
+    let cur-th-admiss item (item 2 curentry - 1) sorted-admissibility
+    ; concatenating the lists this way was fastest in some quick profiling
+    ; file-output takes ~5 times as long as concatenating itself 
+    set curentry (sentence behaviorspace-run-number #args-per-th cur-th-admiss 
+      curentry)
+    file-print csv:to-row curentry 
+  ]
+  file-close
 end
