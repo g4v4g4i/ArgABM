@@ -256,6 +256,9 @@ to-report perc-subj-disc-argu [best-all]
   ]
   let #groups collaborative-groups
   let max-score count tot-arguments * #groups
+  if max-score = 0 [
+    report 100
+  ]
   let realized-score 0
   ask tot-arguments [
    set realized-score realized-score + length filter [subj-color -> 
@@ -280,6 +283,9 @@ to-report perc-subj-disc-attacks [best-all]
   ]
   let #groups collaborative-groups
   let max-score count tot-attacks * #groups
+  if max-score = 0 [
+    report 100
+  ]
   let realized-score 0
   ask tot-attacks [
    set realized-score realized-score + length filter [subj-known -> 
