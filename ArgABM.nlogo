@@ -9,6 +9,12 @@
 
 
 
+; loading extensions
+extensions[csv]
+
+
+
+
 
 ; three different kinds of turtles
 ; arguments and starts form the landscape
@@ -93,7 +99,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th scientists]
+  round-converged last-converged-th scientists g-knowledge]
 
 
 
@@ -123,6 +129,7 @@ to setup [rs]
   set scientists collaborative-groups * col-group-size
   set colla-networks collaborative-groups
   set g-max-com-costs [0 0]
+  set g-knowledge []
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -439,9 +446,9 @@ HORIZONTAL
 
 PLOT
 5
-485
+520
 205
-635
+670
 Popularity
 Time steps
 No. of researchers
@@ -470,9 +477,9 @@ NIL
 
 TEXTBOX
 9
-461
+496
 159
-479
+514
 Plots
 13
 0.0
@@ -543,9 +550,9 @@ NIL
 
 PLOT
 5
-645
+680
 205
-795
+830
 Current avg. com. costs
 Time steps
 days / scientist
@@ -595,6 +602,17 @@ collaborative-groups
 NIL
 HORIZONTAL
 
+SWITCH
+10
+460
+172
+493
+knowledge-tracking
+knowledge-tracking
+1
+1
+-1000
+
 @#$#@#$#@
 # Motivation
 
@@ -632,9 +650,11 @@ Strategy settings
 
 * _jump-threshold_ is the number of times an researcher has to consider jumping before it really jumps to another theory
 
-researcher settings
+Researcher settings
 
-* _scientists_ the number of researchers that will explore the landscape
+* _collaborative-groups_ the number of groups (teams of researchers) that will explore the landscape. 
+
+* _col-group-size_ each group (team of researchers) consists of this many researchers
 
 * _move-probability_ the probability that researchers move to a next argument while exploring the landscape
 
@@ -648,9 +668,14 @@ researcher settings
 
 * _network-structure_ determines the structure in which the collaborator-networks are connected and with how many researchers information is shared
 
+* _knowledge-tracking_ if turned on: during the run information on the current state of beliefs and knowledge is collected every time researchers update their beliefs. When a run ends this information is written to an external csv file. **Warning:** This data will get corrupted if multiple instances of this model with knowledge-tracking turned on are run in parallel (e.g. via BehaviorSpace). Therefore only use single threaded runs when collecting data via knowledge-tracking!
+
+
 Plots
 
 * the _Popularity_ plot shows for every theory the number of researchers working on it
+
+* the _Current avg. com. costs_ plot shows the average communication costs from the most recent inter-group sharing in days per researcher
 
 ## Some language definitions
 
@@ -670,7 +695,7 @@ Each argument has a memory for the theory it belongs to, how often it is visited
 
 On the created landscape an attack relation is added. Each argument has, with attack-probability corresponding to the theory the argument belongs to, an incoming attack from an argument belonging to another theory. Once the random attacks are created, the best theory (theory 0), has to make sure that it is fully defended. It creates attacks to arguments that attack one of its arguments, until it has defended all its attacked arguments.
 
-### researchers
+### Researchers
 
 researchers are randomly distributed over the available theories. Then they form "collaborator-networks". If the switch "within-theory" is on in the interface, such networks are created with researchers that start on the same theory, if the switch is off networks are randomly created. Such networks have at most 5 researchers. In case the networks are random all networks have exactly 5 researchers, if the networks are created within theories there can be networks with less than 5 researchers.
 
@@ -933,194 +958,250 @@ In order to properly see the heatmap you can reduce the clutter of the world by 
 
 *  argument: including-attacks?, type: boolean  
  whether or not knowledge about the attack relations connected to arguments on this patch is taken into account for drawing the heatmap
+ 
+### _save-tracked-knowledge_ and _track-knowledge_
+
+If `knowledge-tracking` is enabled the information on beliefs and knowledge which has been collected during the run by `track-knowledge` is written to a external csv file. There is one data point for each group and each theory at each point in time they update their beliefs (usually every five rounds).  
+Example run:  
+
+* 10 groups
+* 3 theories
+* each group updated their belief 100 times (i.e. conducted 100 times `compute-subjective-attacked`)  
+
+This run would produce 3000 data points (10 * 3 * 100)
+
+Each data point has the following format:
+BehaviorSpace-run-number, number of arguments per theory, objective defensibility of theory-x, round in which the data was recorded, group-id of the recording group (group-y), theory-x (theory for which the data-point is recorded) , number of defended arguments theory-x has at this point according to group-y's evaluation, number of arguments from th-x which group-y knows at this point , number of arguments from th-x weighted by color (1 = turquoise - 7 = red) which group-y knows at this point  
+
+Example for one data point: 1,85,85,15,10,1,1,1,3  
+Interpretation: In the first BehaviorSpace run there are 85 arguments per theory (-> depth = 3), theory 1 has objectively 85 admissible arguments, at round 15 group 10 evaluated theory 1 to have one defended argument, group 10 knows one argument from theory 1 and their weighted knowledge regarding theory 1 is 3 (i.e. they know the one argument at color-level 'green').
+
 
 ## Variables
 
-globals:
+### Globals
 
-  * startsargum
-    * format: turtle-set
-    * example: (agentset, 255 turtles)
+#### startsargum
+* format: turtle-set
+* example: (agentset, 255 turtles)  
+
 This variable will contain all the arguments including all starts.
 
-  * disc-startsargum-non-red
-    * format: turtle-set
-    * example: (agentset, 50 turtles)
+#### disc-startsargum-non-red
+* format: turtle-set
+* example: (agentset, 50 turtles)  
+
 This variable contains all those those arguments including starts (=startsargum) which are non red and properly discovered (i.e. non gray and non turquoise) at the current time.
 
-  * rel-costfactor
-    * format: float
-    * default value: 70
+#### rel-costfactor
+* format: float
+* default value: 70  
+
 This is a hidden variable which determines how costly it is to learn relations via inter-group communication cf. _initialize-hidden-variables_
 
-  * rep-researchers
-    * format: turtle-set
-    * example: (agentset, 13 turtles)
+#### rep-researchers
+* format: turtle-set
+* example: (agentset, 13 turtles)  
+
 This variable will contain all the actual representative researchers (i.e. those who share information during the inter-group sharing). It is set during the `create-share-memory` procedure.
 
-  * rndseed
-    * format: integer
-    * example: -2147452934
+#### rndseed
+* format: integer
+* example: -2147452934  
+
 Stores the random-seed of the current run.
 
-  * g-cum-com-costs 
-    * format: integer
-    * example: 211770
-    The sum of all communication cost that accrued during the run.
+#### g-cum-com-costs 
+* format: integer
+* example: 211770  
 
-  * g-max-com-costs
-    * format: integer-list
-    * example: [13459 74]
-    First entry: amount of communication costs that accrued in the round which had the highest communication costs. 
-    Second entry: the number of the round where the highest communication costs accrued.
+The sum of all communication cost that accrued during the run.
 
-  * g-unpaid-com-costs
-    * format: integer
-    * example: 0
-    The cumulative communication costs which couldn’t be paid by the researchers. This value should usually be zero, and serves more as a check which signals to us that our max-learn value is too low for the chosen parameters.
-    
-  * g-cur-avg-com-costs
-    * type: float
-    * example: 1.1394
-    Average communication costs from the most recent inter-group sharing in days per researcher.
-    
-  * round-converged
-    * type: integer
-    * example: 124
-    The last round in which researchers converged. If they did not converge, the value will be `-1`.
+#### g-max-com-costs
+* format: integer-list
+* example: [13459 74]  
 
-  * last-converged-th
-    * type: turtle
-    * example: (start 0) 
-    The theory the researchers converged on, the last time they converged. If they did not converge, the value will be `-1`.
+First entry: amount of communication costs that accrued in the round which had the highest communication costs. 
+Second entry: the number of the round where the highest communication costs accrued.
 
+#### g-unpaid-com-costs
+* format: integer
+* example: 0  
 
+The cumulative communication costs which couldn’t be paid by the researchers. This value should usually be zero, and serves more as a check which signals to us that our max-learn value is too low for the chosen parameters.
 
-researchers-own:
+#### g-cur-avg-com-costs
+* format: float
+* example: 1.1394  
 
-  * flag-updated-memory
-    * format: boolean
-    * initialization value: false
+Average communication costs from the most recent inter-group sharing in days per researcher.
+
+#### round-converged
+* format: integer
+* example: 124  
+
+The last round in which researchers converged. If they did not converge, the value will be `-1`.
+
+#### last-converged-th
+* format: turtle
+* example: (start 0)  
+
+The theory the researchers converged on, the last time they converged. If they did not converge, the value will be `-1`.
+
+#### g-knowledge
+* format: nested list
+* example: [[5 0 1 0 1 2] [5 0 2 1 1 1] [5 1 1 0 0 0] [5 1 2 1 1 2]]  
+
+Collects information on the state of beliefs and knowledge every time researchers update their beliefs. Each entry is a list containing: round in which the data was recorded, group-id of the recording group (group-y), theory-x (theory for which the data-point is recorded) , number of defended arguments theory-x has at this point according to group-y's evaluation, number of arguments from th-x which group-y knows at this point , number of arguments from th-x weighted by color (1 = turquoise - 7 = red) which group-y knows at this point.  
+
+### Researchers-own
+
+#### flag-updated-memory
+* format: boolean
+* initialization value: false  
+
 This is a flag which researchers will set when they refresh their memory during the `update-memories` procedure. It will be reset when the landscape is updated later this round. This is used to reduce redundant calls of the `update-memories` procedure.
 
-  * non-admiss-subj-argu
-    * format: turtle-set
-    * example: (agentset, 10 turtles)
+#### non-admiss-subj-argu
+* format: turtle-set
+* example: (agentset, 10 turtles)  
+
 Will contain all the arguments which are not admissible according to the researchers subjective memory.
 
-  * mygps
-    * format: turtle
-    * example: (argument 55)
+#### mygps
+* format: turtle
+* example: (argument 55)  
+
 Contains the argument the researcher is currently working on i.e. the argument at her position in the landscape.
 
-  * group-id
-    * format: integer
-    * example: 0
+#### group-id
+* format: integer
+* example: 0  
+
 Contains the number of the group this researcher belongs to. This number is equal to her groups position in the `colla-networks` list.
 
-  * argu-cache
-    * format: turtle-set
-    * example: (agentset, 10 turtles)
+#### argu-cache
+* format: turtle-set
+* example: (agentset, 10 turtles)  
+
 Contains the arguments the researcher has learned via inter-group communication(i.e. `share-with-other-networks`) and is currently digesting. This information will be consolidated into her memory one week later during the `share-with-group` procedure.
 
-  * to-add-mem-argu
-    * format: turtle-set
-    * example: (agentset, 3 turtles)
+#### to-add-mem-argu
+* format: turtle-set
+* example: (agentset, 3 turtles)  
+
 Contains the arguments a researcher learned via the `update-memories` procedure, i.e. arguments she learned by conducting her research. This information is will be synchronized every week with her group during the `share-with-group` procedure. The status (=color) of the arguments is saved seperately in the argument-owned variable `group-color-mem`.
 
-  * to-add-mem-rel
-    * format: link-set
-    * example: (agentset, 2 links)
+#### to-add-mem-rel
+* format: link-set
+* example: (agentset, 2 links)  
+
 Contains the relations (= attacks) a researcher learned via the `update-memories` procedure - i.e. relations she learned by conducting her research - or via inter-group communication during `share-with-other-networks`. This information is will be synchronized every week with her group during the `share-with-group` procedure.
 
-  * th-args
-    * format: turtle-set
-    * example: (agentset, 3 turtles)
+#### th-args
+* format: turtle-set
+* example: (agentset, 3 turtles)  
+
 Contains the arguments which the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). Those arguments are the one the researcher is currently working on (cf. mygps) as well as all the arguments which are directly connected to her current argument by a non-gray (i.e. discovered) link: a discovery or an attack (in any direction for reliable-researchers and outgoing-only for biased-researchers).
 
 
-  * th-relations
-    * format: link-set
-    * example: (agentset, 1 link)
+#### th-relations
+* format: link-set
+* example: (agentset, 1 link)  
+
 Contains all the relations (= attacks) the rep-researcher from every group will share with rep-researchers from other groups during the inter-group-sharing phase (= `share-with-other-networks`). In case of "reliable" social-actions the attacks are all non-gray attacks **to- and from** the argument the researcher is currently working on (cf. mygps), while in the case of "biased" social-actions this will only be the outgoing non-gray attacks **from** her current argument.
 
-  * subjective-arguments
-    * format: turtle-set
-    * example: (agentset, 55 turtles)
+#### subjective-arguments
+* format: turtle-set
+* example: (agentset, 55 turtles)  
+
 Contains all arguments the researcher knows.
 
-  * subjective-relations
-    * format: link-set
-    * example: (agentset, 27 links)
+#### subjective-relations
+* format: link-set
+* example: (agentset, 27 links)  
+
 Contains all attacks the researcher knows.
 
 
-arguments-own, starts-own:
+### Arguments-own, Starts-own
 
-  * group-color-mem
-    * format: list
-    * example: [85 85 65 15]
+#### group-color-mem
+* format: list
+* example: [85 85 65 15]  
+
 Contains the status in which group-i knows the argument in. 85 (= cyan) corresponds to the group not knowing the argument at all. The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the argument while group 2 knows it as lime and group 3 as red.
 
-  * group-color-mem-cache
-    * format: list
-    * example: [85 85 65 15]
+#### group-color-mem-cache
+* format: list
+* example: [85 85 65 15]  
+
 This is the same format as `group-color-mem`. It is used to cache information which researchers learned via inter-group communication and are currently digesting. This information will be consolidated into `group-color-mem` one week later during the `share-with-group` procedure.
 
-Additionally starts-own:
+### Additionally Starts-own
 
-  * research-time-monist
-    * format: integer
-    * example: 3200
+#### research-time-monist
+* format: integer
+* example: 3200  
+
 This is the amount of time researchers spent so far on this theory. Every tick during the `compute-popularity` procedure the starts check for the number of researchers on their theory and increase their `research-time-monist` value by this number (i.e. this is a time integral over `myscientists`).
 
-  * research-time-pluralist
-    * format: float
-    * example: 2000.51
+#### research-time-pluralist
+* format: float
+* example: 2000.51  
+
 This is how long and by how many researchers the theory has been considered to be among the best theories (i.e. it is a time integral over `myscientists-pluralists`). Each tick this theory is considered to be best by a particular researcher this counter will increase by one. If there is more than one best theory in the memory of a particular researcher the start will add 1 / (number of best theories) to this counter for this researcher. This is done by the `compute-popularity` procedure.
 
-  * myscientists-pluralist
-    * format: float
-    * example: 74.5
-How many researchers currently cosider this theory to be a best theory. If there is more than one best theory in the memory of a particular researcher the start will count this researcher as adding 1 / (number of best theories) to its `myscientists-pluralist` counter. This is done by the `compute-popularity` procedure.
+#### myscientists-pluralist
+* format: float
+* example: 74.5  
 
-  * objective-admissibility
-    * format: integer
-    * example: 85
+How many researchers currently consider this theory to be a best theory. If there is more than one best theory in the memory of a particular researcher the start will count this researcher as adding 1 / (number of best theories) to its `myscientists-pluralist` counter. This is done by the `compute-popularity` procedure.
+
+#### objective-admissibility
+* format: integer
+* example: 85  
+
 This is how many admissible arguments this theory has. The best theory always has full admissibility which corresponds e.g. in the case of theory-depth 3 to a number of 85. This is calculated at the beginning of the run during the setup.
 
-  * initial-scientists
-    * format: integer
-    * example: 25
+#### initial-scientists
+* format: integer
+* example: 25  
+
 Records the number of scientists on each start at the beginning of the run.
 
 
-attacks-own
+### Attacks-own
 
-  * mytheory-end1
-    * format: turtle
-    * example: (start 0)
+#### mytheory-end1
+* format: turtle
+* example: (start 0)  
+
 This is the mytheory value of end1 of the attack relation i.e. the theory this attack is attacking from.
 
-  * mytheory-end2
-    * format: turtle
-    * example: (start 85)
+#### mytheory-end2
+* format: turtle
+* example: (start 85)  
+
 This is the mytheory value of end2 of the attack relation i.e. the theory which will be attacked by this attack.
 
-  * uncontested
-    * format: boolean
-    * initialization value: true
+#### uncontested
+* format: boolean
+* initialization value: true  
+
 Tracks whether this attack relations startargument (end1) has a discovered (= red) attack from the theory this attack is attacking incoming. If this is not the case the attack is uncontested and is guaranteed to be successful. This value is updated during the `update-landscape` procedure and used during the `compute-subjective-attacked` procedure.
 
 
-  * in-group-i-memory
-    * format: list of booleans
-    * example: [true true false]
+#### in-group-i-memory
+* format: list of booleans
+* example: [true true false]  
+
 As with `group-color-mem` this contains the status in which group-i knows argument i.e. if they know it (= true) or not (= false). The position of the entry corresponds to the position of the group in the `colla-networks` list (= `group-id` cf. above). In this example group 0 and group 1 wouldn't know the attack while group 2 knows it.
 
-  * processed?
-    * format: boolean
-    * initialization-value: false
+#### processed?
+* format: boolean
+* initialization-value: false  
+
 This is a helper variable utilized during the `compute-subjective-attacked` procedure. It will mark whether a certain attack has already been processed during the calculations. For details cf. the procedure itself.
 @#$#@#$#@
 default
@@ -1534,6 +1615,9 @@ NetLogo 6.0.2
       <value value="8"/>
       <value value="14"/>
       <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="knowledge-tracking">
+      <value value="false"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
