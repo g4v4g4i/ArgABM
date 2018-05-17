@@ -613,6 +613,39 @@ knowledge-tracking
 1
 -1000
 
+MONITOR
+880
+160
+1080
+241
+Degree of Def T1 (best theory)
+item 0 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
+17
+1
+20
+
+MONITOR
+880
+240
+1080
+321
+Degree of Def T2
+item 1 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
+17
+1
+20
+
+MONITOR
+880
+320
+1080
+401
+Deegree of Def T3
+item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
+17
+1
+20
+
 @#$#@#$#@
 # Motivation
 
