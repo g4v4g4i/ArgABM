@@ -614,37 +614,37 @@ knowledge-tracking
 -1000
 
 MONITOR
-880
-160
-1080
-241
+885
+135
+1010
+180
 Degree of Def T1 (best theory)
 item 0 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
 1
-20
+11
 
 MONITOR
-880
-240
-1080
-321
+885
+180
+1010
+225
 Degree of Def T2
 item 1 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
 1
-20
+11
 
 MONITOR
-880
-320
-1080
-401
+885
+225
+1010
+270
 Deegree of Def T3
 item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
 1
-20
+11
 
 @#$#@#$#@
 # Motivation
@@ -1542,7 +1542,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.2
+NetLogo 6.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
