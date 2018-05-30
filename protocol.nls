@@ -5,13 +5,17 @@
 
 
 ; the exit-condition determines when a given run is considered to be 
-; finished. A run is over as soon as there exists one theory which is fully 
-; discovered (i.e. has only red arguments). When this happens researchers can 
-; one final time jump to a best theory (irrespective of their `theory-jump` 
-; value) if they’re not already on a theory they consider best. This is 
-; facilitated by the `final-commands` procedure which is called as soon as  
-; `exit-condition` reports `true` and therefore ends the run.
+; finished. A run is finished as soon as there exists one theory which is fully 
+; discovered (i.e. has only red arguments) or if the run hits the global time 
+; limit. When this happens researchers can one final time jump to a best theory 
+; (ignoring the jump-threshold) if they’re not already on a theory they consider 
+; best. This is facilitated by the `final-commands` procedure which is called as 
+; soon as `exit-condition` reports `true` and therefore ends the run.
 to-report exit-condition
+  if ticks >= g-max-ticks [
+    final-commands
+    report true
+  ]
   let stop? []
   ask starts [
     let curstart self

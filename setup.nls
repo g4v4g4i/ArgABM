@@ -39,6 +39,9 @@ to initialize-hidden-variables
 
   ; influence color on move probability (cf. 3.)
   set color-move 200
+  
+  ; the maximal time a run can last before it is aborted
+  set g-max-ticks 4000
 end
 
 

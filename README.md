@@ -443,6 +443,12 @@ The theory the researchers converged on, the last time they converged. If they d
 
 Collects information on the state of beliefs and knowledge every time researchers update their beliefs. Each entry is a list containing: round in which the data was recorded, group-id of the recording group (group-y), theory-x (theory for which the data-point is recorded) , number of defended arguments theory-x has at this point according to group-y's evaluation, number of arguments from th-x which group-y knows at this point , number of arguments from th-x weighted by color (1 = turquoise - 7 = red) which group-y knows at this point.  
 
+#### g-max-ticks
+* format: integer
+* default: 4000  
+
+This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
+
 ### Researchers-own
 
 #### flag-updated-memory
