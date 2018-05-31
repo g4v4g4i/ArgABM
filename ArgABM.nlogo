@@ -43,7 +43,7 @@ undirected-link-breed [collaborators collaborator]
 ; be considered, how many ticks a researcher was working on it,
 ; when it was fully researched (when it turned red), in which status the
 ; different groups know the argument: actually and potentially (cache) if they
-; learned this via inter-group communcation
+; learned this via inter-group communication
 arguments-own [mytheory current-argument researcher-ticks
   group-color-mem group-color-mem-cache]
 
@@ -446,9 +446,9 @@ HORIZONTAL
 
 PLOT
 5
-520
+560
 205
-670
+710
 Popularity
 Time steps
 No. of researchers
@@ -466,20 +466,10 @@ PENS
 "start 4" 1.0 0 -723837 true "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 4 [\nplot [myscientists] of last all-theories\n]"
 
 TEXTBOX
-10
-395
-160
-413
-NIL
-13
-0.0
-1
-
-TEXTBOX
 9
-496
+536
 159
-514
+554
 Plots
 13
 0.0
@@ -488,7 +478,7 @@ Plots
 SWITCH
 10
 320
-100
+150
 353
 within-theory
 within-theory
@@ -522,10 +512,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-9
-409
-147
-454
+10
+410
+148
+455
 network-structure
 network-structure
 "cycle" "wheel" "complete"
@@ -550,9 +540,9 @@ NIL
 
 PLOT
 5
-680
+720
 205
-830
+870
 Current avg. com. costs
 Time steps
 days / scientist
@@ -645,6 +635,17 @@ item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 17
 1
 11
+
+SWITCH
+10
+500
+175
+533
+necessary-convergence
+necessary-convergence
+1
+1
+-1000
 
 @#$#@#$#@
 # Motivation
@@ -1655,6 +1656,9 @@ NetLogo 6.0.3
       <value value="20"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="knowledge-tracking">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="necessary-convergence">
       <value value="false"/>
     </enumeratedValueSet>
   </experiment>
