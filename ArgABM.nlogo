@@ -99,7 +99,8 @@ researchers-own [theory-jump times-jumped collaborator-network
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th scientists g-knowledge g-max-ticks]
+  round-converged last-converged-th scientists g-knowledge g-max-ticks 
+  g-red-theories]
 
 
 
@@ -130,6 +131,7 @@ to setup [rs]
   set colla-networks collaborative-groups
   set g-max-com-costs [0 0]
   set g-knowledge []
+  set g-red-theories no-turtles
   create-discovery-landscape
   define-attack-relation
   distribute-researchers

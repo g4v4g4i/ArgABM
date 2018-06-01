@@ -493,9 +493,9 @@ to move-around
       ; arguments as a list is written to not-admissible
       let not-admissible non-admiss-subj-argu
       
-      ; an researcher working on a non admissible argument will try to find a
+      ; a researcher working on a non admissible argument will try to find a
       ; defense for this attack, by working further on the attacked argument,
-      ; unless she discoveres a argument that that has a defense for
+      ; unless she discovers an argument that has a defense for
       ; the attack (it is not necessarily the case that this defense is
       ; already discovered) or until she has fully researched the argument
       ; the find-defense runs immediately for all researchers working on 
@@ -643,6 +643,7 @@ end
 ; every five time steps the landscape is updated:
 ; new arguments become visible and attacks are discovered
 to update-landscape
+  let potential-red-theories no-turtles
   ask disc-startsargum-non-red [
     let cur-argum self
     let cur-theory mytheory
@@ -663,6 +664,8 @@ to update-landscape
           ; disc-startsargum-non-red
           set disc-startsargum-non-red other disc-startsargum-non-red
           full-discovery cur-argum cur-theory
+          set potential-red-theories (turtle-set potential-red-theories 
+            cur-theory)
         ][
           ; depending on the color a new child-argument is discovered, 
           ; until all child-arguments are discovered
@@ -707,6 +710,12 @@ to update-landscape
       if [not member? color [gray turquoise]] of other-end [
         set color cyan
       ]
+    ]
+  ]
+  ask potential-red-theories [
+    let cur-theory self
+    if not any? disc-startsargum-non-red with [mytheory = cur-theory] [
+      set g-red-theories (turtle-set g-red-theories self)
     ]
   ]
 end
