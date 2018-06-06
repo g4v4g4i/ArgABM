@@ -423,7 +423,7 @@ jump-threshold
 jump-threshold
 1
 25
-10.0
+9.0
 1
 1
 NIL
@@ -574,7 +574,7 @@ CHOOSER
 evaluation
 evaluation
 "defended-args" "non-defended-args" "non-defended-normalized" "non-defended-multiplied"
-0
+2
 
 SWITCH
 765
@@ -596,7 +596,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-20.0
+10.0
 1
 1
 NIL
@@ -645,6 +645,17 @@ item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 17
 1
 11
+
+SWITCH
+895
+295
+1097
+328
+defense-from-leaves
+defense-from-leaves
+1
+1
+-1000
 
 @#$#@#$#@
 # Motivation
@@ -1542,7 +1553,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.3
+NetLogo 6.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
