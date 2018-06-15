@@ -365,6 +365,7 @@ to researchers-create-scientists
     set moved false
     set rep-researcher false
     set current-theory-info theories
+    set on-red-theory? false
   ]  
 end
 
@@ -496,6 +497,9 @@ to compute-popularity [update-pluralist?]
     let mystart [mytheory] of myargu
     ask mystart [
       set myscientists myscientists + 1
+    ]
+    if member? mystart g-red-theories [
+      set on-red-theory? true
     ]
     if update-pluralist? [
       ifelse cur-best-th != 0 [

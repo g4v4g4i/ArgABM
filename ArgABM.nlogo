@@ -90,7 +90,7 @@ researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   th-args th-relations communicating moved rep-researcher
   to-add-mem-argu to-add-mem-rel flag-updated-memory
-  non-admiss-subj-argu mygps group-id argu-cache]
+  non-admiss-subj-argu mygps group-id argu-cache on-red-theory?]
 
 
 
@@ -99,7 +99,7 @@ researchers-own [theory-jump times-jumped collaborator-network
 globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th scientists g-knowledge g-max-ticks 
+  round-converged last-converged-th scientists g-knowledge g-max-ticks
   g-red-theories]
 
 
@@ -1551,7 +1551,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.3
+NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
