@@ -498,8 +498,10 @@ to compute-popularity [update-pluralist?]
     ask mystart [
       set myscientists myscientists + 1
     ]
-    if member? mystart g-red-theories [
+    ifelse member? mystart g-red-theories [
       set on-red-theory? true
+    ][
+      set on-red-theory? false
     ]
     if update-pluralist? [
       ifelse cur-best-th != 0 [

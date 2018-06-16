@@ -100,7 +100,7 @@ globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
   round-converged last-converged-th scientists g-knowledge g-max-ticks
-  g-red-theories]
+  g-red-theories g-exit-case]
 
 
 
@@ -171,6 +171,9 @@ to go
     communication-regress
   ]
   compute-popularity update-pluralist?
+  if necessary-convergence and any? g-red-theories [
+    exit-case-distinction
+  ]
   tick
 end
 
