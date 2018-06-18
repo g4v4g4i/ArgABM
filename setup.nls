@@ -149,7 +149,8 @@ to define-attack-relation
   ; first the random attacks are defined
   create-attacks 
 
-  ; then the best theory defends itself
+  ; then the best theory defends itself (either in a random way or from the
+  ; leaves)
   defend-best
   
   ; the uncontested values of the attacks are set
@@ -247,7 +248,8 @@ to defend-best
         ; from an argument of the best theory towards the attacking argument
         if not any? in-attack-neighbors with [mytheory = start 0][
           create-attack-from one-of best-th-args with [
-            not attack-neighbor? askattack and not (self = askargu)][
+            not attack-neighbor? askattack and not (self = askargu) and 
+            not (defense-from-leaves and any? my-out-discoveries)][
             set color gray
             set mytheory-end1 (start 0)
             set mytheory-end2 [mytheory] of end2
@@ -310,8 +312,12 @@ to distribute-researchers
   researchers-create-scientists
   
   ; the researchers are moved to the roots of the theories where they will
-  ; beginn their research
-  move-researchers-to-roots
+  ; beginn their research (either in a controlled or random way)
+  ifelse controlled-spread-of-researchers and within-theory [
+    move-researchers-to-roots-controlled
+  ][
+    move-researchers-to-roots
+  ]
 
   ; create the network of collaborators
   ; if in the interface "within-theory" is on, collaborative networks are
@@ -393,6 +399,41 @@ to move-researchers-to-roots
       set mygps start-destination
       set subjective-arguments start-destination
     ] 
+  ]
+end
+
+
+
+
+
+;researchers are distributed in controlled way: a part of them (determined
+;by the global col-groups-on-best-t) is placed on the best theory, while
+;the rest are randomly distributed on the other two theories. This is meant to 
+;be used only in conjunction with  homogeneous groups (i.e. 
+;`within-theory` = true).
+to move-researchers-to-roots-controlled
+  let remaining-researchers researchers
+  repeat col-groups-on-best-t [
+    if any? remaining-researchers [
+      let start-destination start 0
+      ask n-of col-group-size remaining-researchers [      
+        move-to start-destination
+          set color pink
+        set mygps start-destination
+        set subjective-arguments start-destination
+        set remaining-researchers other remaining-researchers
+      ]
+    ]
+  ]    
+  while [any? remaining-researchers] [
+    let start-destination one-of starts with [who != 0]
+    ask n-of col-group-size remaining-researchers [      
+      move-to start-destination
+      set color blue
+      set mygps start-destination
+      set subjective-arguments start-destination
+      set remaining-researchers other remaining-researchers
+    ]
   ]
 end
 

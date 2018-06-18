@@ -303,7 +303,7 @@ col-group-size
 col-group-size
 1
 20
-5.0
+1.0
 1
 1
 NIL
@@ -328,7 +328,7 @@ attack-probability-2nd
 attack-probability-2nd
 0
 1
-0.3
+0.01
 0.01
 1
 NIL
@@ -408,7 +408,7 @@ strategy-threshold
 strategy-threshold
 0
 1
-0.9
+1.0
 0.1
 1
 NIL
@@ -423,7 +423,7 @@ jump-threshold
 jump-threshold
 1
 25
-10.0
+1.0
 1
 1
 NIL
@@ -515,7 +515,7 @@ attack-probability-3rd
 attack-probability-3rd
 0
 1
-0.3
+0.01
 0.01
 1
 NIL
@@ -529,7 +529,7 @@ CHOOSER
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-2
+0
 
 BUTTON
 70
@@ -574,7 +574,7 @@ CHOOSER
 evaluation
 evaluation
 "defended-args" "non-defended-args" "non-defended-normalized" "non-defended-multiplied"
-0
+2
 
 SWITCH
 765
@@ -596,7 +596,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-20.0
+50.0
 1
 1
 NIL
@@ -646,6 +646,43 @@ item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 1
 11
 
+SWITCH
+895
+295
+1097
+328
+defense-from-leaves
+defense-from-leaves
+0
+1
+-1000
+
+SLIDER
+895
+415
+1097
+448
+col-groups-on-best-t
+col-groups-on-best-t
+1
+20
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+895
+360
+1187
+393
+controlled-spread-of-researchers
+controlled-spread-of-researchers
+0
+1
+-1000
+
 @#$#@#$#@
 # Motivation
 
@@ -677,6 +714,8 @@ Landscape settings
 
 * _attack-probability-3rd_ if there are three theories, the probability that an argument of the 3rd theory has an incoming attack
 
+* _defense-from-leaves_ if turned on: creates a more difficult landscape in which the best theory is largely defended by the leaves-arguments
+
 Strategy settings
 
 * _strategy-threshold_ defines the threshold within which the number of admissible arguments is still considered good, if this threshold gets higher, the interval of acceptable values gets smaller
@@ -702,6 +741,8 @@ Researcher settings
 * _network-structure_ determines the structure in which the collaborator-networks are connected and with how many researchers information is shared
 
 * _knowledge-tracking_ if turned on: during the run information on the current state of beliefs and knowledge is collected every time researchers update their beliefs. When a run ends this information is written to an external csv file. **Warning:** This data will get corrupted if multiple instances of this model with knowledge-tracking turned on are run in parallel (e.g. via BehaviorSpace). Therefore only use single threaded runs when collecting data via knowledge-tracking!
+
+* _controlled-spread-of-researchers_ if turned on: a number of researchers, determined by the slider _col-groups-on-best-t_, is placed on the best theory (these researchers are pink); the remainder of researchers is distributed randomly on the remaining theories (these researchers are blue). This is meant to be used only in conjunction with homogeneous groups (i.e. `within-theory` = true).
 
 
 Plots
@@ -1542,7 +1583,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.3
+NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
