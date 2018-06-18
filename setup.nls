@@ -149,11 +149,9 @@ to define-attack-relation
   ; first the random attacks are defined
   create-attacks 
 
-  ; then the best theory defends itself (either in a random way or from the leaves)
-  ifelse defense-from-leaves [
-    defend-best-leaves] [
-    defend-best
-  ]
+  ; then the best theory defends itself (either in a random way or from the
+  ; leaves)
+  defend-best
   
   ; the uncontested values of the attacks are set
   set-uncontested-values
@@ -250,7 +248,8 @@ to defend-best
         ; from an argument of the best theory towards the attacking argument
         if not any? in-attack-neighbors with [mytheory = start 0][
           create-attack-from one-of best-th-args with [
-            not attack-neighbor? askattack and not (self = askargu)][
+            not attack-neighbor? askattack and not (self = askargu) and 
+            not (defense-from-leaves and any? my-out-discoveries)][
             set color gray
             set mytheory-end1 (start 0)
             set mytheory-end2 [mytheory] of end2
@@ -262,36 +261,8 @@ to defend-best
   ]
 end
 
-; after the random attacks are created, attacks coming from the best theory
-; are added such that it defends itself completely from the leaves-arguments
-to defend-best-leaves
-  ; best-th-args is a turtle-set containing all the arguments (including the
-  ; start) from the best theory
-  let best-th-args startsargum with [mytheory = start 0]
-  ask best-th-args [
-    ; variable for the current argument
-    let askargu self
 
-    if any? in-attack-neighbors [
-      ask in-attack-neighbors [
-        ; variable for the attacking argument, if such an argument exists
-        let askattack self
-        ; a defending attack is only created if there is not yet an attack
-        ; from an argument of the best theory towards the attacking argument
-        if not any? in-attack-neighbors with [mytheory = start 0][
-          create-attack-from one-of best-th-args with [
-            not attack-neighbor? askattack and not (self = askargu) 
-            and not any? my-out-discoveries][
-            set color gray
-            set mytheory-end1 (start 0)
-            set mytheory-end2 [mytheory] of end2
-            set in-group-i-memory n-values colla-networks [false]            
-          ]
-        ]
-      ]
-    ]
-  ]
-end
+
 
 
 ; the uncontested values serve as a first approximation to lower the
