@@ -342,7 +342,7 @@ to distribute-researchers
   
   ; the researchers are moved to the roots of the theories where they will
   ; beginn their research (either in a controlled or random way)
-  ifelse controlled-spread-of-scientists [
+  ifelse controlled-spread-of-researchers [
     move-researchers-to-roots-controlled] [
     move-researchers-to-roots
   ]
@@ -452,7 +452,7 @@ to move-researchers-to-roots-controlled
       let start-destination one-of starts with [who != 0]
       ask n-of col-group-size remaining-researchers [      
         move-to start-destination
-        set color yellow
+        set color blue
         set mygps start-destination
         set subjective-arguments start-destination
         set remaining-researchers other remaining-researchers
