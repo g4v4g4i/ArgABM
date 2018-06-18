@@ -313,8 +313,9 @@ to distribute-researchers
   
   ; the researchers are moved to the roots of the theories where they will
   ; beginn their research (either in a controlled or random way)
-  ifelse controlled-spread-of-researchers [
-    move-researchers-to-roots-controlled] [
+  ifelse controlled-spread-of-researchers and within-theory [
+    move-researchers-to-roots-controlled
+  ][
     move-researchers-to-roots
   ]
 
@@ -401,41 +402,38 @@ to move-researchers-to-roots
   ]
 end
 
+
+
+
+
 ;researchers are distributed in controlled way: a part of them (determined
 ;by the global col-groups-on-best-t) is placed on the best theory, while
-;the rest are randomly distributed on the other two theories
+;the rest are randomly distributed on the other two theories. This is meant to 
+;be used only in conjunction with  homogeneous groups (i.e. 
+;`within-theory` = true).
 to move-researchers-to-roots-controlled
   let remaining-researchers researchers
-  ifelse within-theory [
-    repeat col-groups-on-best-t [
-      if any? remaining-researchers [
-        let start-destination start 0
-        ask n-of col-group-size remaining-researchers [      
+  repeat col-groups-on-best-t [
+    if any? remaining-researchers [
+      let start-destination start 0
+      ask n-of col-group-size remaining-researchers [      
         move-to start-destination
           set color pink
         set mygps start-destination
         set subjective-arguments start-destination
         set remaining-researchers other remaining-researchers
       ]
-      ]
-    ]    
-      while [any? remaining-researchers] [
-      let start-destination one-of starts with [who != 0]
-      ask n-of col-group-size remaining-researchers [      
-        move-to start-destination
-        set color blue
-        set mygps start-destination
-        set subjective-arguments start-destination
-        set remaining-researchers other remaining-researchers
-      ]
     ]
-  ][
-    ask remaining-researchers [
-      let start-destination one-of starts
+  ]    
+  while [any? remaining-researchers] [
+    let start-destination one-of starts with [who != 0]
+    ask n-of col-group-size remaining-researchers [      
       move-to start-destination
+      set color blue
       set mygps start-destination
       set subjective-arguments start-destination
-    ] 
+      set remaining-researchers other remaining-researchers
+    ]
   ]
 end
 
