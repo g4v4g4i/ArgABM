@@ -1693,6 +1693,15 @@ NetLogo 6.0.4
     <enumeratedValueSet variable="knowledge-tracking">
       <value value="false"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="defense-from-leaves">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="controlled-spread-of-researchers">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="col-groups-on-best-t">
+      <value value="5"/>
+    </enumeratedValueSet>
   </experiment>
 </experiments>
 @#$#@#$#@
