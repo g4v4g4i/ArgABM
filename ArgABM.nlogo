@@ -100,7 +100,7 @@ globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
   round-converged last-converged-th scientists g-knowledge g-max-ticks
-  g-red-theories g-exit-case]
+  g-red-theories g-exit-case g-exit-condition?]
 
 
 
@@ -132,6 +132,7 @@ to setup [rs]
   set g-max-com-costs [0 0]
   set g-knowledge []
   set g-red-theories no-turtles
+  set g-exit-condition? false
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -144,12 +145,32 @@ end
 
 
 
+; advances the model one round with- or without evaluating the exit-condition
+; depending on the argument:
+; exit? = exit-condition evaluated?, type: boolean
+to go [exit?]
+  with-local-randomness [
+    if exit? and not g-exit-condition? [
+      set g-exit-condition? exit-condition
+    ]
+  ]
+  ifelse g-exit-condition? and exit? [
+    stop
+  ][
+    go-core
+  ]
+end
+
+
+
+
+
 ; procedure that lets the program run, after the landscape was setup
 ; every five time steps researchers update their memory and compute the
 ; best strategy
 ; researchers always move around and update the landscape (with the
 ; probabilities as set in the interface)
-to go
+to go-core
   let update-pluralist? false
   if ticks mod 5 = 4 [
     set update-pluralist? true
@@ -175,20 +196,6 @@ to go
     exit-case-distinction
   ]
   tick
-end
-
-
-
-
-
-; runs until the exit-condition is met
-to go-stop
-  let stop? 0
-  with-local-randomness [set stop? exit-condition]
-  while [not stop?][
-    go
-    with-local-randomness [set stop? exit-condition]
-  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -240,8 +247,8 @@ BUTTON
 45
 65
 78
-NIL
 go
+go false
 NIL
 1
 T
@@ -257,8 +264,8 @@ BUTTON
 45
 125
 78
-NIL
 go
+go false
 T
 1
 T
@@ -529,11 +536,11 @@ network-structure
 BUTTON
 70
 10
-125
+142
 43
-NIL
 go-stop
-NIL
+go true
+T
 1
 T
 OBSERVER
@@ -1097,6 +1104,14 @@ Collects information on the state of beliefs and knowledge every time researcher
 * format: integer
 * default: 4000  
 
+#### g-exit-condition?
+
+* format: boolean
+* example: false  
+
+If the `exit-condition` reporter is evaluated the variable will be set to `true` in case the the exit-condition is met, `false` otherwise. Positive evaluation of the exit-condition marks the end of a run.  
+
+
 This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
 
 ### Researchers-own
@@ -1561,8 +1576,7 @@ NetLogo 6.0.4
 <experiments>
   <experiment name="default" repetitions="10000" runMetricsEveryStep="false">
     <setup>setup new-seed</setup>
-    <go>go</go>
-    <exitCondition>exit-condition</exitCondition>
+    <go>go true</go>
     <metric>scientists</metric>
     <metric>objective-admiss-of "th1"</metric>
     <metric>objective-admiss-of "th2"</metric>

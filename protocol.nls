@@ -34,7 +34,7 @@ to-report exit-condition
     report true
   ]
   ifelse necessary-convergence [
-    if (g-exit-case > 0 and [myscientists] of (start 0) = scientists) or 
+    if (g-exit-case > 0 and [myscientists] of (start 0) = scientists and not any? researchers with [not member? (start 0) cur-best-th]) or 
       (count starts with-max [objective-admissibility] > 1) [
       report true
     ]

@@ -449,6 +449,14 @@ Collects information on the state of beliefs and knowledge every time researcher
 
 This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
 
+#### g-exit-condition?
+
+* format: boolean
+* example: false  
+
+If the `exit-condition` reporter is evaluated the variable will be set to `true` in case the the exit-condition is met, `false` otherwise. Positive evaluation of the exit-condition marks the end of a run.  
+
+
 ### Researchers-own
 
 #### flag-updated-memory
