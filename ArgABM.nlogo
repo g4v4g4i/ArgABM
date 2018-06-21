@@ -150,6 +150,9 @@ end
 ; exit? = exit-condition evaluated?, type: boolean
 to go [exit?]
   with-local-randomness [
+    if necessary-convergence and any? g-red-theories [
+      exit-case-distinction
+    ]
     if exit? and not g-exit-condition? [
       set g-exit-condition? exit-condition
     ]
@@ -192,9 +195,6 @@ to go-core
     communication-regress
   ]
   compute-popularity update-pluralist?
-  if necessary-convergence and any? g-red-theories [
-    exit-case-distinction
-  ]
   tick
 end
 @#$#@#$#@
