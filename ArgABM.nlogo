@@ -155,6 +155,14 @@ to go [exit?]
     ]
     if exit? and not g-exit-condition? [
       set g-exit-condition? exit-condition
+      if g-exit-condition? [
+        if not necessary-convergence [
+          final-commands
+        ]
+        if knowledge-tracking [
+          save-tracked-knowledge
+        ]
+      ]
     ]
   ]
   ifelse g-exit-condition? and exit? [

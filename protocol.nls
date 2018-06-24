@@ -30,17 +30,16 @@ end
 ; maximal admissibility. These runs must then be filtered from the dataset.
 to-report exit-condition
   if ticks >= g-max-ticks [
-    final-commands
     report true
   ]
   ifelse necessary-convergence [
-    if (g-exit-case > 0 and [myscientists] of (start 0) = scientists and not any? researchers with [not member? (start 0) cur-best-th]) or 
+    if (g-exit-case > 0 and [myscientists] of (start 0) = scientists and 
+      not any? researchers with [not member? (start 0) cur-best-th]) or 
       (count starts with-max [objective-admissibility] > 1) [
       report true
     ]
   ][
     if any? g-red-theories [
-      final-commands
       report true
     ]
   ]
@@ -65,9 +64,6 @@ to final-commands
      set times-jumped times-jumped + 1
   ]
   compute-popularity true
-  if knowledge-tracking [
-    with-local-randomness [save-tracked-knowledge]
-  ]
 end
 
 
