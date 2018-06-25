@@ -56,7 +56,7 @@ end
 ; final best theories are, they do a final update of their memory, share with 
 ; their group and do an admissibility calculation.
 to final-commands
-  ask researchers [update-memories]
+  ask researchers [update-memories nobody]
   share-with-group
   compute-subjective-attacked
   ask researchers with [not member? [mytheory] of mygps cur-best-th][

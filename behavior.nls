@@ -22,9 +22,14 @@
 ; links this will be facilitated during the `share-with-group` procedure,
 ; while for arguments the color is updated right when the researchers update
 ; their memory
-to update-memories
-  ; the argument the researcher is standing on is written to cur-argum
-  let cur-argum mygps
+; argument: spoof-gps = update as if standing on spoof-gps, type: turtle
+to update-memories [spoof-gps]
+  let cur-argum 0
+  ifelse spoof-gps = nobody [
+    set cur-argum mygps
+  ][
+    set cur-argum spoof-gps
+  ]
   let cur-researcher self
   let cur-group-id group-id  
   ; the argument the researcher is standing on is added to her memory (a)
@@ -51,7 +56,58 @@ to update-memories
   ]
   set to-add-mem-argu (turtle-set to-add-mem-argu to-add-mem-argu-cache)
   set to-add-mem-rel (link-set to-add-mem-rel to-add-mem-rel-cache)
-  set flag-updated-memory true  
+  if spoof-gps = nobody [
+    set flag-updated-memory true  
+  ]
+end
+
+
+
+
+
+; procedure in which researchers collect the information from their
+; memory that they want to share with researchers that do not
+; belong to their own collaborator-network (i.e. for inter-group-sharing)
+to create-share-memory
+  ; for each collaborator-network one researcher is set to be
+  ; the representative researcher
+  foreach colla-networks [ [curgroup] ->
+    ask one-of curgroup [
+      set rep-researcher true
+      set rep-researchers (turtle-set rep-researchers self)
+    ]
+  ]
+  ; only the representative researchers create a memory
+  ; that they want to share with researchers from other networks
+  let cur-argum 0
+  ask rep-researchers [
+    ifelse g-exit-case = 1 and on-red-theory? [
+      let mystart [mytheory] of mygps
+      let share-spoofgps one-of startsargum with [mytheory = mystart]
+      set cur-argum share-spoofgps
+      update-memories share-spoofgps
+    ][
+      set cur-argum mygps
+    ]
+    ; create a set of arguments and a set of relations (= attacks) that the
+    ; researcher can share with researchers from other collaborative networks
+    ; which relations researchers share depends on the "social-action" from the
+    ; interface
+    let th-relations-cache 0
+    let th-args-cache 0
+    ask cur-argum [
+      ifelse social-actions = "biased" [
+        set th-relations-cache my-out-attacks with [color != gray]
+      ][
+        set th-relations-cache my-attacks with [color != gray]
+      ]
+      let my-share-links (link-set my-discoveries with [color != gray]
+        th-relations-cache)
+      set th-args-cache (turtle-set [other-end] of my-share-links cur-argum)
+    ]
+    set th-relations th-relations-cache
+    set th-args th-args-cache
+  ]
 end
 
 
@@ -76,7 +132,6 @@ to share-with-group
       ; other group members copy that information into their own memory
       ifelse group-sharing-done [
         ask cur-researcher [
-          set rep-researcher false
           set subjective-arguments [subjective-arguments] of
             grp-share-researcher
           set subjective-relations [subjective-relations] of
@@ -90,8 +145,6 @@ to share-with-group
         set grp-share-researcher cur-researcher        
         ask cur-researcher [
           let cur-group-id group-id        
-          ; reset the variables
-          set rep-researcher false          
           ; variables to keep track the combined memory of all the sharing
           ; researchers
           let comb-memory-argu no-turtles
@@ -158,48 +211,6 @@ to transfer-argu-cache-to-memory
     set group-color-mem replace-item cur-group-id group-color-mem 
       (item cur-group-id group-color-mem-cache)   
   ]   
-end
-
-
-
-
-
-; procedure in which researchers collect the information from their
-; memory that they want to share with researchers that do not
-; belong to their own collaborator-network (i.e. for inter-group-sharing)
-to create-share-memory
-  ; for each collaborator-network one researcher is set to be
-  ; the representative researcher
-  set rep-researchers no-turtles
-  foreach colla-networks [ [curgroup] ->
-    ask one-of curgroup [
-      set rep-researcher true
-      set rep-researchers (turtle-set rep-researchers self)
-    ]
-  ]
-  ; only the representative researchers create a memory
-  ; that they want to share with researchers from other networks
-  ask rep-researchers [
-    let cur-argum mygps
-    ; create a set of arguments and a set of relations (= attacks) that the
-    ; researcher can share with researchers from other collaborative networks
-    ; which relations researchers share depends on the "social-action" from the
-    ; interface
-    let th-relations-cache 0
-    let th-args-cache 0
-    ask cur-argum [
-      ifelse social-actions = "biased" [
-        set th-relations-cache my-out-attacks with [color != gray]
-      ][
-        set th-relations-cache my-attacks with [color != gray]
-      ]
-      let my-share-links (link-set my-discoveries with [color != gray]
-        th-relations-cache)
-      set th-args-cache (turtle-set [other-end] of my-share-links cur-argum)
-    ]
-    set th-relations th-relations-cache
-    set th-args th-args-cache
-  ]
 end
 
 
@@ -457,7 +468,7 @@ end
 ; will  be set to her new destination ( = nextargu)
 to move-to-nextargu [nextargu]
   if not flag-updated-memory [
-    update-memories
+    update-memories nobody
   ]
   set mygps nextargu
   move-to mygps
@@ -485,7 +496,7 @@ to move-around
   ask researchers [
     set moved false
   ]
-  ask researchers [
+  ask researchers with [not on-red-theory?] [
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myargu mygps     
@@ -590,7 +601,7 @@ to find-defense
     ; can find a defender in their neighborhood
     ask (turtle-set item cur-group-id colla-networks) with [
       not flag-updated-memory] [
-        update-memories
+        update-memories nobody
     ]
     ask myargu [
       ask my-in-attacks with [color != gray] [
