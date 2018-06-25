@@ -9,6 +9,47 @@
 
 
 
+; the researchers learn a random item from the g-learn-set which can be either 
+; an argument or a link
+to learn-random-item
+  let learn-args 0
+  let learn-rel 0
+  let #groups length colla-networks
+  let random-item one-of g-learn-set
+  ifelse is-link? random-item [
+    set learn-rel random-item
+      if [color] of random-item != red [
+      ask [end1] of random-item [
+      let cur-argum self
+      let cur-theory mytheory
+        ask random-item [
+          discover-attack cur-argum cur-theory
+        ]
+      ]
+    ]
+    set learn-args [both-ends] of random-item
+    ask random-item [
+      set in-group-i-memory n-values #groups [true]
+    ]
+  ][
+    set learn-args (turtle-set random-item)
+  ]
+  ask learn-args [
+    if color = gray [set color turquoise]
+    set group-color-mem n-values #groups [color]
+  ]
+  ask researchers [
+    set subjective-arguments (turtle-set subjective-arguments learn-args)
+    if learn-rel != 0 [
+      set subjective-relations (link-set subjective-relations learn-rel)
+    ]
+  ]
+end
+
+
+
+
+
 ; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
 ; The memory management is comprised of two parts:

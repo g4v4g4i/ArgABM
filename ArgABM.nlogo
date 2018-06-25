@@ -100,7 +100,8 @@ globals [max-learn small-movement color-move colla-networks share-structure
   startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
   round-converged last-converged-th scientists g-knowledge g-max-ticks
-  g-red-theories g-exit-case g-exit-condition?]
+  g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
+  g-learn-frequency]
 
 
 
@@ -133,6 +134,7 @@ to setup [rs]
   set g-knowledge []
   set g-red-theories no-turtles
   set g-exit-condition? false
+  set g-learn-set-theories no-turtles
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -183,6 +185,12 @@ end
 ; probabilities as set in the interface)
 to go-core
   let update-pluralist? false
+  ; the +1 correct for the fact that the tick counter is only advanced at the 
+  ; end of the procedure
+  if g-exit-case = 2 and (ticks + 1) mod g-learn-frequency = 0 [
+    set-g-learn-set
+    learn-random-item
+  ]
   if ticks mod 5 = 4 [
     set update-pluralist? true
     set rep-researchers no-turtles

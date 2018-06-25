@@ -42,6 +42,10 @@ to initialize-hidden-variables
   
   ; the maximal time a run can last before it is aborted
   set g-max-ticks 4000
+  
+  ; every g-learn-frequency rounds researchers might learn some information 
+  ; about the landscape
+  set g-learn-frequency 30
 end
 
 
@@ -718,5 +722,25 @@ to record-initial-scientists
     if initial-scientists = scientists [
       set last-converged-th self
     ]
+  ]
+end
+
+
+
+
+
+; creates the list from which items are drawn in case that 
+; `necessary-convergence` is selected in the interface and all researchers are 
+; converged on fully explored theories (g-exit-case = 2). 
+to set-g-learn-set
+  ; lst = learn-set-theories;
+  ; researchers should always learn about the best theory
+  let proper-lst starts with [who = 0 or not member? self g-red-theories]
+  if g-learn-set-theories != proper-lst [
+    set g-learn-set-theories proper-lst
+    let learn-args sort startsargum with [member? mytheory g-learn-set-theories]
+    let learn-rel sort attacks with [member? mytheory-end1 g-learn-set-theories or 
+      member? mytheory-end2 g-learn-set-theories]
+    set g-learn-set sentence learn-args learn-rel
   ]
 end
