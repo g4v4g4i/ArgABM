@@ -678,6 +678,11 @@ necessary-convergence
 -1000
 
 @#$#@#$#@
+# UNDER CONSTRUCTION
+
+# ArgABM
+An agent-based model for scientific inquiry based on abstract argumentation
+
 # Motivation
 
 # Introduction
@@ -876,14 +881,14 @@ The evaluation criterion researchers apply when determining the score they assig
 
 ## Setup
 
-  * _initialize-hidden-variables_
+### _initialize-hidden-variables_
 Procedure in which the variables that are not mentioned in the interface can be set.
  1. This determines amount of information learned via intergroup-communication (_share-with-other-networks_)that a researcher can digest each tick. To learn one argument which was unknown before (= cyan = 85) all the way to the highest degree of exploration (= red = 15) costs 70. By default an attack relation costs as much as one color step of an argument (`rel-costfactor` = 10) and researchers can digest two full arguments per day (`max-learn`).
  2. only every 5 ticks (= days) researchers move with full move-probability during the _move-around_ procedure. In between the move-probability is lower by the factor `small-movement` i.e. by default they move only with 1/5 th of the move probability on the days in between.
  3. During the _move-around_ procedure the move probability is influenced by the color of the argument a researcher is standing on (`color-move`). The further researched an argument is (= lower color) the higher the move-probability is. Researchers move if
  `move-random < move-probability * (1 - ([color] of myargu / color-move))` where `move-random` is a random float on the interval [0,1] and myargu is the argument the researcher is currently standing/working on.
 
-  * _compute-popularity_
+### _compute-popularity_
   Computations for the popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
   Arguments: update-pluralist? format: boolean. Determines whether the myscientists-pluralist value has to be updated (only true if ticks mod 5 = 4 or at the end of a run)
   1.  mystart is the theory the current researcher is investigating
@@ -896,7 +901,7 @@ Procedure in which the variables that are not mentioned in the interface can be 
 
 ## Strategies
 
-  * _admissibility-calc-core_
+### _admissibility-calc-core_
 The core of the admissibility calculation procedure. It takes a link-set
 (attackset) for a certain theory (i.e. all attacks which are either
 outgoing or incoming to this theoy) as input and reports the arguments
@@ -918,7 +923,7 @@ sucessfully attacked during the secondary-attackers phase (cf. also global varia
   This repeats until there are no secondary-attackers left or non of the
   left is able to attack successfully anymore.
 
-  * _compute-subjective-attacked_
+### _compute-subjective-attacked_
 procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible because researcher in a collaborator network share all information with each other only one agent needs to do the admissibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
 
 1. if a researcher of the group already calculated admissibility other group members can copy the results into their memory
@@ -931,18 +936,18 @@ procedure that computes for each collaborator network (= groups) which of the ar
 
 ## Behavior
 
-  * _update-memories [spoof-gps]_
+### _update-memories [spoof-gps]_
 Researchers will update their memory every week right before the sharing with other researchers (intra- and inter-group-sharing) takes place. In between researchers will update their memory if needed, i.e. if they move. For this _update-memories_ will be called by the _move-to-nextargu_ procedure.
 The memory management is comprised of two parts:
 (a) The researchers save arguments and relations in the form of turtle-sets / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu` `to-add-mem-rel`) which will be synchronized every week with the group in the `share-with-group` procedure
 (b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory.
 Argument: spoof-gps, type: turtle. Determines whether the researcher should update her memory according to the argument she's standing on (spoof-gps = `nobody`) or as if she was standing on "argument x" (spoof-gps = `argument-x`).
 
-  * _move-to-nextargu_
+### _move-to-nextargu_
 Procedure which is called by researchers when they move (to nextargu). It makes sure that the researcher has an updated memory of her surrounding before moving by calling _update-memories_.
 Then `mygps` (cf. Variables) - i.e. the argument she is working on - will be set to her new destination ( = nextargu).
 
-  * _share-with-group_
+### _share-with-group_
 intra-group sharing: researchers share their memory with other researchers from their collaborator-network (=group). The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
@@ -952,7 +957,7 @@ For arguments (b) has already been done during `update-memories` so only (a) nee
 inter-group sharing: representative researchers of the networks share information according to the social structure.
 In  cases where the network structure is de-facto complete i.e. all complete cases + when there are equal or less than 3 groups + when there are equal or less than 4 groups and the structure is not a ‘cycle’ it calls the  subprocedure `inter-group-sharing-complete`, else `inter-group-sharing-default`.
 
-  * _inter-group-sharing-complete_
+### _inter-group-sharing-complete_
 The inter-group-sharing (= share-with-other-networks) procedure for de-facto complete networks. The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
@@ -963,7 +968,7 @@ all information gets cached and will be integrated into the group memory during 
 4. For each relation (= attack) the researcher didn't know she has to pay the absolute costs of rel-costfactor (cf. infotab `rel-costfactor` and _initialize-hidden-variables_)
 5. The absolute costs are transformed into relative costs (in days) and distributed among the group
 
-  * _inter-group-sharing-default_
+### _inter-group-sharing-default_
 The inter-group-sharing (= share-with-other-networks) procedure for non-complete networks. The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
@@ -978,7 +983,7 @@ all information gets cached and will be integrated into the group memory during 
 8. The absolute communication costs are those paid for the difference to the more recent arguments + (the newly learned relations * rel-costfactor cf. `rel-costfactor`)
 9. The absolute costs are transformed into relative costs (in days) and distributed among the group
 
-  * _distribute-com-costs_
+### _distribute-com-costs_
 Distributes the absolute communication costs (com-costs) among the group and transform them into relative costs (in days) which are then saved in the researcher-owned variable `communicating`.
 The absolute costs are the difference between the information the rep-researcher posessed before vs. after the inter-group-sharing. For details on the costsfunction cf. infotab: initialize-hidden-variables. The researchers have to digest all information within a work-week (= 5 days/ticks) while still reserving one day for doing their own research, which leaves them with 4 days for digesting. The rep researcher herself only has 3 days b/c the day she visits the conference (inter-group-sharing) is also lost. Every day a researcher can digest information of value `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned variable will be set to how many days the researcher will be occupied by digesting information (+ one day in the case of the rep-researchers: the day of visiting the conference itself)
 1. the rep-researcher pays for as much information as she can.
@@ -1121,7 +1126,9 @@ Collects information on the state of beliefs and knowledge every time researcher
 
 #### g-max-ticks
 * format: integer
-* default: 4000  
+* default: 100000  
+
+This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
 
 #### g-exit-condition?
 
@@ -1130,8 +1137,6 @@ Collects information on the state of beliefs and knowledge every time researcher
 
 If the `exit-condition` reporter is evaluated the variable will be set to `true` in case the the exit-condition is met, `false` otherwise. Positive evaluation of the exit-condition marks the end of a run.  
 
-
-This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
 
 ### Researchers-own
 

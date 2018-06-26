@@ -41,7 +41,7 @@ to initialize-hidden-variables
   set color-move 200
   
   ; the maximal time a run can last before it is aborted
-  set g-max-ticks 4000
+  set g-max-ticks 100000
   
   ; every g-learn-frequency rounds researchers might learn some information 
   ; about the landscape
