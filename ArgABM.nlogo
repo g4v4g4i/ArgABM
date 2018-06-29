@@ -101,7 +101,7 @@ globals [max-learn small-movement color-move colla-networks share-structure
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
   round-converged last-converged-th scientists g-knowledge g-max-ticks
   g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
-  g-learn-frequency]
+  g-learn-frequency g-exit-case-start g-exit-case-duration]
 
 
 
@@ -135,6 +135,8 @@ to setup [rs]
   set g-red-theories no-turtles
   set g-exit-condition? false
   set g-learn-set-theories no-turtles
+  set g-exit-case-start n-values 2 [[]]
+  set g-exit-case-duration n-values 2 [[]]
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -158,7 +160,11 @@ to go [exit?]
     if exit? and not g-exit-condition? [
       set g-exit-condition? exit-condition
       if g-exit-condition? [
-        if not necessary-convergence [
+        ifelse necessary-convergence [
+          if g-exit-case != 0 [
+            set-exit-case-duration g-exit-case
+          ]
+        ][
           final-commands
         ]
         if knowledge-tracking [
@@ -185,7 +191,7 @@ end
 ; probabilities as set in the interface)
 to go-core
   let update-pluralist? false
-  ; the +1 correct for the fact that the tick counter is only advanced at the 
+  ; the +1 correct for the fact that the tick counter is only advanced at the
   ; end of the procedure
   if g-exit-case = 2 and (ticks + 1) mod g-learn-frequency = 0 [
     set-g-learn-set
@@ -593,7 +599,7 @@ CHOOSER
 125
 evaluation
 evaluation
-"defended-args" "non-defended-args" "non-defended-normalized" "non-defended-multiplied"
+"defended-args" "non-defended-args" "non-defended-multiplied" "non-defended-normalized"
 0
 
 SWITCH
@@ -1637,6 +1643,12 @@ NetLogo 6.0.4
     <metric>max-com-costs "round"</metric>
     <metric>unpaid-com-costs</metric>
     <metric>round-converged</metric>
+    <metric>cum-exit-case-duration 1</metric>
+    <metric>cum-exit-case-duration 2</metric>
+    <metric>frequency-exit-case 1</metric>
+    <metric>frequency-exit-case 2</metric>
+    <metric>g-exit-case</metric>
+    <metric>time-of-first-red-theory</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -1683,6 +1695,9 @@ NetLogo 6.0.4
     </enumeratedValueSet>
     <enumeratedValueSet variable="evaluation">
       <value value="&quot;defended-args&quot;"/>
+      <value value="&quot;non-defended-args&quot;"/>
+      <value value="&quot;non-defended-multiplied&quot;"/>
+      <value value="&quot;non-defended-normalized&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="heuristic-non-block">
       <value value="false"/>

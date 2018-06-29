@@ -739,8 +739,8 @@ to set-g-learn-set
   if g-learn-set-theories != proper-lst [
     set g-learn-set-theories proper-lst
     let learn-args sort startsargum with [member? mytheory g-learn-set-theories]
-    let learn-rel sort attacks with [member? mytheory-end1 g-learn-set-theories or 
-      member? mytheory-end2 g-learn-set-theories]
+    let learn-rel sort attacks with [member? mytheory-end1 g-learn-set-theories 
+      or member? mytheory-end2 g-learn-set-theories]
     set g-learn-set sentence learn-args learn-rel
   ]
 end

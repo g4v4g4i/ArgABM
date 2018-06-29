@@ -18,10 +18,10 @@ to learn-random-item
   let random-item one-of g-learn-set
   ifelse is-link? random-item [
     set learn-rel random-item
-      if [color] of random-item != red [
+    if [color] of random-item != red [
       ask [end1] of random-item [
-      let cur-argum self
-      let cur-theory mytheory
+        let cur-argum self
+        let cur-theory mytheory
         ask random-item [
           discover-attack cur-argum cur-theory
         ]
@@ -296,7 +296,7 @@ to inter-group-sharing-complete
   ; The absolute costs each group has to pay to incorporate the information 
   ; learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 
   ; groups). This costvector is initialized with the value 0 for each group and 
-  ; for each information which is new to the group the respective absolute costs 
+  ; for each information which is new to the group the respective absolute costs
   ; will be added to their entry. The i-th entry is the absolute cost the 
   ; rep-researcher from group i has to pay (cf. group-id and 
   ; distribute-com-costs).
@@ -358,7 +358,7 @@ to inter-group-sharing-default
     let askresearcher-id [group-id] of askresearcher
     let com-costs 0
     ; The askresearcher collects all the information from the other 
-    ; rep-researchers she is to sharing with i.e. the share-researchers from the 
+    ; rep-researchers she is to sharing with i.e. the share-researchers from the
     ; other groups in her share-structure entry (= the entry where her group is 
     ; first).
     foreach but-first cur-share-groups [[cur-other-group] -> 

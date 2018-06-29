@@ -1,4 +1,4 @@
-; holds the reporters and procedures needed for the behaviorspace runs
+; holds the reporters and procedures needed for the BehaviorSpace runs
 
 
 
@@ -9,11 +9,54 @@
 ; case 1: some scientists are on non-red theories or case 2: all scientists are 
 ; on red theories
 to exit-case-distinction
+  let exit-case-cache 0
   ifelse sum [myscientists] of g-red-theories = scientists [
-    set g-exit-case 2
+    set exit-case-cache 2
   ][
-    set g-exit-case 1
+    set exit-case-cache 1
   ]
+  if exit-case-cache != g-exit-case [
+    if g-exit-case != 0 [
+      set-exit-case-duration g-exit-case
+    ]
+    set-exit-case-start exit-case-cache
+    set g-exit-case exit-case-cache
+  ]
+end
+
+
+
+
+
+; records the duration of exit-case 1 & 2 during the run
+; argument: case = which exit-case just ended, type: integer
+to set-exit-case-duration [case]
+  set case (case - 1)
+  let last-exit-case-start last item case g-exit-case-start
+  let new-duration (ticks - last-exit-case-start)
+  set g-exit-case-duration lput-subitem case g-exit-case-duration new-duration
+end
+
+
+
+
+
+
+; records the time-point at which an exit-case begins during the run
+; argument: case = which exit-case begins now, type: integer
+to set-exit-case-start [case]
+  set case (case - 1)
+  set g-exit-case-start lput-subitem case g-exit-case-start ticks
+end
+
+
+
+
+
+; Inserts a value at the end of a list which is nested in another list
+to-report lput-subitem [index lists value]
+  let old-sublist item index lists
+  report replace-item index lists (lput value old-sublist)
 end
 
 
@@ -312,7 +355,7 @@ end
 
 
 
-; reports the input value (communication costs) in the form: communication costs 
+; reports the input value (communication costs) in the form: communication costs
 ; in days per researcher
 to-report normalize-days-per-scientist [input]
   let normalization-factor (1 / (scientists * max-learn))
@@ -453,4 +496,43 @@ to save-tracked-knowledge
     file-print csv:to-row curentry 
   ]
   file-close
+end
+
+
+
+
+
+; reports the cumulative time the run stayed in the particular exit-case
+; argument: case = for which exit-case the duration should be reported,
+; type: integer
+to-report cum-exit-case-duration [case]
+  set case (case - 1)
+  report sum item case g-exit-case-duration
+end
+
+
+
+
+
+; reports how many periods of the particular exit-case occurred during the run
+; argument: case = for which exit-case the frequency should be reported,
+; type: integer
+to-report frequency-exit-case [case]
+  set case (case - 1)
+  report length item case g-exit-case-duration
+end
+
+
+
+
+
+; reports when the first red theory appeared in the landscape during the run 
+; i.e. when "g-exit-case = 0" ended
+to-report time-of-first-red-theory
+  ; making a non-nested list out of g-exit-case-start
+  let reduced-case-starts reduce sentence g-exit-case-start
+  if empty? reduced-case-starts [
+    report ticks
+  ]
+  report min reduced-case-starts
 end
