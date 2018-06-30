@@ -280,7 +280,7 @@ to-report in-run-performance [pluralist-monist]
       + runresult pluralist-monist * objective-admissibility)
   ]  
   set performance ((performance * 100) / (scientists * 
-  (ticks + 1) * [objective-admissibility] of first sort starts))
+    g-comp-pop-counter * [objective-admissibility] of first sort starts))
   report performance
 end
 

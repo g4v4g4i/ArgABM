@@ -14,7 +14,7 @@
 to learn-random-item
   let learn-args 0
   let learn-rel 0
-  let #groups length colla-networks
+  let #groups collaborative-groups
   let random-item one-of g-learn-set
   ifelse is-link? random-item [
     set learn-rel random-item
@@ -320,7 +320,7 @@ to inter-group-sharing-complete
     ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
     set costvector (map + costvector costvector-cur-rel)
   ]
-  set-global-com-costs costvector
+  with-local-randomness [set-global-com-costs costvector]
   ask rep-researchers [
     set argu-cache comb-memory-argu ; (a)
     set to-add-mem-rel comb-memory-rel ; (a)
@@ -398,7 +398,7 @@ to inter-group-sharing-default
       
     ]
   ]
-  set-global-com-costs costvector
+  with-local-randomness [set-global-com-costs costvector]
   ask rep-researchers [
     let com-costs item group-id costvector
     ; The absolute costs are transformed into relative costs (in days) and 
@@ -470,11 +470,10 @@ to distribute-com-costs [com-costs]
           (list com-cost-remaining (4 * max-learn))
         set communicating ceiling (com-payment-curresearcher / max-learn)
         set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
-        set rep-researcher true
       ]
     ]
   ][
-    ; the rep-researcher pays for as all the information costs.
+    ; the rep-researcher pays for all the information costs.
     set communicating ((ceiling (com-costs / max-learn)) + 1)
   ]
 end

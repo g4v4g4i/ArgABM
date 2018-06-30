@@ -70,7 +70,7 @@ end
 ; (the calc-researcher) and the others can just
 ; copy the results from her.
 to compute-subjective-attacked
-  foreach colla-networks [ [cur-group] ->
+  foreach g-active-colla-networks [ [cur-group] ->
     let calc-done false
     let calc-researcher 0
     foreach cur-group [ [cur-researcher] ->
@@ -233,8 +233,7 @@ to act-on-strategies
         ; if one of the arguments from the best theory is in her memory
         ; the researcher will jump there
         let nextargu one-of subjective-arguments with [
-          mytheory = ch-best 
-          and color != turquoise]
+          mytheory = ch-best and color != turquoise]
         ifelse nextargu != nobody [
           move-to-nextargu nextargu
         ][ ; otherwise the researcher jumps to the root of the theory

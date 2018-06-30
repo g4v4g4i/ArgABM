@@ -101,7 +101,8 @@ globals [max-learn small-movement color-move colla-networks share-structure
   g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
   round-converged last-converged-th scientists g-knowledge g-max-ticks
   g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
-  g-learn-frequency g-exit-case-start g-exit-case-duration]
+  g-learn-frequency g-exit-case-start g-exit-case-duration g-comp-pop-counter
+  g-active-colla-networks g-static-phase]
 
 
 
@@ -142,6 +143,9 @@ to setup [rs]
   distribute-researchers
   calc-global-admiss
   record-initial-scientists
+  ; this `set...` has to be run after `distribute-researchers` b/c 
+  ; colla-networks are only created in the sub-procedure `create-x-groups`
+  set g-active-colla-networks colla-networks
   reset-ticks
 end
 
@@ -218,7 +222,7 @@ to go-core
   if ticks mod 5 != 0 [
     communication-regress
   ]
-  compute-popularity update-pluralist?
+  with-local-randomness [compute-popularity update-pluralist?]
   tick
 end
 @#$#@#$#@

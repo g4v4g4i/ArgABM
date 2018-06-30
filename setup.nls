@@ -541,6 +541,7 @@ to compute-popularity [update-pluralist?]
     set round-converged -1
     set last-converged-th -1
   ]
+  set g-comp-pop-counter g-comp-pop-counter + 1
 end
 
 
