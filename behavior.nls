@@ -15,6 +15,7 @@ to learn-random-item
   let learn-args 0
   let learn-rel 0
   let #groups collaborative-groups
+  let group-updates []
   let random-item one-of g-learn-set
   ifelse is-link? random-item [
     set learn-rel random-item
@@ -27,8 +28,16 @@ to learn-random-item
         ]
       ]
     ]
+    ; if they learned an attack they also have to learn the arguments at both
+    ; ends of the attack
     set learn-args [both-ends] of random-item
     ask random-item [
+    ; adds a list to group-updates with one entry for each group. If the group
+    ; learned something new the respective entry will be 1, else 0.
+      if g-static-phase = 3 [
+        set group-updates lput map [known-by-group-i? -> ifelse-value 
+          known-by-group-i? [0][1] ] in-group-i-memory group-updates
+        ]
       set in-group-i-memory n-values #groups [true]
     ]
   ][
@@ -36,12 +45,60 @@ to learn-random-item
   ]
   ask learn-args [
     if color = gray [set color turquoise]
+    ; adds a list to group-updates, cf. above comment.
+    if g-static-phase = 3 [
+      set group-updates lput map [color-mem-group-i -> ifelse-value 
+        (color-mem-group-i < cyan) [0][1] ] group-color-mem group-updates
+    ]
     set group-color-mem n-values #groups [color]
   ]
-  ask researchers [
-    set subjective-arguments (turtle-set subjective-arguments learn-args)
-    if learn-rel != 0 [
-      set subjective-relations (link-set subjective-relations learn-rel)
+  ; if researchers didn't manage to compute-subjective-attacked wrt the random
+  ; info from last time, all groups will have to integrate & compute information
+  if g-static-phase = 2 [
+    set g-active-colla-networks colla-networks
+  ]
+  if g-static-phase = 3 [
+  ; group-updates (a nested list) is reduced to one (non-nested) list which 
+  ; contains one entry for each group. If the group learned something new the 
+  ; entry will be > 0, else 0. E.g. [0 1 3] translates to "of three groups the 
+  ; last two learned something new, the first didn't"
+    set group-updates reduce [[so-far next-item] -> (map + so-far next-item)] 
+      group-updates
+    let #group-updates length filter [curitem -> curitem > 0] group-updates
+    if #group-updates > 0 [
+      set g-static-phase 2
+      ; the groups that learned something new are considered to be active 
+      set g-active-colla-networks filter [curgroup -> curgroup != 0]
+        (map [[group-i-updates colla-group-i] -> ifelse-value 
+        (group-i-updates > 0) [colla-group-i] [0]]
+        group-updates colla-networks)
+    ]
+  ]
+  if g-static-phase != 3 [
+    ; one researcher of each active group incorporates the new information
+    foreach g-active-colla-networks [cur-group ->
+      let grp-share-researcher 0
+      let comb-memory-argu no-turtles
+      let comb-memory-rel no-links
+      ask first cur-group [
+        set grp-share-researcher self
+        set comb-memory-argu (turtle-set subjective-arguments learn-args)
+        set subjective-arguments comb-memory-argu
+        if learn-rel != 0 [
+          set comb-memory-rel (link-set subjective-relations learn-rel)
+          set subjective-relations comb-memory-rel
+        ]
+      ]
+      ; the rest of the group copy the information which the 
+      ; grp-share-researcher has combined before
+      foreach but-first cur-group [cur-researcher ->
+        ask cur-researcher [
+          set subjective-arguments comb-memory-argu
+          if learn-rel != 0 [
+            set subjective-relations comb-memory-rel
+          ]
+        ]
+      ]
     ]
   ]
 end

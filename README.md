@@ -326,12 +326,11 @@ This metric tracks how well researchers perform during a run as opposed to 'at t
   * research-time-x is either research-time-monist or research-time-pluralist (cf. Variables) depending on the parameter with which the procedure was called.
   * th<sub>i</sub>: Theory<sub>i</sub> where i \in {1,2,3}  i.e. there exist up to three theories
   * researchers: number of researchers in this run
-  * ticks: length of the run in ticks. 
-  Technically it's the number of ticks + 1 b/c final-commands called by the exit condition (cf. final-commands) are adding to the research-time-x counters like an additional tick would.
+  * compute-popularity-counter: How often compute-popularity has been executed during the run and therefore how often research-time-x has been updated. 
   
   The formula of the in-run-performance metric is:
   
-100 * Σ<sub>i</sub> (research-time-x-th<sub>i</sub> * objective-admissibility-th<sub>i</sub>)  / (researchers * ticks * objective-admissibility-best-theory)
+100 * Σ<sub>i</sub> (research-time-x-th<sub>i</sub> * objective-admissibility-th<sub>i</sub>)  / (researchers * compute-popularity-counter * objective-admissibility-best-theory)
 
 The denominator corresponds to the best score the researchers could get. This score is the product of the admissibility of the best theory , the length of the run and the number of researchers. 
 The numerator on the other hand is the score the researchers actually archived this run. As the denominator is the maximum score, the whole fraction can take a maximum value of 1 which would be the case when all researchers actually spent all their time on the best theory ("monist") / considered the best theory to be their single subjective best theory for the whole run ("pluralist"). Any deviations from this will lower the score correspondingly. Some examples make this clearer:
@@ -446,7 +445,7 @@ Collects information on the state of beliefs and knowledge every time researcher
 
 #### g-max-ticks
 * format: integer
-* default: 100000  
+* default: 500000  
 
 This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
 

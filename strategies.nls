@@ -215,6 +215,7 @@ end
 ; procedure that lets the researchers act on the just computed best theory
 ; based on their own memory
 to act-on-strategies
+  let reset-static-phase? false
   ask researchers [
     ; only when there is a current best theory
     ; it makes sense for the researchers to want to work on that theory
@@ -229,7 +230,7 @@ to act-on-strategies
       ; she jumps to one of the theories she considers best, based
       ; on her memory and the computations
       if theory-jump >= jump-threshold [
-        let ch-best one-of cur-best-th        
+        let ch-best one-of cur-best-th
         ; if one of the arguments from the best theory is in her memory
         ; the researcher will jump there
         let nextargu one-of subjective-arguments with [
@@ -239,11 +240,17 @@ to act-on-strategies
         ][ ; otherwise the researcher jumps to the root of the theory
           move-to-nextargu ch-best
         ]
-
         set times-jumped times-jumped + 1
         set theory-jump 0
+        set reset-static-phase? true
+        if not member? ch-best g-red-theories [
+          set on-red-theory? false
+        ]
       ]
     ]
+  ]
+  if reset-static-phase? [
+    reset-static-phase
   ]
 end
 

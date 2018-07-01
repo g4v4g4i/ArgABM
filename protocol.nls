@@ -21,8 +21,12 @@ to exit-case-distinction
     ]
     set-exit-case-start exit-case-cache
     set g-exit-case exit-case-cache
+    if exit-case-cache = 1 [
+      reset-static-phase
+    ]
   ]
 end
+
 
 
 
@@ -37,6 +41,16 @@ to set-exit-case-duration [case]
   set g-exit-case-duration lput-subitem case g-exit-case-duration new-duration
 end
 
+
+
+
+
+; if the static phase changed to zero the active-colla-networks need to be reset
+; as well
+to reset-static-phase
+  set g-static-phase 0
+  set g-active-colla-networks colla-networks
+end
 
 
 
