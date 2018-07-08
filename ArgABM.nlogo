@@ -361,7 +361,7 @@ col-group-size
 col-group-size
 1
 20
-5.0
+1.0
 1
 1
 NIL
@@ -386,7 +386,7 @@ attack-probability-2nd
 attack-probability-2nd
 0
 1
-0.3
+0.01
 0.01
 1
 NIL
@@ -466,7 +466,7 @@ strategy-threshold
 strategy-threshold
 0
 1
-0.9
+1.0
 0.1
 1
 NIL
@@ -481,7 +481,7 @@ jump-threshold
 jump-threshold
 1
 25
-10.0
+1.0
 1
 1
 NIL
@@ -563,7 +563,7 @@ attack-probability-3rd
 attack-probability-3rd
 0
 1
-0.3
+0.01
 0.01
 1
 NIL
@@ -577,7 +577,7 @@ CHOOSER
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-2
+0
 
 BUTTON
 70
@@ -622,7 +622,7 @@ CHOOSER
 evaluation
 evaluation
 "defended-args" "non-defended-args" "non-defended-multiplied" "non-defended-normalized"
-0
+2
 
 SWITCH
 765
@@ -644,7 +644,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-20.0
+50.0
 1
 1
 NIL
@@ -705,6 +705,43 @@ necessary-convergence
 1
 -1000
 
+SWITCH
+895
+295
+1097
+328
+defense-from-leaves
+defense-from-leaves
+0
+1
+-1000
+
+SLIDER
+895
+415
+1097
+448
+col-groups-on-best-t
+col-groups-on-best-t
+1
+20
+5.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+895
+360
+1187
+393
+controlled-spread-of-researchers
+controlled-spread-of-researchers
+0
+1
+-1000
+
 @#$#@#$#@
 # UNDER CONSTRUCTION
 
@@ -746,6 +783,12 @@ Sets the number of theories/trees that will be created
 * type: slider  
 
 Sets the depth of the tree
+
+#### defense-from-leaves
+
+* type: switch  
+
+If turned on: creates a more difficult landscape in which the best theory is largely defended by the leaves-arguments
 
 #### attack-probability-best
 
@@ -864,6 +907,12 @@ If turned on: the run will only end once all researchers converged on the best t
 * if some researchers are working on not fully explored theories (`g-exit-case` 1) those researchers share information as usual and rep-researchers on red theories share as if they were standing on an random argument of their theory
 
 * if all researchers are on red theories (`g-exit-case` 2) they all learn once a month (= every 30 ticks) a random bit of information regarding the objective landscape (cf. `learn-random-item`).  
+
+#### controlled-spread-of-researchers
+
+* type: switch
+
+If turned on: a number of researchers, determined by the slider _col-groups-on-best-t_, is placed on the best theory (these researchers are pink); the remainder of researchers is distributed randomly on the remaining theories (these researchers are blue). This is meant to be used only in conjunction with homogeneous groups (i.e. `within-theory` = true).
 
 ### Plots
 
@@ -1929,6 +1978,15 @@ NetLogo 6.0.4
     </enumeratedValueSet>
     <enumeratedValueSet variable="necessary-convergence">
       <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="defense-from-leaves">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="controlled-spread-of-researchers">
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="col-groups-on-best-t">
+      <value value="5"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>

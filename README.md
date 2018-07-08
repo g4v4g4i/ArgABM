@@ -39,6 +39,12 @@ Sets the number of theories/trees that will be created
 
 Sets the depth of the tree
 
+#### defense-from-leaves
+
+* type: switch  
+
+If turned on: creates a more difficult landscape in which the best theory is largely defended by the leaves-arguments
+
 #### attack-probability-best
 
 * type: slider  
@@ -156,6 +162,12 @@ If turned on: the run will only end once all researchers converged on the best t
 * if some researchers are working on not fully explored theories (`g-exit-case` 1) those researchers share information as usual and rep-researchers on red theories share as if they were standing on an random argument of their theory
 
 * if all researchers are on red theories (`g-exit-case` 2) they all learn once a month (= every 30 ticks) a random bit of information regarding the objective landscape (cf. `learn-random-item`).  
+
+#### controlled-spread-of-researchers
+
+* type: switch
+
+If turned on: a number of researchers, determined by the slider _col-groups-on-best-t_, is placed on the best theory (these researchers are pink); the remainder of researchers is distributed randomly on the remaining theories (these researchers are blue). This is meant to be used only in conjunction with homogeneous groups (i.e. `within-theory` = true).
 
 ### Plots
 
