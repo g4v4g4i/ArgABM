@@ -361,7 +361,7 @@ col-group-size
 col-group-size
 1
 20
-1.0
+5.0
 1
 1
 NIL
@@ -386,7 +386,7 @@ attack-probability-2nd
 attack-probability-2nd
 0
 1
-0.01
+0.3
 0.01
 1
 NIL
@@ -466,7 +466,7 @@ strategy-threshold
 strategy-threshold
 0
 1
-1.0
+0.9
 0.1
 1
 NIL
@@ -481,7 +481,7 @@ jump-threshold
 jump-threshold
 1
 25
-1.0
+10.0
 1
 1
 NIL
@@ -563,7 +563,7 @@ attack-probability-3rd
 attack-probability-3rd
 0
 1
-0.01
+0.3
 0.01
 1
 NIL
@@ -577,7 +577,7 @@ CHOOSER
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-0
+2
 
 BUTTON
 70
@@ -622,7 +622,7 @@ CHOOSER
 evaluation
 evaluation
 "defended-args" "non-defended-args" "non-defended-multiplied" "non-defended-normalized"
-2
+0
 
 SWITCH
 765
@@ -644,7 +644,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-50.0
+20.0
 1
 1
 NIL
@@ -712,7 +712,7 @@ SWITCH
 328
 defense-from-leaves
 defense-from-leaves
-0
+1
 1
 -1000
 
@@ -738,7 +738,7 @@ SWITCH
 393
 controlled-spread-of-researchers
 controlled-spread-of-researchers
-0
+1
 1
 -1000
 
