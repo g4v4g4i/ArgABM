@@ -592,6 +592,9 @@ end
 ; reports how often during the run convergence flipped from being on one theory 
 ; directly to another theory without any diversity period in between
 to-report frequency-convergence-flips
+  if empty? g-convergence-duration [
+    report 0
+  ]
   let convergence-end (map + g-convergence-start g-convergence-duration)
   let flip-freq length filter [curentry -> member? curentry g-convergence-start]
     convergence-end
