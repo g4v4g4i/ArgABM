@@ -9,6 +9,104 @@
 
 
 
+; the researchers learn a random item from the g-learn-set which can be either 
+; an argument or a link
+to learn-random-item
+  let learn-args 0
+  let learn-rel 0
+  let #groups collaborative-groups
+  let group-updates []
+  let random-item one-of g-learn-set
+  ifelse is-link? random-item [
+    set learn-rel random-item
+    if [color] of random-item != red [
+      ask [end1] of random-item [
+        let cur-argum self
+        let cur-theory mytheory
+        ask random-item [
+          discover-attack cur-argum cur-theory
+        ]
+      ]
+    ]
+    ; if they learned an attack they also have to learn the arguments at both
+    ; ends of the attack
+    set learn-args [both-ends] of random-item
+    ask random-item [
+    ; adds a list to group-updates with one entry for each group. If the group
+    ; learned something new the respective entry will be 1, else 0.
+      if g-static-phase = 3 [
+        set group-updates lput map [known-by-group-i? -> ifelse-value 
+          known-by-group-i? [0][1] ] in-group-i-memory group-updates
+        ]
+      set in-group-i-memory n-values #groups [true]
+    ]
+  ][
+    set learn-args (turtle-set random-item)
+  ]
+  ask learn-args [
+    if color = gray [set color turquoise]
+    ; adds a list to group-updates, cf. above comment.
+    if g-static-phase = 3 [
+      set group-updates lput map [color-mem-group-i -> ifelse-value 
+        (color-mem-group-i < cyan) [0][1] ] group-color-mem group-updates
+    ]
+    set group-color-mem n-values #groups [color]
+  ]
+  ; if researchers didn't manage to compute-subjective-attacked wrt the random
+  ; info from last time, all groups will have to integrate & compute information
+  if g-static-phase = 2 [
+    set g-active-colla-networks colla-networks
+  ]
+  if g-static-phase = 3 [
+  ; group-updates (a nested list) is reduced to one (non-nested) list which 
+  ; contains one entry for each group. If the group learned something new the 
+  ; entry will be > 0, else 0. E.g. [0 1 3] translates to "of three groups the 
+  ; last two learned something new, the first didn't"
+    set group-updates reduce [[so-far next-item] -> (map + so-far next-item)] 
+      group-updates
+    let #group-updates length filter [curitem -> curitem > 0] group-updates
+    if #group-updates > 0 [
+      set g-static-phase 2
+      ; the groups that learned something new are considered to be active 
+      set g-active-colla-networks filter [curgroup -> curgroup != 0]
+        (map [[group-i-updates colla-group-i] -> ifelse-value 
+        (group-i-updates > 0) [colla-group-i] [0]]
+        group-updates colla-networks)
+    ]
+  ]
+  if g-static-phase != 3 [
+    ; one researcher of each active group incorporates the new information
+    foreach g-active-colla-networks [cur-group ->
+      let grp-share-researcher 0
+      let comb-memory-argu no-turtles
+      let comb-memory-rel no-links
+      ask first cur-group [
+        set grp-share-researcher self
+        set comb-memory-argu (turtle-set subjective-arguments learn-args)
+        set subjective-arguments comb-memory-argu
+        if learn-rel != 0 [
+          set comb-memory-rel (link-set subjective-relations learn-rel)
+          set subjective-relations comb-memory-rel
+        ]
+      ]
+      ; the rest of the group copy the information which the 
+      ; grp-share-researcher has combined before
+      foreach but-first cur-group [cur-researcher ->
+        ask cur-researcher [
+          set subjective-arguments comb-memory-argu
+          if learn-rel != 0 [
+            set subjective-relations comb-memory-rel
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+
+
+
+
 ; every round, the researchers update their memory:
 ; arguments that have changed color, new arguments/links
 ; The memory management is comprised of two parts:
@@ -22,9 +120,14 @@
 ; links this will be facilitated during the `share-with-group` procedure,
 ; while for arguments the color is updated right when the researchers update
 ; their memory
-to update-memories
-  ; the argument the researcher is standing on is written to cur-argum
-  let cur-argum mygps
+; argument: spoof-gps = update as if standing on spoof-gps, type: turtle
+to update-memories [spoof-gps]
+  let cur-argum 0
+  ifelse spoof-gps = nobody [
+    set cur-argum mygps
+  ][
+    set cur-argum spoof-gps
+  ]
   let cur-researcher self
   let cur-group-id group-id  
   ; the argument the researcher is standing on is added to her memory (a)
@@ -51,7 +154,58 @@ to update-memories
   ]
   set to-add-mem-argu (turtle-set to-add-mem-argu to-add-mem-argu-cache)
   set to-add-mem-rel (link-set to-add-mem-rel to-add-mem-rel-cache)
-  set flag-updated-memory true  
+  if spoof-gps = nobody [
+    set flag-updated-memory true  
+  ]
+end
+
+
+
+
+
+; procedure in which researchers collect the information from their
+; memory that they want to share with researchers that do not
+; belong to their own collaborator-network (i.e. for inter-group-sharing)
+to create-share-memory
+  ; for each collaborator-network one researcher is set to be
+  ; the representative researcher
+  foreach colla-networks [ [curgroup] ->
+    ask one-of curgroup [
+      set rep-researcher true
+      set rep-researchers (turtle-set rep-researchers self)
+    ]
+  ]
+  ; only the representative researchers create a memory
+  ; that they want to share with researchers from other networks
+  let cur-argum 0
+  ask rep-researchers [
+    ifelse g-exit-case = 1 and on-red-theory? [
+      let mystart [mytheory] of mygps
+      let share-spoofgps one-of startsargum with [mytheory = mystart]
+      set cur-argum share-spoofgps
+      update-memories share-spoofgps
+    ][
+      set cur-argum mygps
+    ]
+    ; create a set of arguments and a set of relations (= attacks) that the
+    ; researcher can share with researchers from other collaborative networks
+    ; which relations researchers share depends on the "social-action" from the
+    ; interface
+    let th-relations-cache 0
+    let th-args-cache 0
+    ask cur-argum [
+      ifelse social-actions = "biased" [
+        set th-relations-cache my-out-attacks with [color != gray]
+      ][
+        set th-relations-cache my-attacks with [color != gray]
+      ]
+      let my-share-links (link-set my-discoveries with [color != gray]
+        th-relations-cache)
+      set th-args-cache (turtle-set [other-end] of my-share-links cur-argum)
+    ]
+    set th-relations th-relations-cache
+    set th-args th-args-cache
+  ]
 end
 
 
@@ -76,7 +230,6 @@ to share-with-group
       ; other group members copy that information into their own memory
       ifelse group-sharing-done [
         ask cur-researcher [
-          set rep-researcher false
           set subjective-arguments [subjective-arguments] of
             grp-share-researcher
           set subjective-relations [subjective-relations] of
@@ -90,8 +243,6 @@ to share-with-group
         set grp-share-researcher cur-researcher        
         ask cur-researcher [
           let cur-group-id group-id        
-          ; reset the variables
-          set rep-researcher false          
           ; variables to keep track the combined memory of all the sharing
           ; researchers
           let comb-memory-argu no-turtles
@@ -164,48 +315,6 @@ end
 
 
 
-; procedure in which researchers collect the information from their
-; memory that they want to share with researchers that do not
-; belong to their own collaborator-network (i.e. for inter-group-sharing)
-to create-share-memory
-  ; for each collaborator-network one researcher is set to be
-  ; the representative researcher
-  set rep-researchers no-turtles
-  foreach colla-networks [ [curgroup] ->
-    ask one-of curgroup [
-      set rep-researcher true
-      set rep-researchers (turtle-set rep-researchers self)
-    ]
-  ]
-  ; only the representative researchers create a memory
-  ; that they want to share with researchers from other networks
-  ask rep-researchers [
-    let cur-argum mygps
-    ; create a set of arguments and a set of relations (= attacks) that the
-    ; researcher can share with researchers from other collaborative networks
-    ; which relations researchers share depends on the "social-action" from the
-    ; interface
-    let th-relations-cache 0
-    let th-args-cache 0
-    ask cur-argum [
-      ifelse social-actions = "biased" [
-        set th-relations-cache my-out-attacks with [color != gray]
-      ][
-        set th-relations-cache my-attacks with [color != gray]
-      ]
-      let my-share-links (link-set my-discoveries with [color != gray]
-        th-relations-cache)
-      set th-args-cache (turtle-set [other-end] of my-share-links cur-argum)
-    ]
-    set th-relations th-relations-cache
-    set th-args th-args-cache
-  ]
-end
-
-
-
-
-
 ; inter-group sharing: representative researchers of the networks
 ; share information according to the social structure
 ; in  cases where the network structure is de-facto complete i.e. all 
@@ -244,7 +353,7 @@ to inter-group-sharing-complete
   ; The absolute costs each group has to pay to incorporate the information 
   ; learned via this inter-group sharing (format: list e.g. [ 0 0 0 ] = 3 
   ; groups). This costvector is initialized with the value 0 for each group and 
-  ; for each information which is new to the group the respective absolute costs 
+  ; for each information which is new to the group the respective absolute costs
   ; will be added to their entry. The i-th entry is the absolute cost the 
   ; rep-researcher from group i has to pay (cf. group-id and 
   ; distribute-com-costs).
@@ -268,7 +377,7 @@ to inter-group-sharing-complete
     ifelse-value group-i-rel-memory [0][rel-costfactor]] in-group-i-memory
     set costvector (map + costvector costvector-cur-rel)
   ]
-  set-global-com-costs costvector
+  with-local-randomness [set-global-com-costs costvector]
   ask rep-researchers [
     set argu-cache comb-memory-argu ; (a)
     set to-add-mem-rel comb-memory-rel ; (a)
@@ -306,7 +415,7 @@ to inter-group-sharing-default
     let askresearcher-id [group-id] of askresearcher
     let com-costs 0
     ; The askresearcher collects all the information from the other 
-    ; rep-researchers she is to sharing with i.e. the share-researchers from the 
+    ; rep-researchers she is to sharing with i.e. the share-researchers from the
     ; other groups in her share-structure entry (= the entry where her group is 
     ; first).
     foreach but-first cur-share-groups [[cur-other-group] -> 
@@ -346,7 +455,7 @@ to inter-group-sharing-default
       
     ]
   ]
-  set-global-com-costs costvector
+  with-local-randomness [set-global-com-costs costvector]
   ask rep-researchers [
     let com-costs item group-id costvector
     ; The absolute costs are transformed into relative costs (in days) and 
@@ -418,11 +527,10 @@ to distribute-com-costs [com-costs]
           (list com-cost-remaining (4 * max-learn))
         set communicating ceiling (com-payment-curresearcher / max-learn)
         set com-cost-remaining (com-cost-remaining - com-payment-curresearcher)
-        set rep-researcher true
       ]
     ]
   ][
-    ; the rep-researcher pays for as all the information costs.
+    ; the rep-researcher pays for all the information costs.
     set communicating ((ceiling (com-costs / max-learn)) + 1)
   ]
 end
@@ -457,7 +565,7 @@ end
 ; will  be set to her new destination ( = nextargu)
 to move-to-nextargu [nextargu]
   if not flag-updated-memory [
-    update-memories
+    update-memories nobody
   ]
   set mygps nextargu
   move-to mygps
@@ -485,7 +593,7 @@ to move-around
   ask researchers [
     set moved false
   ]
-  ask researchers [
+  ask researchers with [not on-red-theory?] [
     let curresearcher self
     if [communicating] of curresearcher = 0 or ticks mod 5 = 0 [
       let myargu mygps     
@@ -493,9 +601,9 @@ to move-around
       ; arguments as a list is written to not-admissible
       let not-admissible non-admiss-subj-argu
       
-      ; an researcher working on a non admissible argument will try to find a
+      ; a researcher working on a non admissible argument will try to find a
       ; defense for this attack, by working further on the attacked argument,
-      ; unless she discoveres a argument that that has a defense for
+      ; unless she discovers an argument that has a defense for
       ; the attack (it is not necessarily the case that this defense is
       ; already discovered) or until she has fully researched the argument
       ; the find-defense runs immediately for all researchers working on 
@@ -590,7 +698,7 @@ to find-defense
     ; can find a defender in their neighborhood
     ask (turtle-set item cur-group-id colla-networks) with [
       not flag-updated-memory] [
-        update-memories
+        update-memories nobody
     ]
     ask myargu [
       ask my-in-attacks with [color != gray] [
@@ -643,6 +751,7 @@ end
 ; every five time steps the landscape is updated:
 ; new arguments become visible and attacks are discovered
 to update-landscape
+  let potential-red-theories no-turtles
   ask disc-startsargum-non-red [
     let cur-argum self
     let cur-theory mytheory
@@ -663,6 +772,8 @@ to update-landscape
           ; disc-startsargum-non-red
           set disc-startsargum-non-red other disc-startsargum-non-red
           full-discovery cur-argum cur-theory
+          set potential-red-theories (turtle-set potential-red-theories 
+            cur-theory)
         ][
           ; depending on the color a new child-argument is discovered, 
           ; until all child-arguments are discovered
@@ -707,6 +818,12 @@ to update-landscape
       if [not member? color [gray turquoise]] of other-end [
         set color cyan
       ]
+    ]
+  ]
+  ask potential-red-theories [
+    let cur-theory self
+    if not any? disc-startsargum-non-red with [mytheory = cur-theory] [
+      set g-red-theories (turtle-set g-red-theories self)
     ]
   ]
 end

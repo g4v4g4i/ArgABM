@@ -39,6 +39,13 @@ to initialize-hidden-variables
 
   ; influence color on move probability (cf. 3.)
   set color-move 200
+  
+  ; the maximal time a run can last before it is aborted
+  set g-max-ticks 500000
+  
+  ; every g-learn-frequency rounds researchers might learn some information 
+  ; about the landscape
+  set g-learn-frequency 30
 end
 
 
@@ -368,6 +375,7 @@ to researchers-create-scientists
     set moved false
     set rep-researcher false
     set current-theory-info theories
+    set on-red-theory? false
   ]  
 end
 
@@ -535,6 +543,11 @@ to compute-popularity [update-pluralist?]
     ask mystart [
       set myscientists myscientists + 1
     ]
+    ifelse member? mystart g-red-theories [
+      set on-red-theory? true
+    ][
+      set on-red-theory? false
+    ]
     if update-pluralist? [
       ifelse cur-best-th != 0 [
         foreach cur-best-th [ [curstart] ->
@@ -569,6 +582,7 @@ to compute-popularity [update-pluralist?]
     set round-converged -1
     set last-converged-th -1
   ]
+  set g-comp-pop-counter g-comp-pop-counter + 1
 end
 
 
@@ -750,5 +764,25 @@ to record-initial-scientists
     if initial-scientists = scientists [
       set last-converged-th self
     ]
+  ]
+end
+
+
+
+
+
+; creates the list from which items are drawn in case that 
+; `necessary-convergence` is selected in the interface and all researchers are 
+; converged on fully explored theories (g-exit-case = 2). 
+to set-g-learn-set
+  ; lst = learn-set-theories;
+  ; researchers should always learn about the best theory
+  let proper-lst starts with [who = 0 or not member? self g-red-theories]
+  if g-learn-set-theories != proper-lst [
+    set g-learn-set-theories proper-lst
+    let learn-args sort startsargum with [member? mytheory g-learn-set-theories]
+    let learn-rel sort attacks with [member? mytheory-end1 g-learn-set-theories 
+      or member? mytheory-end2 g-learn-set-theories]
+    set g-learn-set sentence learn-args learn-rel
   ]
 end

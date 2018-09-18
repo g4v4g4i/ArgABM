@@ -11,70 +11,200 @@ An agent-based model for scientific inquiry based on abstract argumentation
 
 ## Interface
 
-Buttons
+### Buttons
 
-* _setup_ creates the landscape, including attacks and distributes the scientists/researchers over this landscape
+#### setup
+Creates the landscape, including attacks and distributes the scientists/researchers over this landscape
 
-* _go_ lets the program run one time step
+#### go
+Lets the program run one time step
 
-* _go (infinite, has a small circle)_ lets the program run infinitely many steps, or until the button is clicked again
+#### go (infinite, has a small circle)
+Lets the program run infinitely many steps, or until the button is clicked again
 
-* _go-stop_ lets the program run until all researchers are working on a fully researched theory
+#### go-stop (infinite, has a small circle)
+Lets the program run until the `exit-condition` is met or until the button is clicked again  
 
-Landscape settings
+### Landscape settings
 
-* _number-of-theories_ sets the number of theories/trees that will be created
+#### number-of-theories
 
-* _theory-depth_ sets the depth of the tree
+* type: slider  
 
-* _attack-probability-best_ the probability that an argument of the objective best theory has an incoming attack
+Sets the number of theories/trees that will be created
 
-* _attack-probability-2nd_ the probability that an argument of the 2nd theory has an incoming attack
+#### theory-depth
 
-* _attack-probability-3rd_ if there are three theories, the probability that an argument of the 3rd theory has an incoming attack
+* type: slider  
 
-* _defense-from-leaves_ if turned on: creates a more difficult landscape in which the best theory is largely defended by the leaves-arguments
+Sets the depth of the tree
 
-Strategy settings
+#### defense-from-leaves
 
-* _strategy-threshold_ defines the threshold within which the number of admissible arguments is still considered good, if this threshold gets higher, the interval of acceptable values gets smaller
+* type: switch  
 
-* _jump-threshold_ is the number of times an researcher has to consider jumping before it really jumps to another theory
+If turned on: creates a more difficult landscape in which the best theory is largely defended by the leaves-arguments
 
-Researcher settings
+#### attack-probability-best
 
-* _collaborative-groups_ the number of groups (teams of researchers) that will explore the landscape. 
+* type: slider  
 
-* _col-group-size_ each group (team of researchers) consists of this many researchers
+The probability that an argument of the objective best theory has an incoming attack
 
-* _move-probability_ the probability that researchers move to a next argument while exploring the landscape
+#### attack-probability-2nd
 
-* _visibility-probability_ the probability that new attacks are discovered by researchers
+* type: slider  
 
-* _research-speed_ the time an researcher has to work on an argument before it will change color
+The probability that an argument of the 2nd theory has an incoming attack
 
-* _within-theory_ here the kind of collaborative network is set to researchers that start on the same theory (on) or randomly chosen researchers (off)
+#### attack-probability-3rd
 
-* _social-actions_ here the behavior of the researchers that communicate with researchers outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" researchers do not share the attacks to their current theory
+* type: slider  
 
-* _network-structure_ determines the structure in which the collaborator-networks are connected and with how many researchers information is shared
+If there are three theories, the probability that an argument of the 3rd theory has an incoming attack
 
-* _knowledge-tracking_ if turned on: during the run information on the current state of beliefs and knowledge is collected every time researchers update their beliefs. When a run ends this information is written to an external csv file. **Warning:** This data will get corrupted if multiple instances of this model with knowledge-tracking turned on are run in parallel (e.g. via BehaviorSpace). Therefore only use single threaded runs when collecting data via knowledge-tracking!
+### Strategy settings
 
-* _controlled-spread-of-researchers_ if turned on: a number of researchers, determined by the slider _col-groups-on-best-t_, is placed on the best theory (these researchers are pink); the remainder of researchers is distributed randomly on the remaining theories (these researchers are blue). This is meant to be used only in conjunction with homogeneous groups (i.e. `within-theory` = true).
+#### strategy-threshold
 
+* type: slider  
 
-Plots
+Defines the threshold within which the number of admissible arguments is still considered good, if this threshold gets higher, the interval of acceptable values gets smaller
 
-* the _Popularity_ plot shows for every theory the number of researchers working on it
+#### jump-threshold
 
-* the _Current avg. com. costs_ plot shows the average communication costs from the most recent inter-group sharing in days per researcher
+* type: slider  
+
+Is the number of times a researcher has to consider jumping before she really jumps to another theory  
+
+#### heuristic-non-block
+
+* type: switch
+
+If turned on: researchers working on an argument which is not admissible according to their evaluation, don't have to work on that argument until it is fully explored (=red) but can instead move on in the same way as if working on any other argument
+
+#### evaluation
+
+* type: chooser  
+
+The evaluation criterion researchers apply when determining the score they assign to theory x (always according to their subjective memory). The four options are:
+
+* "defended-args": score = number of defended arguments in theory x. Higher score = better. 
+
+* "non-defended-args": score = number of non-defended arguments in theory x. Lower score = better.
+
+* "non-defended-normalized": score = number of non-defended arguments in theory x / number of all arguments in theory x. Lower score = better.
+
+* "non-defended-multiplied": score = number of non-defended arguments in theory x * number of all arguments in theory x. Lower score = better.  
+
+### Researcher settings
+
+#### collaborative-groups
+
+* type: slider  
+
+The number of groups (teams of researchers) that will explore the landscape. 
+
+#### col-group-size
+
+* type: slider  
+
+Each group (team of researchers) consists of this many researchers
+
+#### move-probability
+
+* type: slider  
+
+The probability that researchers move to a next argument while exploring the landscape
+
+#### visibility-probability
+
+* type: slider  
+
+The probability that new attacks are discovered by researchers
+
+#### research-speed
+
+* type: slider  
+
+The time an researcher has to work on an argument before it will change color
+
+#### within-theory
+
+* type: switch  
+
+Here the kind of collaborative network is set to researchers that start on the same theory (on) or randomly chosen researchers (off)
+
+#### social-actions
+
+* type: chooser  
+
+Here the behavior of the researchers that communicate with researchers outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" researchers do not share the attacks to their current theory
+
+#### network-structure
+
+* type: chooser  
+
+Determines the structure in which the collaborator-networks are connected and with how many researchers information is shared  
+
+#### knowledge-tracking 
+
+* type: switch  
+
+If turned on: during the run information on the current state of beliefs and knowledge is collected every time researchers update their beliefs. When a run ends this information is written to an external csv file. **Warning:** This data will get corrupted if multiple instances of this model with knowledge-tracking turned on are run in parallel (e.g. via BehaviorSpace). Therefore only use single threaded runs when collecting data via knowledge-tracking!  
+
+#### necessary-convergence 
+
+* type: switch  
+
+If turned on: the run will only end once all researchers converged on the best theory and at least one theory is fully explored (=red). Researchers also don't perform a final evaluation with the possibility to switch theories once a theory turns red or the run ends. If at least one theory is fully explored in the objective landscape the way how agents learn information changes: 
+
+* if some researchers are working on not fully explored theories (`g-exit-case` 1) those researchers share information as usual and rep-researchers on red theories share as if they were standing on an random argument of their theory
+
+* if all researchers are on red theories (`g-exit-case` 2) they all learn once a month (= every 30 ticks) a random bit of information regarding the objective landscape (cf. `learn-random-item`).  
+
+#### controlled-spread-of-researchers
+
+* type: switch
+
+If turned on: a number of researchers, determined by the slider _col-groups-on-best-t_, is placed on the best theory (these researchers are pink); the remainder of researchers is distributed randomly on the remaining theories (these researchers are blue). This is meant to be used only in conjunction with homogeneous groups (i.e. `within-theory` = true).
+
+### Plots
+
+#### Popularity
+The _popularity_ plot shows for every theory the number of researchers working on it
+
+#### Current avg. com. costs
+The _Current avg. com. costs_ plot shows the average communication costs from the most recent inter-group sharing in days per researcher  
+
 
 ## Some language definitions
 
-_Discovered arguments_: an argument that is not gray anymore nor turquoise (discovered by discovering an attack relation)
-_(Not) fully researched arguments_: the level at which an argument is explored, a fully researched argument will be red
-_Root/start_: refers to the root of a theory
+### Discovered arguments
+An argument that is not gray anymore nor turquoise (discovered by discovering an attack relation)
+
+### (Not) fully researched arguments
+The level at which an argument is explored, a fully researched argument will be red
+
+### Root/start
+Refers to the root of a theory
+
+### Fully explored theory
+A theory that has all its argument explored to the maximal degree (i.e. red) in the objective landscape
+
+### [attack] belonging [to theory x]
+An attack belongs to two theories: the theory the attack is attacking from (`mytheory-end1`) and the theory it attacks (`mytheory-end2`)
+
+### Admissibility and degree of defensibility
+
+#### Admissible sets
+A subset of arguments A of a given theory T is _admissible_ iff for each attacker b of some a in A there is an a' in A that attacks b (a' is said to defend a from the attack by b).
+
+#### Defended argument
+An argument a in T is said to be _defended in T_ iff it is a member of an admissible subset of T.
+
+#### The degree of defensibility of T
+– equal to the number of defended arguments in T.
 
 ## Setup of the landscape
 
@@ -104,15 +234,7 @@ The social structures are saved in the global variable share-structure, which fo
 
 researchers have a memory in which they keep track of the following:
 
-* _collaborator-network_: a list of at most four other researchers and itself that form the network it communicates with
-
-* _subjective-relations_: a list of relations that an researcher knows of, an entry has three elements, the first is either an "a" (the relation is an attack) or an "d" (the relation is a discovery), the second is the argument from which the relation starts and the last element is the argument that is attacked/the child-argument:
-
-`[["a" (argument attacking) (argument attacked)] ... ["d" (argument parent-argument) (argument child-argument)] ...]`
-
-* _subjective-arguments_: a list of arguments that an researcher knows of, an entry has two elements: 1. the argument; 2. the color of the argument (this might be a color with higher value, less researched, than the current color, because it only remembers the color it saw/heard of):
-
-`[[(argument a) colora] ... [(argument i) colori] ...]`
+* _collaborator-network_: a list of other researchers and herself that form the network she communicates with i.e. her group
 
 * _times-jumped_ and _theory-jump_: the first to keep track of how often researchers in general jump with a given strategy, the second to keep track of how often an researcher considers jumping
 
@@ -127,8 +249,6 @@ researchers have a memory in which they keep track of the following:
 * _to-add-mem-argu_ and _to-add-mem-rel_: lists of arguments and relations that the researcher has to add to its own memory as a result of communication
 
 * _admissibile-subj-args_: the list of arguments from the subjective-arguments that are admissible (not attacked or attacked and defended)
-
-* _neighborhood_: the neighboring arguments and relations of the argument it is currently working on
 
 * _moved_: true if the researcher moved already in that time step
 
@@ -183,37 +303,18 @@ Once the current best theory is computed, researchers will reconsider the theory
 If researchers think often enough that they should jump to another theory, often enough depends on the "jump-threshold" of the interface, the researcher jumps to a/the current best theory and starts working on that theory. If the researcher is aware of an argument from that theory, it will jump to a random, argument of that theory in its memory, otherwise it will jump to the root.
 
 # Changes to be integrated into the doc (wip)
-- This should be put into the appropriate places; maybe do this together with the documentation merge from HSR?
-- Add formal definition of "defended"
-- Needs also to be integrated into the readme.
-
-## Interface
-
-### evaluation
-
-* type: chooser
-
-The evaluation criterion researchers apply when determining the score they assign to theory x (always according to their subjective memory). The four options are:
-
-* "defended-args": score = number of defended arguments in theory x. Higher score = better. 
-
-* "non-defended-args": score = number of non-defended arguments in theory x. Lower score = better.
-
-* "non-defended-normalized": score = number of non-defended arguments in theory x / number of all arguments in theory x. Lower score = better.
-
-* "non-defended-multiplied": score = number of non-defended arguments in theory x * number of all arguments in theory x. Lower score = better.
 
 ## Setup
 
-  * _initialize-hidden-variables_
+### _initialize-hidden-variables_
 Procedure in which the variables that are not mentioned in the interface can be set.
  1. This determines amount of information learned via intergroup-communication (_share-with-other-networks_)that a researcher can digest each tick. To learn one argument which was unknown before (= cyan = 85) all the way to the highest degree of exploration (= red = 15) costs 70. By default an attack relation costs as much as one color step of an argument (`rel-costfactor` = 10) and researchers can digest two full arguments per day (`max-learn`).
  2. only every 5 ticks (= days) researchers move with full move-probability during the _move-around_ procedure. In between the move-probability is lower by the factor `small-movement` i.e. by default they move only with 1/5 th of the move probability on the days in between.
  3. During the _move-around_ procedure the move probability is influenced by the color of the argument a researcher is standing on (`color-move`). The further researched an argument is (= lower color) the higher the move-probability is. Researchers move if
  `move-random < move-probability * (1 - ([color] of myargu / color-move))` where `move-random` is a random float on the interval [0,1] and myargu is the argument the researcher is currently standing/working on.
 
-  * _compute-popularity_
-  Computations for the popularity plot and the reporters in behaviorspace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
+### _compute-popularity_
+  Computations for the popularity plot and the reporters in BehaviorSpace runs. It computes for every theory the number of researchers working on it (myscientists) and how many researchers consider a theory to be among the best (myscientists-pluralist). This values are added up in their respective global variables: research-time-monist/pluralist (cf. Variables).
   Arguments: update-pluralist? format: boolean. Determines whether the myscientists-pluralist value has to be updated (only true if ticks mod 5 = 4 or at the end of a run)
   1.  mystart is the theory the current researcher is investigating
   2. For each researcher the myscientists variable of the theory this researcher is working on is increased by one
@@ -225,30 +326,30 @@ Procedure in which the variables that are not mentioned in the interface can be 
 
 ## Strategies
 
-  * _admissibility-calc-core_
+### _admissibility-calc-core_
 The core of the admissibility calculation procedure. It takes a link-set
 (attackset) for a certain theory (i.e. all attacks which are either
-outgoing or incoming to this theoy) as input and reports the arguments
+outgoing or incoming to this theory) as input and reports the arguments
 which are successfully attacked i.e. non-admissible as a turtle-set
 processed? is a boolean dummy variable which marks attacks which have
-sucessfully attacked during the secondary-attackers phase (cf. also global variables).
+successfully attacked during the secondary-attackers phase (cf. also global variables).
 
 1. take the attacks which are themselves uncontested in  the objective landscape. The destination of this attacks will be non-admissible and attacks coming from there are void.
 
 2. the attacks which are not uncontested but also were not rendered void by
   the prime attackers form the secondary-attackers link-set. If they don't
   have any incoming attack from the secondary-attackers themselves their
-  attack is successfull and therefore they set their `processed?` variable to `true`
+  attack is successful and therefore they set their `processed?` variable to `true`
 
- 3. Of those secondary-attackers which were successfull, the destination
+ 3. Of those secondary-attackers which were successful, the destination
   (= end2) gets added to the non-admissible turtle-set and attacks
   starting from there are rendered void and are therefore removed from
-  the set. Then the successfull secondary attacks themselves are removed.
+  the set. Then the successful secondary attacks themselves are removed.
   This repeats until there are no secondary-attackers left or non of the
   left is able to attack successfully anymore.
 
-  * _compute-subjective-attacked_
-procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible because researcher in a collaborator network share all information with each other only one agent needs to do the admissibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
+### _compute-subjective-attacked_
+Procedure that computes for each collaborator network (= groups) which of the arguments in their memory are admissible because researcher in a collaborator network share all information with each other only one agent needs to do the admissibility calculations (the calc-researcher) and the others (except for the rep-researcher) can just copy the results from her
 
 1. if a researcher of the group already calculated admissibility other group members can copy the results into their memory
 
@@ -256,31 +357,39 @@ procedure that computes for each collaborator network (= groups) which of the ar
 
 3. if there are only two theories the admissibility calculation can be  done on the whole attackset at once
 
-4. if there are more than two theories the calculation has to be done once for each attack set of a theory sepearately. A attack set of a theory corresponds to all the attacks in the set which are either incoming or outgoing to/from this theory
+4. if there are more than two theories the calculation has to be done once for each attack set of a theory separately. A attack set of a theory corresponds to all the attacks in the set which are either incoming or outgoing to/from this theory
+
+### _set-g-learn-set_
+Creates the list (`g-learn-set`) from which items are drawn in case that `necessary-convergence` is selected in the interface and all researchers are converged on fully explored theories (`g-exit-case` 2). This list contains all arguments and attacks belonging to not fully explored theories and the best theory (`g-learn-set-theories`)
+
 
 ## Behavior
 
-  * _update-memories_
+### _learn-random-item_
+Once a month (every 30 ticks) if all researchers are on fully explored theories (`g-exit-case` 2) they learn a random item from `g-learn-set` which can be either an argument or an attack. If they learn an attack they also learn the arguments at both ends of this attack.  
+
+### _update-memories [spoof-gps]_
 Researchers will update their memory every week right before the sharing with other researchers (intra- and inter-group-sharing) takes place. In between researchers will update their memory if needed, i.e. if they move. For this _update-memories_ will be called by the _move-to-nextargu_ procedure.
 The memory management is comprised of two parts:
 (a) The researchers save arguments and relations in the form of turtle-sets / link-sets in their memory (cf. infotab Variables -> `to-add-mem-argu` `to-add-mem-rel`) which will be synchronized every week with the group in the `share-with-group` procedure
 (b) the status in which the argument / relation is known to a certain collaborative network (=group) is saved in the argument / link itself.  (cf. infotab Variables -> `group-color-mem`, `in-group-i-memory`). For links this will be facilitated during the `share-with-group` procedure, while for arguments the color is updated right when the researchers update their memory.
+Argument: spoof-gps, type: turtle. Determines whether the researcher should update her memory according to the argument she's standing on (spoof-gps = `nobody`) or as if she was standing on "argument x" (spoof-gps = `argument-x`).
 
-  * _move-to-nextargu_
+### _move-to-nextargu_
 Procedure which is called by researchers when they move (to nextargu). It makes sure that the researcher has an updated memory of her surrounding before moving by calling _update-memories_.
 Then `mygps` (cf. Variables) - i.e. the argument she is working on - will be set to her new destination ( = nextargu).
 
-  * _share-with-group_
-intra-group sharing: researchers share their memory with other researchers from their collaborator-network (=group). The memory update is twofold (cf. update-memories)
+### _share-with-group_
+Intra-group sharing: researchers share their memory with other researchers from their collaborator-network (=group). The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
 For arguments (b) has already been done during `update-memories` so only (a) needs to be performed, while for relations (=attacks) both (a) + (b) will be performed
 
-  * _share-with-other-networks_
-inter-group sharing: representative researchers of the networks share information according to the social structure.
+### _share-with-other-networks_
+Inter-group sharing: representative researchers of the networks share information according to the social structure.
 In  cases where the network structure is de-facto complete i.e. all complete cases + when there are equal or less than 3 groups + when there are equal or less than 4 groups and the structure is not a ‘cycle’ it calls the  subprocedure `inter-group-sharing-complete`, else `inter-group-sharing-default`.
 
-  * _inter-group-sharing-complete_
+### _inter-group-sharing-complete_
 The inter-group-sharing (= share-with-other-networks) procedure for de-facto complete networks. The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
@@ -291,7 +400,7 @@ all information gets cached and will be integrated into the group memory during 
 4. For each relation (= attack) the researcher didn't know she has to pay the absolute costs of rel-costfactor (cf. infotab `rel-costfactor` and _initialize-hidden-variables_)
 5. The absolute costs are transformed into relative costs (in days) and distributed among the group
 
-  * _inter-group-sharing-default_
+### _inter-group-sharing-default_
 The inter-group-sharing (= share-with-other-networks) procedure for non-complete networks. The memory update is twofold (cf. update-memories)
 (a) the agentset which contains the arguments / relations themselves and
 (b) the information saved within the arguments /relations on how the item is remembered by the group
@@ -306,7 +415,7 @@ all information gets cached and will be integrated into the group memory during 
 8. The absolute communication costs are those paid for the difference to the more recent arguments + (the newly learned relations * rel-costfactor cf. `rel-costfactor`)
 9. The absolute costs are transformed into relative costs (in days) and distributed among the group
 
-  * _distribute-com-costs_
+### _distribute-com-costs_
 Distributes the absolute communication costs (com-costs) among the group and transform them into relative costs (in days) which are then saved in the researcher-owned variable `communicating`.
 The absolute costs are the difference between the information the rep-researcher posessed before vs. after the inter-group-sharing. For details on the costsfunction cf. infotab: initialize-hidden-variables. The researchers have to digest all information within a work-week (= 5 days/ticks) while still reserving one day for doing their own research, which leaves them with 4 days for digesting. The rep researcher herself only has 3 days b/c the day she visits the conference (inter-group-sharing) is also lost. Every day a researcher can digest information of value `max-learn` (a hidden variable, default: 3 * 70). The researcher-owned variable will be set to how many days the researcher will be occupied by digesting information (+ one day in the case of the rep-researchers: the day of visiting the conference itself)
 1. the rep-researcher pays for as much information as she can.
@@ -329,12 +438,11 @@ This metric tracks how well researchers perform during a run as opposed to 'at t
   * research-time-x is either research-time-monist or research-time-pluralist (cf. Variables) depending on the parameter with which the procedure was called.
   * th<sub>i</sub>: Theory<sub>i</sub> where i \in {1,2,3}  i.e. there exist up to three theories
   * researchers: number of researchers in this run
-  * ticks: length of the run in ticks. 
-  Technically it's the number of ticks + 1 b/c final-commands called by the exit condition (cf. final-commands) are adding to the research-time-x counters like an additional tick would.
+  * compute-popularity-counter: How often compute-popularity has been executed during the run and therefore how often research-time-x has been updated. 
   
   The formula of the in-run-performance metric is:
   
-100 * Σ<sub>i</sub> (research-time-x-th<sub>i</sub> * objective-admissibility-th<sub>i</sub>)  / (researchers * ticks * objective-admissibility-best-theory)
+100 * Σ<sub>i</sub> (research-time-x-th<sub>i</sub> * objective-admissibility-th<sub>i</sub>)  / (researchers * compute-popularity-counter * objective-admissibility-best-theory)
 
 The denominator corresponds to the best score the researchers could get. This score is the product of the admissibility of the best theory , the length of the run and the number of researchers. 
 The numerator on the other hand is the score the researchers actually archived this run. As the denominator is the maximum score, the whole fraction can take a maximum value of 1 which would be the case when all researchers actually spent all their time on the best theory ("monist") / considered the best theory to be their single subjective best theory for the whole run ("pluralist"). Any deviations from this will lower the score correspondingly. Some examples make this clearer:
@@ -447,6 +555,105 @@ The theory the researchers converged on, the last time they converged. If they d
 
 Collects information on the state of beliefs and knowledge every time researchers update their beliefs. Each entry is a list containing: round in which the data was recorded, group-id of the recording group (group-y), theory-x (theory for which the data-point is recorded) , number of defended arguments theory-x has at this point according to group-y's evaluation, number of arguments from th-x which group-y knows at this point , number of arguments from th-x weighted by color (1 = turquoise - 7 = red) which group-y knows at this point.  
 
+#### g-max-ticks
+* format: integer
+* default: 500000  
+
+This is a hidden variable which determines the time-limit for the runs i.e. how many ticks a run can maximally last before being forced to stop.  
+
+#### g-exit-condition?
+
+* format: boolean
+* example: false  
+
+If the `exit-condition` reporter is evaluated the variable will be set to `true` in case the the exit-condition is met, `false` otherwise. Positive evaluation of the exit-condition marks the end of a run.  
+
+#### g-red-theories
+
+* format: turtle-set
+* example: (agentset, 2 turtles)  
+
+The set of theories (= starts) which are fully explored in the objective landscape (i.e. consist only of red arguments).  
+
+#### g-exit-case
+
+* format: integer
+* example: 0  
+
+The state of the current run in case `necessary-convergence` is selected in the interface. The possible states are the following:
+
+* 0: no theory in the objective landscape is fully explored (= red).
+* 1: there is at least one fully explored theory but not all researchers are working on fully explored theories
+* 2: there is at least one fully explored theory and all researchers are working on fully explored theories  
+
+#### g-learn-set
+
+* format: list
+* example: [(start 0) (argument 1) (argument 2) (attack 246 3)]  
+
+The list from which researchers learn random items in case that `necessary-convergence` is selected in the interface and all researchers are converged on fully explored theories (g-exit-case = 2). This list contains all arguments from and attacks from- and to `g-learn-set-theories`.  
+
+#### g-learn-set-theories
+
+* format: turtle-set
+* example: (agentset, 2 turtles)  
+
+The theories (= starts) about which agents slowly learn during `g-exit-case` 2. These theories are: theory 1 (= start 0) and any theory which is not fully explored in the objective landscape.  
+
+#### g-learn-frequency
+
+* format: integer
+* default: 30  
+
+This is a hidden variable which determines how frequently researchers learn some random information about the landscape during `g-exit-case` 2. By default every 30 rounds (= once a month) researchers might learn some item from `g-learn-set`.  
+
+#### g-exit-case-start
+
+* format: nested list
+* example: [[9930] [276 9980]]  
+
+Protocols the rounds in which the particular exit-case started. The first list is for exit-case 1 the 2nd for exit-case 2. See `g-exit-case-duration` below for more details.  
+
+#### g-exit-case-duration
+
+* format: nested list
+* example: [[50] [9654 1030]]  
+
+Protocols for how long the particular exit-case lasted. The first list is for exit-case 1 the 2nd for exit-case 2. In the example here (using the `g-exit-case-start` data from above), the run went through one period of exit-case 1 and two periods of exit-case 2 in the following way: 
+
+* round 1 - 276: exit-case 0
+* round 276 - 9930 exit-case 2
+* round 9930 - 9980: exit-case 1
+* round 9980 - 11010: exit-case 2  
+
+#### g-comp-pop-counter
+
+* format: integer
+* example: 218  
+
+Protocols how often `compute-popularity` was run. This information is important for procedures which use the start owned `research-time-x` tracking like the `in-run-performance` reporter, because this variable is advanced/updated during compute-popularity.  
+
+#### g-active-colla-networks
+
+* format: nested list
+* example: [[(researcher 257) (researcher 258)] [(researcher 255) (researcher 256)]]  
+
+Each entry in the list contains one group. In the above example there are two groups each consisting of two researchers. This is the same list as `colla-networks` but it only contains those groups which need to run `compute-subjective-attacked` because they received new information since running it the last time. This list is not guaranteed to be minimal (there can be groups in the list which did not receive new information). The purpose of this list is to reduce computational load in long phases of scarce information during `exit-case` 2.  
+
+#### g-static-phase
+
+* format: integer
+* example: 2  
+
+This is a variable indicating the world state in order to reduce computational effort. The variable can take the following values:  
+
+* **0**: in case of `g-exit-case` 0 or 1
+* **1**: in case of `g-exit-case` 2 and `compute-subjective-attacked` run only once since switching from g-static-phase 0
+* **2**: in case of `g-exit-case` 2 and researchers receiving a random item via `learn-random-item` for which they have not yet run `compute-subjective-attacked`
+* **3**: in case of `g-exit-case` 2 and researchers not having received any new information since they ran `compute-subjective-attacked` the last time  
+
+
+
 ### Researchers-own
 
 #### flag-updated-memory
@@ -516,6 +723,11 @@ Contains all arguments the researcher knows.
 
 Contains all attacks the researcher knows.
 
+#### on-red-theory?
+* format: boolean
+* example: false  
+
+This variable is true if the researcher is working on a theory which is fully explored (=red) and false otherwise.
 
 ### Arguments-own, Starts-own
 
