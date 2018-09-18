@@ -575,10 +575,14 @@ to compute-popularity [update-pluralist?]
   ifelse [myscientists] of most-pop-th = scientists [
     if last-converged-th != most-pop-th [
       ; the +1 correction is b/c the variable is set before `tick` happens
-      set round-converged ticks + 1
+      let current-convergence-time ticks + 1
+      set round-converged current-convergence-time
+      set-convergence-duration current-convergence-time
+      set g-convergence-start lput current-convergence-time g-convergence-start
       set last-converged-th most-pop-th
     ]
   ][
+    set-convergence-duration (ticks + 1)
     set round-converged -1
     set last-converged-th -1
   ]
@@ -763,7 +767,12 @@ to record-initial-scientists
     set initial-scientists count researchers in-radius 0
     if initial-scientists = scientists [
       set last-converged-th self
+      set g-convergence-start lput 0 g-convergence-start
     ]
+  ]
+  if last-converged-th = 0 [
+    set last-converged-th -1
+    set round-converged -1
   ]
 end
 

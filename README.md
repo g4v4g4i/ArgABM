@@ -652,6 +652,24 @@ This is a variable indicating the world state in order to reduce computational e
 * **2**: in case of `g-exit-case` 2 and researchers receiving a random item via `learn-random-item` for which they have not yet run `compute-subjective-attacked`
 * **3**: in case of `g-exit-case` 2 and researchers not having received any new information since they ran `compute-subjective-attacked` the last time  
 
+#### g-convergence-start
+
+* format: list
+* example [10 150]  
+
+Protocols the rounds in which each convergence episode (= all researchers on one theory) started. See `g-convergence-duration` below for more details.  
+
+#### g-convergence-duration
+
+* format: list
+* example: [5 20]  
+
+Protocols for how long the convergence episodes (= all researchers continuously on the same theory) were lasting. In the example here (using the `g-convergence-start` data from above) there were two episodes of convergence: 
+
+* round 10 - 15: all scientists are converged on one theory
+* round 150 - 170: all scientists are converged on one theory  
+
+The rest of the time researchers were spread among more than one theory i.e. diversity was maintained.  
 
 
 ### Researchers-own
