@@ -77,6 +77,20 @@ end
 
 
 
+; records the durations of the convergences during the run
+; argument: present-time = the time-point at which the last convergence ended, 
+;   type: integer
+to set-convergence-duration [present-time]
+  if last-converged-th != -1 [
+    let new-duration (present-time - last g-convergence-start)
+    set g-convergence-duration lput new-duration g-convergence-duration
+  ]
+end
+
+
+
+
+
 ; the exit-condition determines when a given run is considered to be finished. 
 ; In case `necessary-convergence` is selected in the interface a run is 
 ; finished as soon as all researchers converge on the best theory. Otherwise a 
@@ -549,4 +563,45 @@ to-report time-of-first-red-theory
     report ticks
   ]
   report min reduced-case-starts
+end
+
+
+
+
+
+; reports the cumulative time researchers were converged (=all on the same
+; theory) during the run 
+to-report cum-convergence-duration
+  report sum g-convergence-duration
+end
+
+
+
+
+
+; reports how many periods of convergence (=all researchers continuously on the 
+; same theory) occurred during the run
+to-report frequency-convergence
+  report length g-convergence-duration
+end
+
+
+
+
+
+; reports how often during the run convergence flipped from being on one theory 
+; directly to another theory without any diversity period in between
+to-report frequency-convergence-flips
+  if empty? g-convergence-duration [
+    report 0
+  ]
+  let convergence-end (map + g-convergence-start g-convergence-duration)
+  let flip-freq length filter [curentry -> member? curentry g-convergence-start]
+    convergence-end
+  ; the last convergence in the last round of the run (if it happens) is not a
+  ; convergence flip (although a 2nd to last convergence happening there can be)
+  if last g-convergence-duration = 0 [
+    set flip-freq flip-freq - 1
+  ]
+  report flip-freq
 end

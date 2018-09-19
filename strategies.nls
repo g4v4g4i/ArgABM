@@ -19,7 +19,7 @@
 ; processed? is a boolean dummy variable which marks attacks which have
 ; successfully attacked during the secondary-attackers phase
 to-report admissibility-calc-core [attackset]
-  ; take the attacks which are themselves uncontested in  the objective 
+  ; take the attacks which are themselves uncontested in the objective 
   ; landscape. The destination of this attacks will be non-admissible and 
   ; attacks coming from there are void.
   let prime-attackers attackset with [uncontested]
@@ -38,12 +38,12 @@ to-report admissibility-calc-core [attackset]
     ask secondary-attackers [
       set processed? false
       if not [any? my-in-attacks with [
-        member? self secondary-attackers]] of end1  [
+        member? self secondary-attackers]] of end1 [
         set another-loop? true
         set sucattacked-cache (turtle-set sucattacked-cache end2)
         set processed? true
-      ]     
-    ]   
+      ]
+    ]
     ; Of those secondary-attackers which were successful, the destination
     ; (= end2) gets added to the non-admissible turtle-set and attacks
     ; starting from there are rendered void and are therefore removed from

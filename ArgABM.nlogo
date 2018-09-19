@@ -102,7 +102,8 @@ globals [max-learn small-movement color-move colla-networks share-structure
   round-converged last-converged-th scientists g-knowledge g-max-ticks
   g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
   g-learn-frequency g-exit-case-start g-exit-case-duration g-comp-pop-counter
-  g-active-colla-networks g-static-phase]
+  g-active-colla-networks g-static-phase g-convergence-start
+  g-convergence-duration]
 
 
 
@@ -138,6 +139,8 @@ to setup [rs]
   set g-learn-set-theories no-turtles
   set g-exit-case-start n-values 2 [[]]
   set g-exit-case-duration n-values 2 [[]]
+  set g-convergence-start []
+  set g-convergence-duration []
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -164,13 +167,17 @@ to go [exit?]
     if exit? and not g-exit-condition? [
       set g-exit-condition? exit-condition
       if g-exit-condition? [
+        let present-time ticks
         ifelse necessary-convergence [
           if g-exit-case != 0 [
             set-exit-case-duration g-exit-case
           ]
         ][
           final-commands
+          ; +1 b/c the final-commands effectively happen in an additional round
+          set present-time ticks + 1
         ]
+        set-convergence-duration present-time
         if knowledge-tracking [
           save-tracked-knowledge
         ]
@@ -1397,6 +1404,24 @@ This is a variable indicating the world state in order to reduce computational e
 * **2**: in case of `g-exit-case` 2 and researchers receiving a random item via `learn-random-item` for which they have not yet run `compute-subjective-attacked`
 * **3**: in case of `g-exit-case` 2 and researchers not having received any new information since they ran `compute-subjective-attacked` the last time  
 
+#### g-convergence-start
+
+* format: list
+* example [10 150]  
+
+Protocols the rounds in which each convergence episode (= all researchers on one theory) started. See `g-convergence-duration` below for more details.  
+
+#### g-convergence-duration
+
+* format: list
+* example: [5 20]  
+
+Protocols for how long the convergence episodes (= all researchers continuously on the same theory) were lasting. In the example here (using the `g-convergence-start` data from above) there were two episodes of convergence: 
+
+* round 10 - 15: all scientists are converged on one theory
+* round 150 - 170: all scientists are converged on one theory  
+
+The rest of the time researchers were spread among more than one theory i.e. diversity was maintained.  
 
 
 ### Researchers-own
@@ -1909,6 +1934,9 @@ NetLogo 6.0.4
     <metric>frequency-exit-case 2</metric>
     <metric>g-exit-case</metric>
     <metric>time-of-first-red-theory</metric>
+    <metric>cum-convergence-duration</metric>
+    <metric>frequency-convergence</metric>
+    <metric>frequency-convergence-flips</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
