@@ -102,8 +102,8 @@ globals [max-learn small-movement color-move colla-networks share-structure
   round-converged last-converged-th scientists g-knowledge g-max-ticks
   g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
   g-learn-frequency g-exit-case-start g-exit-case-duration g-comp-pop-counter
-  g-active-colla-networks g-static-phase g-convergence-start
-  g-convergence-duration]
+  g-active-colla-networks g-static-phase g-convergence-start none-before
+  g-convergence-duration g-none-on-best-start g-none-on-best-duration]
 
 
 
@@ -141,6 +141,9 @@ to setup [rs]
   set g-exit-case-duration n-values 2 [[]]
   set g-convergence-start []
   set g-convergence-duration []
+  set none-before true
+  set g-none-on-best-start []
+  set g-none-on-best-duration []
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -584,7 +587,7 @@ CHOOSER
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-2
+0
 
 BUTTON
 70
@@ -651,7 +654,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-20.0
+6.0
 1
 1
 NIL
@@ -719,7 +722,7 @@ SWITCH
 328
 defense-from-leaves
 defense-from-leaves
-1
+0
 1
 -1000
 
@@ -732,7 +735,7 @@ col-groups-on-best-t
 col-groups-on-best-t
 1
 20
-5.0
+1.0
 1
 1
 NIL
@@ -745,7 +748,7 @@ SWITCH
 393
 controlled-spread-of-researchers
 controlled-spread-of-researchers
-1
+0
 1
 -1000
 
@@ -1937,6 +1940,8 @@ NetLogo 6.0.4
     <metric>cum-convergence-duration</metric>
     <metric>frequency-convergence</metric>
     <metric>frequency-convergence-flips</metric>
+    <metric>cum-none-on-best-duration</metric>
+    <metric>frequency-none-on-best</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
