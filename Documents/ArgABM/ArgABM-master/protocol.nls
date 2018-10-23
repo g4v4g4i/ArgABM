@@ -1,0 +1,609 @@
+; holds the reporters and procedures needed for the BehaviorSpace runs
+
+
+
+
+
+; if `necessary-convergence` is selected in the interface and at least one 
+; theory is fully red this procedure determines which situation the run is in: 
+; case 1: some scientists are on non-red theories or case 2: all scientists are 
+; on red theories
+to exit-case-distinction
+  let exit-case-cache 0
+  ifelse sum [myscientists] of g-red-theories = scientists [
+    set exit-case-cache 2
+  ][
+    set exit-case-cache 1
+  ]
+  if exit-case-cache != g-exit-case [
+    if g-exit-case != 0 [
+      set-exit-case-duration g-exit-case
+    ]
+    set-exit-case-start exit-case-cache
+    set g-exit-case exit-case-cache
+    if exit-case-cache = 1 [
+      reset-static-phase
+    ]
+  ]
+end
+
+
+
+
+
+
+; records the duration of exit-case 1 & 2 during the run
+; argument: case = which exit-case just ended, type: integer
+to set-exit-case-duration [case]
+  set case (case - 1)
+  let last-exit-case-start last item case g-exit-case-start
+  let new-duration (ticks - last-exit-case-start)
+  set g-exit-case-duration lput-subitem case g-exit-case-duration new-duration
+end
+
+
+
+
+
+; if the static phase changed to zero the active-colla-networks need to be reset
+; as well
+to reset-static-phase
+  set g-static-phase 0
+  set g-active-colla-networks colla-networks
+end
+
+
+
+
+
+; records the time-point at which an exit-case begins during the run
+; argument: case = which exit-case begins now, type: integer
+to set-exit-case-start [case]
+  set case (case - 1)
+  set g-exit-case-start lput-subitem case g-exit-case-start ticks
+end
+
+
+
+
+
+; Inserts a value at the end of a list which is nested in another list
+to-report lput-subitem [index lists value]
+  let old-sublist item index lists
+  report replace-item index lists (lput value old-sublist)
+end
+
+
+
+
+
+; records the durations of the convergences during the run
+; argument: present-time = the time-point at which the last convergence ended, 
+;   type: integer
+to set-convergence-duration [present-time]
+  if last-converged-th != -1 [
+    let new-duration (present-time - last g-convergence-start)
+    set g-convergence-duration lput new-duration g-convergence-duration
+  ]
+end
+
+
+
+
+
+; the exit-condition determines when a given run is considered to be finished. 
+; In case `necessary-convergence` is selected in the interface a run is 
+; finished as soon as all researchers converge on the best theory. Otherwise a 
+; run is finished as soon as there exists one theory which is fully discovered 
+; (i.e. has only red arguments). In any case a run will be aborted when it 
+; hits the global time limit. A run will also be immediately terminated if 
+; `necessary-convergence` is selected and there is more than one theory with 
+; maximal admissibility. These runs must then be filtered from the dataset.
+to-report exit-condition
+  if ticks >= g-max-ticks [
+    report true
+  ]
+  ifelse necessary-convergence [
+    if (g-exit-case > 0 and [myscientists] of (start 0) = scientists and 
+      not any? researchers with [social-action = "biased-deceptive" and 
+      not member? (start 0) cur-best-th]) or 
+      (count starts with-max [objective-admissibility] > 1) [
+      report true
+    ]
+  ][
+    if any? g-red-theories [
+      report true
+    ]
+  ]
+  report false
+end
+
+
+
+
+
+; as soon as a run is finished (cf. exit-condition) researchers can one final 
+; time jump to a best theory (ignoring the `jump-threshold`) if 
+; they’re not already on a theory they consider best. To determine what their 
+; final best theories are, they do a final update of their memory, share with 
+; their group and do an admissibility calculation.
+to final-commands
+  ask researchers [update-memories nobody]
+  share-with-group
+  compute-subjective-attacked
+  ask researchers with [social-action != "biased-deceptive"
+    and not member? [mytheory] of mygps cur-best-th][
+     move-to-nextargu one-of cur-best-th
+     set times-jumped times-jumped + 1
+  ]
+  compute-popularity true
+end
+
+
+
+
+
+to-report monist-success
+  let popularity []
+  let find-good-m 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [
+    if max popularity = myscientists and max popularity = scientists [
+      set find-good-m 1
+    ]
+  ]
+  report find-good-m
+end
+
+
+
+
+
+to-report pluralist-success
+  let popularity []
+  let find-good-p 0
+  ask starts [
+    set popularity lput myscientists popularity
+  ]
+  ask start 0 [   
+    if max popularity = myscientists [
+      set find-good-p 1
+    ]
+  ]
+  report find-good-p
+end
+
+
+
+
+
+to-report average-jumps
+  let jumps 0
+  let avgjumps 0
+  ask researchers with [social-action != "biased-deceptive"][
+    set jumps times-jumped + jumps
+  ]
+  set avgjumps (jumps / scientists)
+  report avgjumps
+end
+
+
+
+
+
+to-report perc-landscape-discoverd
+  let tot-arguments count startsargum
+  let disc-arguments count startsargum with [
+    color != gray and color != turquoise]
+  let perc-disc-argu ((disc-arguments / tot-arguments) * 100)
+  report perc-disc-argu
+end
+
+
+
+
+
+to-report perc-best-th-discoverd
+  let tot-best-arguments count startsargum with [mytheory = start 0]
+  let disc-best-arguments count startsargum with [
+    mytheory = start 0 and color != gray and color != turquoise]
+  let perc-disc-best-argu ((disc-best-arguments / tot-best-arguments) * 100)
+  report perc-disc-best-argu
+end
+
+
+
+
+
+to-report translate-from-string [string]
+  let value-to-report 0
+  if string = "th1" [
+    report item 0 sort starts
+  ]
+  if string = "th2" [
+    report item 1 sort starts
+  ]
+  if string = "th3" [
+    if number-of-theories < 3 [
+      report false
+    ]
+    report item 2 sort starts
+  ]
+end
+
+
+
+
+
+; reports the objective admissibility of th#
+to-report objective-admiss-of [th#]  
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
+  ]
+  report [objective-admissibility] of th#  
+end
+
+
+
+
+
+; reports time researchers spent on th#: 
+; "monist" - cf. `research-time-monist`
+; or time researchers considered theory th# to be a best theory:
+; "pluralist" - cf. `research-time-pluralist`
+to-report research-time [pluralist-monist th#]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [ -> research-time-monist]
+  ][
+    set pluralist-monist [ -> research-time-pluralist]
+  ]
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
+  ]
+  report [runresult pluralist-monist] of th#
+end
+
+
+
+
+
+; reports the number of researchers on th# at the end of the run ("monist")
+; or the number of scientists who consider th# to be a best theory ("pluralist")
+; i.e. it reports the `myscientists`- ("monist") or the 
+; `myscientists-pluralist`-value ("pluralist") (cf. Variables)
+to-report run-end-scientists [pluralist-monist th#]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [ -> myscientists]
+  ][
+    set pluralist-monist [ -> myscientists-pluralist]
+  ]
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
+  ]
+  report [runresult pluralist-monist] of th#
+end
+
+
+
+
+
+; This metric tracks how well researchers perform during a run as opposed to 
+; 'at the  end' - and therefore also after - a run like the 
+; `pluralist-/monist-success` metric does. It also takes the objective 
+; admissibility of the landscape into account and is normalized to a [0,100] 
+; interval where 100 corresponds to the best  performance. 
+; For details cf. documentation
+to-report in-run-performance [pluralist-monist]
+  ifelse pluralist-monist = "monist" [
+    set pluralist-monist [ -> research-time-monist]
+  ][
+    set pluralist-monist [ -> research-time-pluralist]
+  ]
+  let performance 0
+  ask starts [
+    set performance (performance 
+      + runresult pluralist-monist * objective-admissibility)
+  ]  
+  set performance ((performance * 100) / (scientists * 
+    g-comp-pop-counter * [objective-admissibility] of first sort starts))
+  report performance
+end
+
+
+
+
+
+; reports how many scientists were on each theory at the start of the run
+to-report run-start-scientists [th#]
+  set th# translate-from-string th#
+  if th# = false [
+    report 0
+  ]
+  report [initial-scientists] of th#
+end
+
+
+
+
+
+; reports the percentage of arguments which are known to an average researcher.
+; Either for the whole landscape (argument = "all") or for the best theory only
+; (argument = "best")
+to-report perc-subj-disc-argu [best-all]
+  let tot-arguments 0
+  ifelse best-all = "all" [
+    set tot-arguments startsargum
+  ][
+    set tot-arguments startsargum with [mytheory = (start 0)]
+  ]
+  let #groups collaborative-groups
+  let max-score count tot-arguments * #groups
+  if max-score = 0 [
+    report 100
+  ]
+  let realized-score 0
+  ask tot-arguments [
+   set realized-score realized-score + length filter [subj-color -> 
+    subj-color < cyan] group-color-mem
+  ]
+  report realized-score / max-score * 100
+end
+
+
+
+
+
+; reports the percentage of attacks which are known to an average researcher.
+; Either for the whole landscape (argument = "all") or from the best theory only
+; (argument = "best")
+to-report perc-subj-disc-attacks [best-all]
+  let tot-attacks 0
+  ifelse best-all = "all" [
+    set tot-attacks attacks
+  ][
+    set tot-attacks attacks with [mytheory-end1 = (start 0)]
+  ]
+  let #groups collaborative-groups
+  let max-score count tot-attacks * #groups
+  if max-score = 0 [
+    report 100
+  ]
+  let realized-score 0
+  ask tot-attacks [
+   set realized-score realized-score + length filter [subj-known -> 
+    subj-known = true] in-group-i-memory
+  ]
+  report realized-score / max-score * 100
+end
+
+
+
+
+
+; reports the input value (communication costs) in the form: communication costs
+; in days per researcher
+to-report normalize-days-per-scientist [input]
+  let normalization-factor (1 / (all-scientists * max-learn))
+  report input * normalization-factor
+end
+
+
+
+
+
+
+; reports the cumulative communication costs per researcher in days
+to-report cum-com-costs
+  report normalize-days-per-scientist g-cum-com-costs
+end
+
+
+
+
+
+; reports the maximal communication costs per researcher in days
+; (argument = "value") or the round in which the maximal communication occurred
+; (argument = "round")
+to-report max-com-costs [round-value]
+  ifelse round-value = "value"[
+    report normalize-days-per-scientist item 0 g-max-com-costs
+  ][
+    report item 1 g-max-com-costs
+  ]
+end
+
+
+
+
+
+; reports the unpaid communication costs per researcher in days
+to-report unpaid-com-costs
+  report normalize-days-per-scientist g-unpaid-com-costs
+end
+
+
+
+
+
+; This procedure draws a heatmap where the brightness of a patch is proportional
+; to the proportion of researcher which know the arguments (and optionally 
+; attacks) concerning this patch.
+; This procedure is intended to be used for visualization purposes and is not 
+; recommended in its current form for performance critical applications
+; argument: including-attacks?, type: boolean
+; whether or not knowledge about the attack relations connected to
+; arguments on this patch is taken into account for drawing the heatmap
+to heatmap [including-attacks?]
+  let #groups collaborative-groups
+  let sorted-starts sort starts
+  ask patches with [any? turtles-here][
+    let my-startsargum-attacks 0
+    let #my-startsargum-attacks 0
+    let my-startsargum (turtle-set arguments-here starts-here)
+    if including-attacks? [
+      set my-startsargum-attacks (link-set [my-attacks] of my-startsargum)
+      set #my-startsargum-attacks count my-startsargum-attacks
+    ]
+    let #my-startsargum count my-startsargum
+    ; In case of ties, the first theory among the tied ones is picked,
+    ; in order to avoid border patches switching colors randomly
+    let my-theory first sort modes [mytheory] of my-startsargum
+    let max-score #groups * (#my-startsargum + #my-startsargum-attacks)
+    let realized-score 0
+    ask my-startsargum [
+     set realized-score realized-score + length filter [subj-color -> 
+      subj-color < cyan] group-color-mem
+    ]
+    if including-attacks? [
+      ask my-startsargum-attacks [
+        set realized-score realized-score + length filter [subj-known -> 
+          subj-known = true] in-group-i-memory
+      ]
+    ]
+    let my-color 0
+    ifelse my-theory = item 0 sorted-starts [
+      set my-color red
+    ][
+      ifelse my-theory = item 1 sorted-starts [
+        set my-color turquoise
+      ][
+        set my-color green
+      ]
+    ]
+    set pcolor scale-color my-color realized-score 0 max-score
+  ]
+end
+
+
+
+
+
+; knowledge and belief tracking during the run . Called during 
+; `set-current-theory-info`. Arguments: 
+; #theory: which theory is currently processed (integer)
+; #non-admiss-argu: number of non admissible arguments for the current theory 
+; (integer)
+; curtheory: the (start x) for the current theory (turtle)
+to track-knowledge [#theory #non-admiss-argu curtheory]
+  let cur-group-id group-id
+  let known-args subjective-arguments with [mytheory = curtheory]
+  let #known-args count known-args
+  ; division by 10 to keep numbers compact as colors are multiple of 10
+  let knowledge sum [(cyan - item cur-group-id group-color-mem) / 10] of 
+    known-args
+  let #defargs #known-args - #non-admiss-argu
+  ; the +1 for #theory is for readability: so the first theory is named "1"
+  let new-knowledge-entry (list (ticks + 1) cur-group-id (#theory + 1) #defargs 
+    #known-args knowledge)
+  set g-knowledge lput new-knowledge-entry g-knowledge
+end
+
+
+
+
+
+; saves the information tracked by `track-knowledge` during the run to a csv 
+; file at the end of the run
+to save-tracked-knowledge
+  let sorted-admissibility map [start-x -> [objective-admissibility] of start-x]
+    sort starts
+  let random-start one-of starts
+  let #args-per-th count startsargum with [mytheory = (random-start)]
+  let filename behaviorspace-experiment-name
+  set filename (word filename "-in-run-knowledge.csv")
+  file-open filename
+  foreach g-knowledge [curentry ->
+    let cur-th-admiss item (item 2 curentry - 1) sorted-admissibility
+    ; concatenating the lists this way was fastest in some quick profiling
+    ; file-output takes ~5 times as long as concatenating itself 
+    set curentry (sentence behaviorspace-run-number #args-per-th cur-th-admiss 
+      curentry)
+    file-print csv:to-row curentry 
+  ]
+  file-close
+end
+
+
+
+
+
+; reports the cumulative time the run stayed in the particular exit-case
+; argument: case = for which exit-case the duration should be reported,
+; type: integer
+to-report cum-exit-case-duration [case]
+  set case (case - 1)
+  report sum item case g-exit-case-duration
+end
+
+
+
+
+
+; reports how many periods of the particular exit-case occurred during the run
+; argument: case = for which exit-case the frequency should be reported,
+; type: integer
+to-report frequency-exit-case [case]
+  set case (case - 1)
+  report length item case g-exit-case-duration
+end
+
+
+
+
+
+; reports when the first red theory appeared in the landscape during the run 
+; i.e. when "g-exit-case = 0" ended
+to-report time-of-first-red-theory
+  ; making a non-nested list out of g-exit-case-start
+  let reduced-case-starts reduce sentence g-exit-case-start
+  if empty? reduced-case-starts [
+    report ticks
+  ]
+  report min reduced-case-starts
+end
+
+
+
+
+
+; reports the cumulative time researchers were converged (=all on the same
+; theory) during the run 
+to-report cum-convergence-duration
+  report sum g-convergence-duration
+end
+
+
+
+
+
+; reports how many periods of convergence (=all researchers continuously on the 
+; same theory) occurred during the run
+to-report frequency-convergence
+  report length g-convergence-duration
+end
+
+
+
+
+
+; reports how often during the run convergence flipped from being on one theory 
+; directly to another theory without any diversity period in between
+to-report frequency-convergence-flips
+  if empty? g-convergence-duration [
+    report 0
+  ]
+  let convergence-end (map + g-convergence-start g-convergence-duration)
+  let flip-freq length filter [curentry -> member? curentry g-convergence-start]
+    convergence-end
+  ; the last convergence in the last round of the run (if it happens) is not a
+  ; convergence flip (although a 2nd to last convergence happening there can be)
+  if last g-convergence-duration = 0 [
+    set flip-freq flip-freq - 1
+  ]
+  report flip-freq
+end
