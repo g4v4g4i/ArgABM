@@ -255,9 +255,9 @@ end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
-135
+115
 881
-807
+787
 -1
 -1
 13.0
@@ -333,9 +333,9 @@ NIL
 
 SLIDER
 210
-50
+35
 382
-83
+68
 number-of-theories
 number-of-theories
 2
@@ -348,9 +348,9 @@ HORIZONTAL
 
 SLIDER
 210
-90
+75
 382
-123
+108
 theory-depth
 theory-depth
 1
@@ -378,9 +378,9 @@ HORIZONTAL
 
 TEXTBOX
 210
-25
+10
 360
-43
+28
 Landscape settings
 13
 0.0
@@ -388,9 +388,9 @@ Landscape settings
 
 SLIDER
 390
-50
+35
 560
-83
+68
 attack-probability-2nd
 attack-probability-2nd
 0
@@ -413,9 +413,9 @@ Researcher settings
 
 SLIDER
 10
-200
+575
 182
-233
+608
 move-probability
 move-probability
 0
@@ -428,9 +428,9 @@ HORIZONTAL
 
 SLIDER
 10
-240
+615
 182
-273
+648
 visibility-probability
 visibility-probability
 0
@@ -443,9 +443,9 @@ HORIZONTAL
 
 SLIDER
 10
-280
+655
 182
-313
+688
 research-speed
 research-speed
 0
@@ -457,20 +457,20 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-580
-25
-730
-43
+755
+10
+905
+28
 Strategy settings
 13
 0.0
 1
 
 SLIDER
-580
-50
-752
-83
+755
+35
+927
+68
 strategy-threshold
 strategy-threshold
 0
@@ -482,10 +482,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-580
-90
-752
-123
+755
+75
+927
+108
 jump-threshold
 jump-threshold
 1
@@ -497,10 +497,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-390
-10
-560
-43
+570
+35
+740
+68
 attack-probability-best
 attack-probability-best
 0
@@ -512,10 +512,10 @@ NIL
 HORIZONTAL
 
 PLOT
-5
-560
-205
-710
+890
+145
+1090
+295
 Popularity
 Time steps
 No. of researchers
@@ -533,20 +533,20 @@ PENS
 "start 4" 1.0 0 -723837 true "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 4 [\nplot [myscientists] of last all-theories\n]"
 
 TEXTBOX
-9
-536
-159
-554
-Plots
+894
+121
+1044
+139
+Plots and monitors
 13
 0.0
 1
 
 SWITCH
 10
-320
+360
 150
-353
+393
 within-theory
 within-theory
 0
@@ -555,9 +555,9 @@ within-theory
 
 SLIDER
 390
-90
+75
 562
-123
+108
 attack-probability-3rd
 attack-probability-3rd
 0
@@ -570,9 +570,9 @@ HORIZONTAL
 
 CHOOSER
 10
-410
+440
 148
-455
+485
 network-structure
 network-structure
 "cycle" "wheel" "complete"
@@ -596,10 +596,10 @@ NIL
 0
 
 PLOT
-5
-720
-205
-870
+890
+305
+1090
+455
 Current avg. com. costs
 Time steps
 days / scientist
@@ -614,20 +614,20 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot g-cur-avg-com-costs"
 
 CHOOSER
-760
-80
-942
-125
+935
+65
+1117
+110
 evaluation
 evaluation
 "defended-args" "non-defended-args" "non-defended-multiplied" "non-defended-normalized"
 0
 
 SWITCH
-765
-40
-922
-73
+940
+25
+1097
+58
 heuristic-non-block
 heuristic-non-block
 1
@@ -651,9 +651,9 @@ HORIZONTAL
 
 SWITCH
 10
-460
+490
 172
-493
+523
 knowledge-tracking
 knowledge-tracking
 1
@@ -661,10 +661,10 @@ knowledge-tracking
 -1000
 
 MONITOR
-885
-135
-1010
-180
+890
+465
+1015
+510
 Degree of Def T1 (best theory)
 item 0 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
@@ -672,10 +672,10 @@ item 0 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 11
 
 MONITOR
-885
-180
-1010
-225
+890
+510
+1015
+555
 Degree of Def T2
 item 1 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
@@ -683,10 +683,10 @@ item 1 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 11
 
 MONITOR
-885
-225
-1010
-270
+890
+555
+1015
+600
 Deegree of Def T3
 item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
@@ -695,9 +695,9 @@ item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 
 SWITCH
 10
-500
+530
 175
-533
+563
 necessary-convergence
 necessary-convergence
 1
@@ -705,10 +705,10 @@ necessary-convergence
 -1000
 
 SWITCH
-895
-295
-1097
-328
+570
+75
+745
+108
 defense-from-leaves
 defense-from-leaves
 1
@@ -716,10 +716,10 @@ defense-from-leaves
 -1000
 
 SLIDER
-895
-415
-1097
-448
+10
+320
+185
+353
 col-groups-on-best-t
 col-groups-on-best-t
 1
@@ -731,10 +731,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-895
-360
-1187
-393
+10
+280
+185
+313
 controlled-spread-of-researchers
 controlled-spread-of-researchers
 1
@@ -743,9 +743,9 @@ controlled-spread-of-researchers
 
 SLIDER
 10
-365
-180
-398
+200
+185
+233
 deceptive-groups
 deceptive-groups
 0
@@ -757,10 +757,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-900
-460
-1082
-493
+10
+400
+175
+433
 group-distribution
 group-distribution
 0
@@ -768,10 +768,10 @@ group-distribution
 -1000
 
 SLIDER
-895
-505
-1127
-538
+10
+240
+185
+273
 biased-deceptive-groups
 biased-deceptive-groups
 0
