@@ -90,7 +90,7 @@ researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   th-args th-relations communicating moved rep-researcher
   to-add-mem-argu to-add-mem-rel flag-updated-memory
-  non-admiss-subj-argu mygps group-id argu-cache on-red-theory?]
+  non-admiss-subj-argu mygps group-id argu-cache on-red-theory? social-action]
 
 
 
@@ -551,16 +551,6 @@ within-theory
 1
 -1000
 
-CHOOSER
-10
-360
-148
-405
-social-actions
-social-actions
-"reliable" "biased"
-0
-
 SLIDER
 390
 90
@@ -749,6 +739,32 @@ controlled-spread-of-researchers
 1
 -1000
 
+SLIDER
+10
+365
+180
+398
+deceptive-groups
+deceptive-groups
+0
+collaborative-groups
+6.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+900
+460
+1082
+493
+group-distribution
+group-distribution
+0
+1
+-1000
+
 @#$#@#$#@
 # UNDER CONSTRUCTION
 
@@ -887,11 +903,17 @@ The time an researcher has to work on an argument before it will change color
 
 Here the kind of collaborative network is set to researchers that start on the same theory (on) or randomly chosen researchers (off)
 
-#### social-actions
+#### deceptive-groups
 
-* type: chooser  
+* type: slider  
 
-Here the behavior of the researchers that communicate with researchers outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" researchers do not share the attacks to their current theory
+The number of collaborative-groups that consist of deceptive agent, these agents do not share the attacks to their current theory. Agents from all other groups (the reliable agents) share all information about the current theory. 
+
+#### group-distribution
+
+* type: switch  
+
+If turned on: the deceptive agents form collaborative groups with other deceptive agents. If turned off, the deceptive agents are randomly distributed over the different collaborative groups.
 
 #### network-structure
 

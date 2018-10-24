@@ -179,6 +179,7 @@ to create-share-memory
   ; that they want to share with researchers from other networks
   let cur-argum 0
   ask rep-researchers [
+    let cur-rep self
     ifelse g-exit-case = 1 and on-red-theory? [
       let mystart [mytheory] of mygps
       let share-spoofgps one-of startsargum with [mytheory = mystart]
@@ -194,7 +195,7 @@ to create-share-memory
     let th-relations-cache 0
     let th-args-cache 0
     ask cur-argum [
-      ifelse social-actions = "biased" [
+      ifelse [social-action] of cur-rep = "deceptive" [
         set th-relations-cache my-out-attacks with [color != gray]
       ][
         set th-relations-cache my-attacks with [color != gray]

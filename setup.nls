@@ -376,7 +376,8 @@ to researchers-create-scientists
     set rep-researcher false
     set current-theory-info theories
     set on-red-theory? false
-  ]  
+    set social-action ""
+  ] 
 end
 
 
@@ -476,6 +477,22 @@ to create-homogeneous-groups
       ]
       set i i + 1 
     ]    
+  ]
+  if deceptive-groups != 0 [
+    if-else group-distribution [
+      let cur-col shuffle colla-networks
+      let deceptive-grp-list reduce sentence sublist cur-col 0 deceptive-groups
+      ask researchers with [member? self deceptive-grp-list] [
+        set social-action "deceptive"  
+      ]
+    ][
+      ask n-of  (col-group-size * deceptive-groups)  researchers [
+        set social-action "deceptive" 
+      ]
+    ]
+  ]
+  ask researchers with [social-action = ""] [
+    set social-action "reliable"  
   ]
 end
 

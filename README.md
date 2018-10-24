@@ -135,11 +135,17 @@ The time an researcher has to work on an argument before it will change color
 
 Here the kind of collaborative network is set to researchers that start on the same theory (on) or randomly chosen researchers (off)
 
-#### social-actions
+#### deceptive-groups
 
-* type: chooser  
+* type: slider  
 
-Here the behavior of the researchers that communicate with researchers outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" researchers do not share the attacks to their current theory
+The number of collaborative-groups that consist of deceptive agent, these agents do not share the attacks to their current theory. Agents from all other groups (the reliable agents) share all information about the current theory. 
+
+#### group-distribution
+
+* type: switch  
+
+If turned on: the deceptive agents form collaborative groups with other deceptive agents. If turned off, the deceptive agents are randomly distributed over the different collaborative groups.
 
 #### network-structure
 
