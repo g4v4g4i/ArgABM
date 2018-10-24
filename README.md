@@ -147,6 +147,12 @@ The number of collaborative-groups that consist of deceptive agent, these agents
 
 If turned on: the deceptive agents form collaborative groups with other deceptive agents. If turned off, the deceptive agents are randomly distributed over the different collaborative groups.
 
+#### biased-deceptive-groups
+
+* type: slider
+
+To choose the number of groups of biased-deceptive agents. These agents stay on one theory (not the best) and do not share attacks on that theory. 
+
 #### network-structure
 
 * type: chooser  

@@ -96,13 +96,13 @@ researchers-own [theory-jump times-jumped collaborator-network
 
 
 
-globals [max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
-  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th scientists g-knowledge g-max-ticks
-  g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
-  g-learn-frequency g-exit-case-start g-exit-case-duration g-comp-pop-counter
-  g-active-colla-networks g-static-phase g-convergence-start
+globals [max-learn small-movement color-move colla-networks colla-groups
+  share-structure startsargum disc-startsargum-non-red rel-costfactor rndseed
+  rep-researchers g-cum-com-costs g-max-com-costs g-unpaid-com-costs
+  g-cur-avg-com-costs round-converged last-converged-th scientists all-scientists
+  g-knowledge g-max-ticks g-red-theories g-exit-case g-exit-condition? g-learn-set
+  g-learn-set-theories g-learn-frequency g-exit-case-start g-exit-case-duration
+  g-comp-pop-counter g-active-colla-networks g-static-phase g-convergence-start
   g-convergence-duration]
 
 
@@ -130,8 +130,10 @@ to setup [rs]
   set rndseed rs
   random-seed rs
   initialize-hidden-variables
+  set colla-networks (collaborative-groups + biased-deceptive-groups)
+  set colla-groups colla-networks
+  set all-scientists colla-networks * col-group-size
   set scientists collaborative-groups * col-group-size
-  set colla-networks collaborative-groups
   set g-max-com-costs [0 0]
   set g-knowledge []
   set g-red-theories no-turtles
@@ -641,7 +643,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-20.0
+6.0
 1
 1
 NIL
@@ -722,7 +724,7 @@ col-groups-on-best-t
 col-groups-on-best-t
 1
 20
-5.0
+8.0
 1
 1
 NIL
@@ -748,7 +750,7 @@ deceptive-groups
 deceptive-groups
 0
 collaborative-groups
-6.0
+2.0
 1
 1
 NIL
@@ -764,6 +766,21 @@ group-distribution
 0
 1
 -1000
+
+SLIDER
+895
+505
+1127
+538
+biased-deceptive-groups
+biased-deceptive-groups
+0
+collaborative-groups
+2.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 # UNDER CONSTRUCTION
@@ -914,6 +931,12 @@ The number of collaborative-groups that consist of deceptive agent, these agents
 * type: switch  
 
 If turned on: the deceptive agents form collaborative groups with other deceptive agents. If turned off, the deceptive agents are randomly distributed over the different collaborative groups.
+
+#### biased-deceptive-groups
+
+* type: slider
+
+To choose the number of groups of biased-deceptive agents. These agents stay on one theory (not the best) and do not share attacks on that theory. 
 
 #### network-structure
 

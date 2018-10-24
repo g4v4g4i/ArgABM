@@ -105,7 +105,8 @@ to-report exit-condition
   ]
   ifelse necessary-convergence [
     if (g-exit-case > 0 and [myscientists] of (start 0) = scientists and 
-      not any? researchers with [not member? (start 0) cur-best-th]) or 
+      not any? researchers with [social-action = "biased-deceptive" and 
+      not member? (start 0) cur-best-th]) or 
       (count starts with-max [objective-admissibility] > 1) [
       report true
     ]
@@ -130,7 +131,8 @@ to final-commands
   ask researchers [update-memories nobody]
   share-with-group
   compute-subjective-attacked
-  ask researchers with [not member? [mytheory] of mygps cur-best-th][
+  ask researchers with [social-action != "biased-deceptive"
+    and not member? [mytheory] of mygps cur-best-th][
      move-to-nextargu one-of cur-best-th
      set times-jumped times-jumped + 1
   ]
@@ -180,7 +182,7 @@ end
 to-report average-jumps
   let jumps 0
   let avgjumps 0
-  ask researchers [
+  ask researchers with [social-action != "biased-deceptive"][
     set jumps times-jumped + jumps
   ]
   set avgjumps (jumps / scientists)
@@ -386,7 +388,7 @@ end
 ; reports the input value (communication costs) in the form: communication costs
 ; in days per researcher
 to-report normalize-days-per-scientist [input]
-  let normalization-factor (1 / (scientists * max-learn))
+  let normalization-factor (1 / (all-scientists * max-learn))
   report input * normalization-factor
 end
 
