@@ -1988,10 +1988,6 @@ NetLogo 6.0.4
       <value value="&quot;wheel&quot;"/>
       <value value="&quot;complete&quot;"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;reliable&quot;"/>
-      <value value="&quot;biased&quot;"/>
-    </enumeratedValueSet>
     <enumeratedValueSet variable="within-theory">
       <value value="true"/>
       <value value="false"/>
@@ -2130,10 +2126,6 @@ NetLogo 6.0.4
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
       <value value="&quot;complete&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;reliable&quot;"/>
-      <value value="&quot;biased&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="within-theory">
       <value value="true"/>
