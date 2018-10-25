@@ -105,7 +105,7 @@ to-report exit-condition
   ]
   ifelse necessary-convergence [
     if (g-exit-case > 0 and [myscientists] of (start 0) = scientists and 
-      not any? researchers with [social-action = "biased-deceptive" and 
+      not any? researchers with [social-action != "biased-deceptive" and 
       not member? (start 0) cur-best-th]) or 
       (count starts with-max [objective-admissibility] > 1) [
       report true
@@ -341,7 +341,7 @@ to-report perc-subj-disc-argu [best-all]
   ][
     set tot-arguments startsargum with [mytheory = (start 0)]
   ]
-  let #groups collaborative-groups
+  let #groups colla-groups
   let max-score count tot-arguments * #groups
   if max-score = 0 [
     report 100
@@ -368,7 +368,7 @@ to-report perc-subj-disc-attacks [best-all]
   ][
     set tot-attacks attacks with [mytheory-end1 = (start 0)]
   ]
-  let #groups collaborative-groups
+  let #groups colla-groups
   let max-score count tot-attacks * #groups
   if max-score = 0 [
     report 100
@@ -439,7 +439,7 @@ end
 ; whether or not knowledge about the attack relations connected to
 ; arguments on this patch is taken into account for drawing the heatmap
 to heatmap [including-attacks?]
-  let #groups collaborative-groups
+  let #groups colla-groups
   let sorted-starts sort starts
   ask patches with [any? turtles-here][
     let my-startsargum-attacks 0

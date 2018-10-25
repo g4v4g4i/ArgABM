@@ -432,6 +432,7 @@ to move-researchers-to-roots-controlled
   let none-best-start one-of starts with [mytheory != start 0]
   ask n-of (biased-deceptive-groups * col-group-size) researchers [
     set social-action "biased-deceptive"
+    set color white
     move-to none-best-start
     set mygps none-best-start
     set subjective-arguments none-best-start
@@ -494,7 +495,7 @@ to create-homogeneous-groups
     ]    
   ]
   if deceptive-groups != 0 [
-    if-else group-distribution [
+    ifelse group-distribution [
       let cur-col shuffle colla-networks
       let deceptive-grp-list reduce sentence sublist cur-col 0 deceptive-groups
       ask researchers with [member? self deceptive-grp-list] [
