@@ -1,7 +1,7 @@
 # PLEASE NOTE: this documentation is work in progress!
 
 # ArgABM
-An agent-based model for scientific inquiry based on abstract argumentation.
+An agent-based model of scientific inquiry based on abstract argumentation.
 
 ## Published papers based on this model
 
