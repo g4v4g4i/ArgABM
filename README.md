@@ -3,7 +3,7 @@
 # ArgABM
 An agent-based model of scientific inquiry based on abstract argumentation.
 
-## Published papers based on this model
+## Publications based on this model
 
 1. _Epistemic effects of scientific interaction: approaching the question with an argumentative agent-based model_
 In: HSR Vol. 43, No. 1: Special Issue: _Agent-Based Modeling in Social Science, History, and Philosophy_, 2018, pp. 285-307, [doi:
