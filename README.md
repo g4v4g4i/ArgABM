@@ -5,33 +5,36 @@ An agent-based model for scientific inquiry based on abstract argumentation.
 
 ## Published papers based on this model
 
-_Epistemic effects of scientific interaction: approaching the question with an argumentative agent-based model_
-In: HSR Vol. 43, No. 1: Special Issue: _Agent-Based Modeling in Social Science, History, and Philosophy_, 2018, pp. 285-307, [[doi:
-10.12759/hsr.43.2018.1.285-307][https://dx.doi.org/10.12759/hsr.43.2018.1.285-307]]
+1. _Epistemic effects of scientific interaction: approaching the question with an argumentative agent-based model_
+In: HSR Vol. 43, No. 1: Special Issue: _Agent-Based Modeling in Social Science, History, and Philosophy_, 2018, pp. 285-307, [doi:
+10.12759/hsr.43.2018.1.285-307](https://dx.doi.org/10.12759/hsr.43.2018.1.285-307)
 
-The question whether increased interaction among scientists is beneficial or harmful for their efficiency in acquiring knowledge has in recent years been tackled by means of agent-based models (ABMs) (e.g. Zollman 2007, 2010; Grim 2009; Grim et al. 2013). Nevertheless, the relevance of some of these results for actual scientific practice has been questioned in view of specific parameter choices used in the simulations (Rosenstock et al. 2016). In this paper we present a novel ABM that aims at tackling the same question, while representing scientific interaction in terms of argumentative exchange. In this way we examine the robustness of previously obtained results under different modeling choices.
+   The question whether increased interaction among scientists is beneficial or harmful for their efficiency in acquiring knowledge has in recent years been tackled by means of agent-based models (ABMs) (e.g. Zollman 2007, 2010; Grim 2009; Grim et al. 2013). Nevertheless, the relevance of some of these results for actual scientific practice has been questioned in view of specific parameter choices used in the simulations (Rosenstock et al. 2016). In this paper we present a novel ABM that aims at tackling the same question, while representing scientific interaction in terms of argumentative exchange. In this way we examine the robustness of previously obtained results under different modeling choices.
 
-_Examining Network Effects in an Argumentative Agent-Based Model of Scientific Inquiry_ 
-In: Baltag, A., Seligman, J., Yamada, T. (eds) _Logic, Rationality, and Interaction, LORI 2017 (Lecture Notes in Computer Science, Vol. 10455)_, 2017, pp. 391-406, [[doi: 10.1007/978-3-662-55665-8 27][http://dx.doi.org/10.1007/978-3-662-55665-8_27]]
+2. _Examining Network Effects in an Argumentative Agent-Based Model of Scientific Inquiry_ 
+In: Baltag, A., Seligman, J., Yamada, T. (eds) _Logic, Rationality, and Interaction, LORI 2017 (Lecture Notes in Computer Science, Vol. 10455)_, 2017, pp. 391-406, [doi: 10.1007/978-3-662-55665-8 27](http://dx.doi.org/10.1007/978-3-662-55665-8_27)
 
-In this paper we present an agent-based model (ABM) of scientific inquiry aimed at investigating how different social networks
+   In this paper we present an agent-based model (ABM) of scientific inquiry aimed at investigating how different social networks
 impact the efficiency of scientists in acquiring knowledge. The model is an improved variant of our previous ABM, which is based on
 abstract argumentation frameworks. The current model employs a more refined notion of social networks and a more realistic representation of knowledge acquisition than the previous variant. Moreover, it includes two criteria of success: a monist and a pluralist one, reflecting different desiderata of scientific inquiry. Our findings suggest that, given a reasonable ratio between research time and time spent on communication, increasing the degree of connectedness of the social network tends to improve the efficiency of scientists
 
-_An Argumentative Agent-Based Model of Scientific Inquiry_
-In: Benferhat, S., Tabia, K., Ali, M. (eds) _Advances in Artificial Intelligence: From Theory to Practice, IEA/AIE 2017 (Lecture Notes in Computer Science, Vol. 10350)_, 2017, pp. 507-510, [[doi: 10.1007/978-3-319-60042-0 56][http://dx.doi.org/10.1007/978-3-319-60042-0_56]
+3. _An Argumentative Agent-Based Model of Scientific Inquiry_
+In: Benferhat, S., Tabia, K., Ali, M. (eds) _Advances in Artificial Intelligence: From Theory to Practice, IEA/AIE 2017 (Lecture Notes in Computer Science, Vol. 10350)_, 2017, pp. 507-510, [doi: 10.1007/978-3-319-60042-0 56](http://dx.doi.org/10.1007/978-3-319-60042-0_56)
 
-In this paper we present an agent-based model (ABM) of scientific inquiry aimed at investigating how different social networks impact the efficiency of scientists in acquiring knowledge. As such, the ABM is a computational tool for tackling issues in the domain of scientific methodology and science policy. In contrast to existing ABMs of science, our model aims to represent the argumentative dynamics that underlies scientific practice. To this end we employ abstract argumentation theory as the core design feature of the model.
+   In this paper we present an agent-based model (ABM) of scientific inquiry aimed at investigating how different social networks impact the efficiency of scientists in acquiring knowledge. As such, the ABM is a computational tool for tackling issues in the domain of scientific methodology and science policy. In contrast to existing ABMs of science, our model aims to represent the argumentative dynamics that underlies scientific practice. To this end we employ abstract argumentation theory as the core design feature of the model.
 
 ## Collaborators and funding
 
 AnneMarie Borg (Institute for Philosophy II, Ruhr-University Bochum)
+
 Daniel Frey (Faculty of Economics and Social Sciences, Heidelberg University)
+
 Dunja Šešelja (Munich Center for Mathematical Philosophy, LMU Munich)
+
 Christian Straßer (Institute for Philosophy II, Ruhr-University Bochum)
 
 
-The research by AnneMarie Borg and Christian Straßer is supported by a Sofja Kovalevskaja award of the Alexander von Humboldt Foundation and by the German Ministry for Education and Research.
+The research by AnneMarie Borg and Christian Straßer is supported by a Sofja Kovalevskaja award of the Alexander von Humboldt Foundation and by the German Ministry for Education and Research (for more information see [the homepage of the Research Group for Non-Monotonic Logics and Formal Argumentation](http://homepages.ruhr-uni-bochum.de/defeasible-reasoning/index.html)).
 
 # Documentation
 
