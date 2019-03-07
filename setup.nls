@@ -878,17 +878,10 @@ end
 
 
 ; creates the list from which items are drawn in case that 
-; `necessary-convergence` is selected in the interface and all researchers are 
-; converged on fully explored theories (g-exit-case = 2). 
+; `necessary-convergence` is selected in the interface
 to set-g-learn-set
-  ; lst = learn-set-theories;
-  ; researchers should always learn about the best theory
-  let proper-lst starts with [who = 0 or not member? self g-red-theories]
-  if g-learn-set-theories != proper-lst [
-    set g-learn-set-theories proper-lst
-    let learn-args sort startsargum with [member? mytheory g-learn-set-theories]
-    let learn-rel sort attacks with [member? mytheory-end1 g-learn-set-theories 
-      or member? mytheory-end2 g-learn-set-theories]
-    set g-learn-set sentence learn-args learn-rel
-  ]
+  ; researchers can learn any argument and/or attack in the landscape by chance
+  let learn-args sort startsargum
+  let learn-rel sort attacks
+  set g-learn-set sentence learn-args learn-rel
 end

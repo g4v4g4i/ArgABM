@@ -12,6 +12,9 @@
 ; the researchers learn a random item from the g-learn-set which can be either 
 ; an argument or a link
 to learn-random-item
+  if g-learn-set = 0 [
+    error "please select necessary-convergence before pressing setup"
+  ]
   let learn-args 0
   let learn-rel 0
   let #groups colla-groups

@@ -151,6 +151,9 @@ to setup [rs]
   ; this `set...` has to be run after `distribute-researchers` b/c
   ; colla-networks are only created in the sub-procedure `create-x-groups`
   set g-active-colla-networks colla-networks
+  if necessary-convergence [
+    set-g-learn-set
+  ]
   reset-ticks
 end
 
@@ -206,8 +209,7 @@ to go-core
   let update-pluralist? false
   ; the +1 correct for the fact that the tick counter is only advanced at the
   ; end of the procedure
-  if g-exit-case = 2 and (ticks + 1) mod g-learn-frequency = 0 [
-    set-g-learn-set
+  if necessary-convergence and (ticks + 1) mod g-learn-frequency = 0 [
     learn-random-item
   ]
   if ticks mod 5 = 4 [
