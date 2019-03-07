@@ -45,7 +45,7 @@ to initialize-hidden-variables
   
   ; every g-learn-frequency rounds researchers might learn some information 
   ; about the landscape
-  set g-learn-frequency 30
+  set g-learn-frequency 20
 end
 
 
