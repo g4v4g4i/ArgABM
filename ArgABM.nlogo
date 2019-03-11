@@ -181,6 +181,7 @@ to go [exit?]
           set present-time ticks + 1
         ]
         set-convergence-duration present-time
+        set-non-on-best-duration present-time
         if knowledge-tracking [
           save-tracked-knowledge
         ]

@@ -91,6 +91,20 @@ end
 
 
 
+; records the durations during the run when the best theory was not populated
+; argument: present-time = the time-point at which best theory got populated, 
+;   type: integer
+to set-non-on-best-duration [present-time]
+  if not none-before [
+    let new-duration (present-time - last g-none-on-best-start)
+    set g-none-on-best-duration lput new-duration g-none-on-best-duration
+  ]
+end
+
+
+
+
+
 ; the exit-condition determines when a given run is considered to be finished. 
 ; In case `necessary-convergence` is selected in the interface a run is 
 ; finished as soon as all researchers converge on the best theory. Otherwise a 
@@ -613,8 +627,6 @@ end
 ; reports the cumulative time no researchers were on the best theory
 to-report cum-none-on-best-duration
   report sum g-none-on-best-duration
-  write "cum" 
-  show sum g-none-on-best-duration
 end
 
 
@@ -624,6 +636,4 @@ end
 ; reports how many periods there where no agents on the best theory
 to-report frequency-none-on-best
   report length g-convergence-duration
-  write "frequency"
-  show length g-convergence-duration
 end

@@ -588,23 +588,17 @@ to compute-popularity [update-pluralist?]
   ]
   ; for the calculations of the times that no researcher 
   ; was on the best theory
+  ; the +1 correction is b/c the variable is set before `tick` happens
+  let current-time ticks + 1
   ifelse [myscientists] of start 0 = 0 [
-    let current-time ticks + 1
-    ifelse none-before = true [
+    if none-before [
       set g-none-on-best-start lput current-time g-none-on-best-start
-      set g-none-on-best-duration lput 1 g-none-on-best-duration
-    ][
-      let last-item-index length g-none-on-best-duration - 1
-      let last-item last g-none-on-best-duration
-      set g-none-on-best-duration replace-item last-item-index
-        g-none-on-best-duration (last-item + 1)
     ]
     set none-before false
   ][
+    set-non-on-best-duration current-time
     set none-before true 
   ]
-  show g-none-on-best-start
-  show g-none-on-best-duration
   set g-comp-pop-counter g-comp-pop-counter + 1
 end
 
@@ -792,6 +786,12 @@ to record-initial-scientists
   if last-converged-th = 0 [
     set last-converged-th -1
     set round-converged -1
+  ]
+  ifelse [initial-scientists] of (start 0) = 0 [
+    set g-none-on-best-start lput 0 g-none-on-best-start
+    set none-before false
+  ][
+    set none-before true
   ]
 end
 
