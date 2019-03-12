@@ -103,7 +103,8 @@ globals [max-learn small-movement color-move colla-networks share-structure
   g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
   g-learn-frequency g-exit-case-start g-exit-case-duration g-comp-pop-counter
   g-active-colla-networks g-static-phase g-convergence-start none-before
-  g-convergence-duration g-none-on-best-start g-none-on-best-duration]
+  g-convergence-duration g-none-on-best-start g-none-on-best-duration 
+  g-diversity-start g-diversity-duration]
 
 
 
@@ -144,6 +145,8 @@ to setup [rs]
   set none-before true
   set g-none-on-best-start []
   set g-none-on-best-duration []
+  set g-diversity-start []
+  set g-diversity-duration []
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -182,6 +185,7 @@ to go [exit?]
         ]
         set-convergence-duration present-time
         set-non-on-best-duration present-time
+        record-diversity present-time
         if knowledge-tracking [
           save-tracked-knowledge
         ]
