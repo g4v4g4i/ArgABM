@@ -91,6 +91,20 @@ end
 
 
 
+; records the durations during the run when the best theory was not populated
+; argument: present-time = the time-point at which best theory got populated, 
+;   type: integer
+to set-non-on-best-duration [present-time]
+  if not none-before [
+    let new-duration (present-time - last g-none-on-best-start)
+    set g-none-on-best-duration lput new-duration g-none-on-best-duration
+  ]
+end
+
+
+
+
+
 ; the exit-condition determines when a given run is considered to be finished. 
 ; In case `necessary-convergence` is selected in the interface a run is 
 ; finished as soon as all researchers converge on the best theory. Otherwise a 
@@ -606,4 +620,99 @@ to-report frequency-convergence-flips
     set flip-freq flip-freq - 1
   ]
   report flip-freq
+end
+
+
+
+
+
+; reports the cumulative time no researchers were on the best theory
+to-report cum-none-on-best-duration
+  report sum g-none-on-best-duration
+end
+
+
+
+
+
+; reports how many periods there where no agents on the best theory
+to-report frequency-none-on-best
+  report length g-convergence-duration
+end
+
+
+
+
+
+; calculates the when diversity existed during the run. Diversity is defined as 
+; having at least one researcher on the best theory and at least one researcher
+; on any of the other theories
+to record-diversity [present-time]
+  ; nob = none on best
+  let nob-end (map + g-none-on-best-start g-none-on-best-duration)
+  let nob-start g-none-on-best-start
+  if empty? nob-start [
+    set nob-end [0]
+  ]
+  if empty? nob-start or last nob-end != present-time [
+    set nob-start lput present-time nob-start
+  ]
+  if last nob-end = present-time [
+    set nob-end but-last nob-end
+  ]
+  ifelse first nob-start = 0 [
+    set nob-start but-first nob-start
+  ][
+    if first nob-end != 0 [
+      set nob-end fput 0 nob-end
+    ]
+  ]
+  let cur-pos 0
+  foreach nob-end [cur-end ->
+    let next-nob-start item cur-pos nob-start
+    set g-diversity-start lput cur-end g-diversity-start
+    let interrupting-convergence-start filter [cur-conv ->
+      cur-conv >= cur-end and cur-conv < next-nob-start
+    ] g-convergence-start
+    foreach interrupting-convergence-start [cur-int-start ->
+      let cur-div-duration cur-int-start - last g-diversity-start
+      set g-diversity-duration lput cur-div-duration g-diversity-duration
+      let cur-int-pos position cur-int-start g-convergence-start
+      let cur-int-end cur-int-start + item cur-int-pos g-convergence-duration
+      set g-diversity-start lput cur-int-end g-diversity-start
+    ]
+    let last-interval-duration next-nob-start - last g-diversity-start
+    set g-diversity-duration lput last-interval-duration g-diversity-duration
+    set cur-pos cur-pos + 1
+  ]
+  ; cleanup all the 0 length diversity entries
+  set cur-pos 0 
+  foreach g-diversity-duration [cur-div-duration ->
+    if cur-div-duration = 0 [
+      set g-diversity-start replace-item cur-pos g-diversity-start -1
+    ]
+    set cur-pos cur-pos + 1
+  ]
+  set g-diversity-duration filter [cur-div-duration ->
+    cur-div-duration != 0] g-diversity-duration
+  set g-diversity-start filter [cur-div-start ->
+    cur-div-start != -1] g-diversity-start
+end
+
+
+
+
+
+; reports the cumulative time diversity existed during the run
+to-report cum-diversity-duration
+  report sum g-diversity-duration
+end
+
+
+
+
+
+; reports how many periods of diversity existed during the run
+to-report frequency-diversity
+  report length g-diversity-duration
 end
