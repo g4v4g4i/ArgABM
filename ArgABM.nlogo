@@ -1995,6 +1995,8 @@ NetLogo 6.0.4
     <metric>frequency-convergence-flips</metric>
     <metric>cum-none-on-best-duration</metric>
     <metric>frequency-none-on-best</metric>
+    <metric>cum-diversity-duration</metric>
+    <metric>frequency-diversity</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
@@ -2068,142 +2070,6 @@ NetLogo 6.0.4
       <value value="0"/>
       <value value="1"/>
       <value value="2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="knowledge-tracking">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="necessary-convergence">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="defense-from-leaves">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="controlled-spread-of-researchers">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="col-groups-on-best-t">
-      <value value="5"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="test biased-deceptive" repetitions="1000" runMetricsEveryStep="false">
-    <setup>setup new-seed</setup>
-    <go>go true</go>
-    <metric>scientists</metric>
-    <metric>all-scientists</metric>
-    <metric>objective-admiss-of "th1"</metric>
-    <metric>objective-admiss-of "th2"</metric>
-    <metric>objective-admiss-of "th3"</metric>
-    <metric>research-time "monist" "th1"</metric>
-    <metric>research-time "monist" "th2"</metric>
-    <metric>research-time "monist" "th3"</metric>
-    <metric>research-time "pluralist" "th1"</metric>
-    <metric>research-time "pluralist" "th2"</metric>
-    <metric>research-time "pluralist" "th3"</metric>
-    <metric>in-run-performance "monist"</metric>
-    <metric>in-run-performance "pluralist"</metric>
-    <metric>monist-success</metric>
-    <metric>pluralist-success</metric>
-    <metric>run-end-scientists "monist" "th1"</metric>
-    <metric>run-end-scientists "monist" "th2"</metric>
-    <metric>run-end-scientists "monist" "th3"</metric>
-    <metric>run-end-scientists "pluralist" "th1"</metric>
-    <metric>run-end-scientists "pluralist" "th2"</metric>
-    <metric>run-end-scientists "pluralist" "th3"</metric>
-    <metric>perc-landscape-discoverd</metric>
-    <metric>perc-best-th-discoverd</metric>
-    <metric>average-jumps</metric>
-    <metric>rndseed</metric>
-    <metric>run-start-scientists "th1"</metric>
-    <metric>run-start-scientists "th2"</metric>
-    <metric>run-start-scientists "th3"</metric>
-    <metric>perc-subj-disc-argu "all"</metric>
-    <metric>perc-subj-disc-argu "best"</metric>
-    <metric>perc-subj-disc-attacks "all"</metric>
-    <metric>perc-subj-disc-attacks "best"</metric>
-    <metric>cum-com-costs</metric>
-    <metric>max-com-costs "value"</metric>
-    <metric>max-com-costs "round"</metric>
-    <metric>unpaid-com-costs</metric>
-    <metric>round-converged</metric>
-    <metric>cum-exit-case-duration 1</metric>
-    <metric>cum-exit-case-duration 2</metric>
-    <metric>frequency-exit-case 1</metric>
-    <metric>frequency-exit-case 2</metric>
-    <metric>g-exit-case</metric>
-    <metric>time-of-first-red-theory</metric>
-    <metric>cum-convergence-duration</metric>
-    <metric>frequency-convergence</metric>
-    <metric>frequency-convergence-flips</metric>
-    <enumeratedValueSet variable="network-structure">
-      <value value="&quot;cycle&quot;"/>
-      <value value="&quot;wheel&quot;"/>
-      <value value="&quot;complete&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="within-theory">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="visibility-probability">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-of-theories">
-      <value value="2"/>
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="move-probability">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="strategy-threshold">
-      <value value="0.9"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="theory-depth">
-      <value value="3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="research-speed">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="jump-threshold">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-best">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-2nd">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="attack-probability-3rd">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="evaluation">
-      <value value="&quot;defended-args&quot;"/>
-      <value value="&quot;non-defended-args&quot;"/>
-      <value value="&quot;non-defended-multiplied&quot;"/>
-      <value value="&quot;non-defended-normalized&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="heuristic-non-block">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="col-group-size">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="collaborative-groups">
-      <value value="15"/>
-      <value value="19"/>
-      <value value="20"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="deceptive-groups">
-      <value value="0"/>
-      <value value="1"/>
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="group-distribution">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="biased-deceptive-groups">
-      <value value="0"/>
-      <value value="1"/>
-      <value value="5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="knowledge-tracking">
       <value value="false"/>
