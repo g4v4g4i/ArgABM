@@ -663,7 +663,7 @@ to record-diversity [present-time]
   ifelse first nob-start = 0 [
     set nob-start but-first nob-start
   ][
-    if first nob-end != 0 [
+    if empty? nob-end or first nob-end != 0 [
       set nob-end fput 0 nob-end
     ]
   ]
