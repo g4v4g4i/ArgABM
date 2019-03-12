@@ -350,7 +350,7 @@ number-of-theories
 number-of-theories
 2
 3
-0.0
+3.0
 1
 1
 NIL
@@ -365,7 +365,7 @@ theory-depth
 theory-depth
 1
 5
-0.0
+3.0
 1
 1
 NIL
@@ -380,7 +380,7 @@ col-group-size
 col-group-size
 1
 20
-0.0
+5.0
 1
 1
 NIL
@@ -405,7 +405,7 @@ attack-probability-2nd
 attack-probability-2nd
 0
 1
-0.0
+0.3
 0.01
 1
 NIL
@@ -430,7 +430,7 @@ move-probability
 move-probability
 0
 1
-0.0
+0.5
 0.01
 1
 NIL
@@ -445,7 +445,7 @@ visibility-probability
 visibility-probability
 0
 1
-0.0
+0.5
 0.01
 1
 NIL
@@ -460,7 +460,7 @@ research-speed
 research-speed
 0
 50
-0.0
+5.0
 5
 1
 NIL
@@ -485,7 +485,7 @@ strategy-threshold
 strategy-threshold
 0
 1
-0.0
+0.9
 0.1
 1
 NIL
@@ -500,7 +500,7 @@ jump-threshold
 jump-threshold
 1
 25
-0.0
+10.0
 1
 1
 NIL
@@ -515,7 +515,7 @@ attack-probability-best
 attack-probability-best
 0
 1
-0.0
+0.3
 0.01
 1
 NIL
@@ -572,7 +572,7 @@ attack-probability-3rd
 attack-probability-3rd
 0
 1
-0.0
+0.3
 0.01
 1
 NIL
@@ -653,7 +653,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-6.0
+10.0
 1
 1
 NIL
