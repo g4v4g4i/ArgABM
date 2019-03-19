@@ -313,6 +313,9 @@ end
 ; interval where 100 corresponds to the best  performance. 
 ; For details cf. documentation
 to-report in-run-performance [pluralist-monist]
+  if g-comp-pop-counter = 0 [
+    report 0
+  ]
   ifelse pluralist-monist = "monist" [
     set pluralist-monist [ -> research-time-monist]
   ][
