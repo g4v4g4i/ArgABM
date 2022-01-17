@@ -12,9 +12,12 @@
 ; the researchers learn a random item from the g-learn-set which can be either 
 ; an argument or a link
 to learn-random-item
+  if g-learn-set = 0 [
+    error "please select necessary-convergence before pressing setup"
+  ]
   let learn-args 0
   let learn-rel 0
-  let #groups collaborative-groups
+  let #groups colla-groups
   let group-updates []
   let random-item one-of g-learn-set
   ifelse is-link? random-item [
@@ -179,6 +182,7 @@ to create-share-memory
   ; that they want to share with researchers from other networks
   let cur-argum 0
   ask rep-researchers [
+    let cur-rep self
     ifelse g-exit-case = 1 and on-red-theory? [
       let mystart [mytheory] of mygps
       let share-spoofgps one-of startsargum with [mytheory = mystart]
@@ -194,7 +198,8 @@ to create-share-memory
     let th-relations-cache 0
     let th-args-cache 0
     ask cur-argum [
-      ifelse social-actions = "biased" [
+      ifelse [social-action] of cur-rep = "deceptive" or 
+        [social-action] of cur-rep = "biased-deceptive" [
         set th-relations-cache my-out-attacks with [color != gray]
       ][
         set th-relations-cache my-attacks with [color != gray]
@@ -323,8 +328,8 @@ end
 ; the  subprocedure `inter-group-sharing-complete`, else 
 ; `inter-group-sharing-default`.
 to share-with-other-networks
-  ifelse network-structure = "complete" or (collaborative-groups <= 3)
-    or (collaborative-groups <= 4 and network-structure != "cycle") [  
+  ifelse network-structure = "complete" or (colla-groups <= 3)
+    or (colla-groups <= 4 and network-structure != "cycle") [  
     inter-group-sharing-complete
   ][
     inter-group-sharing-default 
@@ -345,7 +350,7 @@ end
 ; during the next intra-group-sharing (= share-with-group) one week later
 to inter-group-sharing-complete
   ; number of groups
-  let #groups collaborative-groups
+  let #groups colla-groups
   ; all arguments the rep-researchers are going to share (a)
   let comb-memory-argu (turtle-set [th-args] of rep-researchers)
   ; all relations the rep-researchers are going to share (a)

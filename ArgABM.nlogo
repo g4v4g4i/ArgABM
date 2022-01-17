@@ -90,20 +90,21 @@ researchers-own [theory-jump times-jumped collaborator-network
   subjective-arguments subjective-relations current-theory-info cur-best-th
   th-args th-relations communicating moved rep-researcher
   to-add-mem-argu to-add-mem-rel flag-updated-memory
-  non-admiss-subj-argu mygps group-id argu-cache on-red-theory?]
+  non-admiss-subj-argu mygps group-id argu-cache on-red-theory? social-action]
 
 
 
 
 
-globals [max-learn small-movement color-move colla-networks share-structure
-  startsargum disc-startsargum-non-red rel-costfactor rep-researchers rndseed
-  g-cum-com-costs g-max-com-costs g-unpaid-com-costs g-cur-avg-com-costs
-  round-converged last-converged-th scientists g-knowledge g-max-ticks
-  g-red-theories g-exit-case g-exit-condition? g-learn-set g-learn-set-theories
-  g-learn-frequency g-exit-case-start g-exit-case-duration g-comp-pop-counter
-  g-active-colla-networks g-static-phase g-convergence-start
-  g-convergence-duration]
+globals [max-learn small-movement color-move colla-networks colla-groups
+  share-structure startsargum disc-startsargum-non-red rel-costfactor rndseed
+  rep-researchers g-cum-com-costs g-max-com-costs g-unpaid-com-costs
+  g-cur-avg-com-costs round-converged last-converged-th scientists all-scientists
+  g-knowledge g-max-ticks g-red-theories g-exit-case g-exit-condition? g-learn-set
+  g-learn-set-theories g-learn-frequency g-exit-case-start g-exit-case-duration
+  g-comp-pop-counter g-active-colla-networks g-static-phase g-convergence-start
+  g-convergence-duration none-before g-none-on-best-start
+  g-none-on-best-duration g-diversity-start g-diversity-duration]
 
 
 
@@ -130,8 +131,10 @@ to setup [rs]
   set rndseed rs
   random-seed rs
   initialize-hidden-variables
+  set colla-networks (collaborative-groups + biased-deceptive-groups)
+  set colla-groups colla-networks
+  set all-scientists colla-networks * col-group-size
   set scientists collaborative-groups * col-group-size
-  set colla-networks collaborative-groups
   set g-max-com-costs [0 0]
   set g-knowledge []
   set g-red-theories no-turtles
@@ -141,6 +144,11 @@ to setup [rs]
   set g-exit-case-duration n-values 2 [[]]
   set g-convergence-start []
   set g-convergence-duration []
+  set none-before true
+  set g-none-on-best-start []
+  set g-none-on-best-duration []
+  set g-diversity-start []
+  set g-diversity-duration []
   create-discovery-landscape
   define-attack-relation
   distribute-researchers
@@ -149,6 +157,9 @@ to setup [rs]
   ; this `set...` has to be run after `distribute-researchers` b/c
   ; colla-networks are only created in the sub-procedure `create-x-groups`
   set g-active-colla-networks colla-networks
+  if necessary-convergence [
+    set-g-learn-set
+  ]
   reset-ticks
 end
 
@@ -178,6 +189,8 @@ to go [exit?]
           set present-time ticks + 1
         ]
         set-convergence-duration present-time
+        set-non-on-best-duration present-time
+        record-diversity present-time
         if knowledge-tracking [
           save-tracked-knowledge
         ]
@@ -204,8 +217,7 @@ to go-core
   let update-pluralist? false
   ; the +1 correct for the fact that the tick counter is only advanced at the
   ; end of the procedure
-  if g-exit-case = 2 and (ticks + 1) mod g-learn-frequency = 0 [
-    set-g-learn-set
+  if necessary-convergence and (ticks + 1) mod g-learn-frequency = 0 [
     learn-random-item
   ]
   if ticks mod 5 = 4 [
@@ -253,9 +265,9 @@ end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
-135
+115
 881
-807
+787
 -1
 -1
 13.0
@@ -331,14 +343,14 @@ NIL
 
 SLIDER
 210
-50
+35
 382
-83
+68
 number-of-theories
 number-of-theories
 2
 3
-0.0
+3.0
 1
 1
 NIL
@@ -346,14 +358,14 @@ HORIZONTAL
 
 SLIDER
 210
-90
+75
 382
-123
+108
 theory-depth
 theory-depth
 1
 5
-0.0
+3.0
 1
 1
 NIL
@@ -368,7 +380,7 @@ col-group-size
 col-group-size
 1
 20
-0.0
+5.0
 1
 1
 NIL
@@ -376,9 +388,9 @@ HORIZONTAL
 
 TEXTBOX
 210
-25
+10
 360
-43
+28
 Landscape settings
 13
 0.0
@@ -386,14 +398,14 @@ Landscape settings
 
 SLIDER
 390
-50
+35
 560
-83
+68
 attack-probability-2nd
 attack-probability-2nd
 0
 1
-0.0
+0.3
 0.01
 1
 NIL
@@ -411,14 +423,14 @@ Researcher settings
 
 SLIDER
 10
-200
+575
 182
-233
+608
 move-probability
 move-probability
 0
 1
-0.0
+0.5
 0.01
 1
 NIL
@@ -426,14 +438,14 @@ HORIZONTAL
 
 SLIDER
 10
-240
+615
 182
-273
+648
 visibility-probability
 visibility-probability
 0
 1
-0.0
+0.5
 0.01
 1
 NIL
@@ -441,79 +453,79 @@ HORIZONTAL
 
 SLIDER
 10
-280
+655
 182
-313
+688
 research-speed
 research-speed
 0
 50
-0.0
+5.0
 5
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-580
-25
-730
-43
+755
+10
+905
+28
 Strategy settings
 13
 0.0
 1
 
 SLIDER
-580
-50
-752
-83
+755
+35
+927
+68
 strategy-threshold
 strategy-threshold
 0
 1
-0.0
+0.9
 0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-580
-90
-752
-123
+755
+75
+927
+108
 jump-threshold
 jump-threshold
 1
 25
-0.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-390
-10
-560
-43
+570
+35
+740
+68
 attack-probability-best
 attack-probability-best
 0
 1
-0.0
+0.3
 0.01
 1
 NIL
 HORIZONTAL
 
 PLOT
-5
-560
-205
-710
+890
+145
+1090
+295
 Popularity
 Time steps
 No. of researchers
@@ -531,46 +543,36 @@ PENS
 "start 4" 1.0 0 -723837 true "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories" "let all-theories []\nask starts [ set all-theories lput self all-theories ]\nset all-theories sort all-theories\nif length all-theories >= 4 [\nplot [myscientists] of last all-theories\n]"
 
 TEXTBOX
-9
-536
-159
-554
-Plots
+894
+121
+1044
+139
+Plots and monitors
 13
 0.0
 1
 
 SWITCH
 10
-320
+360
 150
-353
+393
 within-theory
 within-theory
 0
 1
 -1000
 
-CHOOSER
-10
-360
-148
-405
-social-actions
-social-actions
-"reliable" "biased"
-0
-
 SLIDER
 390
-90
+75
 562
-123
+108
 attack-probability-3rd
 attack-probability-3rd
 0
 1
-0.0
+0.3
 0.01
 1
 NIL
@@ -578,13 +580,13 @@ HORIZONTAL
 
 CHOOSER
 10
-410
+440
 148
-455
+485
 network-structure
 network-structure
 "cycle" "wheel" "complete"
-2
+0
 
 BUTTON
 70
@@ -604,10 +606,10 @@ NIL
 0
 
 PLOT
-5
-720
-205
-870
+890
+305
+1090
+455
 Current avg. com. costs
 Time steps
 days / scientist
@@ -622,20 +624,20 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot g-cur-avg-com-costs"
 
 CHOOSER
-760
-80
-942
-125
+935
+65
+1117
+110
 evaluation
 evaluation
 "defended-args" "non-defended-args" "non-defended-multiplied" "non-defended-normalized"
 0
 
 SWITCH
-765
-40
-922
-73
+940
+25
+1097
+58
 heuristic-non-block
 heuristic-non-block
 1
@@ -651,7 +653,7 @@ collaborative-groups
 collaborative-groups
 1
 50
-0.0
+10.0
 1
 1
 NIL
@@ -659,9 +661,9 @@ HORIZONTAL
 
 SWITCH
 10
-460
+490
 172
-493
+523
 knowledge-tracking
 knowledge-tracking
 1
@@ -669,10 +671,10 @@ knowledge-tracking
 -1000
 
 MONITOR
-885
-135
-1010
-180
+890
+465
+1015
+510
 Degree of Def T1 (best theory)
 item 0 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
@@ -680,10 +682,10 @@ item 0 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 11
 
 MONITOR
-885
-180
-1010
-225
+890
+510
+1015
+555
 Degree of Def T2
 item 1 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
@@ -691,10 +693,10 @@ item 1 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 11
 
 MONITOR
-885
-225
-1010
-270
+890
+555
+1015
+600
 Deegree of Def T3
 item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-depth  + 1)) / 3 - 1 / 3)))] sort starts
 17
@@ -703,9 +705,9 @@ item 2 map [i -> round((100 * ([objective-admissibility] of i) / ((4 ^ (theory-d
 
 SWITCH
 10
-500
+530
 175
-533
+563
 necessary-convergence
 necessary-convergence
 1
@@ -713,10 +715,10 @@ necessary-convergence
 -1000
 
 SWITCH
-895
-295
-1097
-328
+570
+75
+745
+108
 defense-from-leaves
 defense-from-leaves
 1
@@ -724,14 +726,40 @@ defense-from-leaves
 -1000
 
 SLIDER
-895
-415
-1097
-448
+10
+320
+185
+353
 col-groups-on-best-t
 col-groups-on-best-t
 1
 20
+8.0
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+10
+280
+185
+313
+controlled-spread-of-researchers
+controlled-spread-of-researchers
+1
+1
+-1000
+
+SLIDER
+10
+200
+185
+233
+deceptive-groups
+deceptive-groups
+0
+collaborative-groups
 0.0
 1
 1
@@ -739,15 +767,30 @@ NIL
 HORIZONTAL
 
 SWITCH
-895
-360
-1187
-393
-controlled-spread-of-researchers
-controlled-spread-of-researchers
-1
+10
+400
+175
+433
+group-distribution
+group-distribution
+0
 1
 -1000
+
+SLIDER
+10
+240
+185
+273
+biased-deceptive-groups
+biased-deceptive-groups
+0
+collaborative-groups
+0.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 # PLEASE NOTE: this documentation is work in progress!
@@ -913,11 +956,23 @@ The time an researcher has to work on an argument before it will change color
 
 Here the kind of collaborative network is set to researchers that start on the same theory (on) or randomly chosen researchers (off)
 
-#### social-actions
+#### deceptive-groups
 
-* type: chooser
+* type: slider  
 
-Here the behavior of the researchers that communicate with researchers outside their own can be set: "reliable" is the setting where they share all information about the current theory: including attacks; "biased" researchers do not share the attacks to their current theory
+The number of collaborative-groups that consist of deceptive agent, these agents do not share the attacks to their current theory. Agents from all other groups (the reliable agents) share all information about the current theory. 
+
+#### group-distribution
+
+* type: switch  
+
+If turned on: the deceptive agents form collaborative groups with other deceptive agents. If turned off, the deceptive agents are randomly distributed over the different collaborative groups.
+
+#### biased-deceptive-groups
+
+* type: slider
+
+To choose the number of groups of biased-deceptive agents. These agents stay on one theory (not the best) and do not share attacks on that theory. 
 
 #### network-structure
 
@@ -1918,6 +1973,7 @@ NetLogo 6.0.4
     <setup>setup new-seed</setup>
     <go>go true</go>
     <metric>scientists</metric>
+    <metric>all-scientists</metric>
     <metric>objective-admiss-of "th1"</metric>
     <metric>objective-admiss-of "th2"</metric>
     <metric>objective-admiss-of "th3"</metric>
@@ -1962,14 +2018,14 @@ NetLogo 6.0.4
     <metric>cum-convergence-duration</metric>
     <metric>frequency-convergence</metric>
     <metric>frequency-convergence-flips</metric>
+    <metric>cum-none-on-best-duration</metric>
+    <metric>frequency-none-on-best</metric>
+    <metric>cum-diversity-duration</metric>
+    <metric>frequency-diversity</metric>
     <enumeratedValueSet variable="network-structure">
       <value value="&quot;cycle&quot;"/>
       <value value="&quot;wheel&quot;"/>
       <value value="&quot;complete&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="social-actions">
-      <value value="&quot;reliable&quot;"/>
-      <value value="&quot;biased&quot;"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="within-theory">
       <value value="true"/>
@@ -2025,6 +2081,20 @@ NetLogo 6.0.4
       <value value="8"/>
       <value value="14"/>
       <value value="20"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="deceptive-groups">
+      <value value="0"/>
+      <value value="1"/>
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="group-distribution">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="biased-deceptive-groups">
+      <value value="0"/>
+      <value value="1"/>
+      <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="knowledge-tracking">
       <value value="false"/>

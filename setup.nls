@@ -45,7 +45,7 @@ to initialize-hidden-variables
   
   ; every g-learn-frequency rounds researchers might learn some information 
   ; about the landscape
-  set g-learn-frequency 30
+  set g-learn-frequency 20
 end
 
 
@@ -63,7 +63,7 @@ to create-discovery-landscape
  ; The color equivalent to gray in the landscape is cyan (= 85) in the
  ; group-color-mem. This is set that way such that the smaller color the more
  ; discovered. Same goes for group-color-mem-cache
-  let group-colors-list n-values collaborative-groups [cyan]
+  let group-colors-list n-values colla-groups [cyan]
   repeat number-of-theories [ ; trees are created theory for theory
     create-starts 1 [
       ; variables for color, the theory it belongs to
@@ -360,7 +360,7 @@ to researchers-create-scientists
     set start-add lput 0 start-add
     set theories lput start-add theories
   ]
-  create-researchers scientists [
+  create-researchers all-scientists [
     ; the researchers are blue-colored
     set color blue
 
@@ -376,7 +376,8 @@ to researchers-create-scientists
     set rep-researcher false
     set current-theory-info theories
     set on-red-theory? false
-  ]  
+    set social-action ""
+  ] 
 end
 
 
@@ -389,7 +390,15 @@ end
 ; to be the root where she starts and she will add this root to her
 ; subjective-arguments
 to move-researchers-to-roots
-  let remaining-researchers researchers
+  let none-best-start one-of starts with [mytheory != start 0]
+  ask n-of (biased-deceptive-groups * col-group-size) researchers [
+    set social-action "biased-deceptive"
+    set color white
+    move-to none-best-start
+    set mygps none-best-start
+    set subjective-arguments none-best-start
+  ]
+  let remaining-researchers researchers with [social-action = ""]
   ifelse within-theory [
     while [any? remaining-researchers][
       let start-destination one-of starts
@@ -420,7 +429,15 @@ end
 ;be used only in conjunction with  homogeneous groups (i.e. 
 ;`within-theory` = true).
 to move-researchers-to-roots-controlled
-  let remaining-researchers researchers
+  let none-best-start one-of starts with [mytheory != start 0]
+  ask n-of (biased-deceptive-groups * col-group-size) researchers [
+    set social-action "biased-deceptive"
+    set color white
+    move-to none-best-start
+    set mygps none-best-start
+    set subjective-arguments none-best-start
+  ]
+  let remaining-researchers researchers with [social-action = ""]
   repeat col-groups-on-best-t [
     if any? remaining-researchers [
       let start-destination start 0
@@ -456,14 +473,14 @@ to create-homogeneous-groups
   let i 0
   ask starts [
     ; while there are more than five researchers on the root without a network
-    ; networks of five researchers are created 
-    
-    while [any? researchers in-radius 0 with [empty? collaborator-network]] [
+    ; networks of five researchers are created     
+    while [any? researchers in-radius 0 with 
+      [empty? collaborator-network and social-action = ""]] [
       let cur-col no-turtles
       ; col-group-size researchers are added to the turtle-set cur-col which is
       ; then set as the collaborator-network of each of these researchers
       ask n-of col-group-size researchers in-radius 0 with
-        [empty? collaborator-network] [
+        [empty? collaborator-network and social-action = ""] [
           set cur-col (turtle-set cur-col self) 
         ]
       ; initialize variables for the collection of the networks
@@ -477,6 +494,44 @@ to create-homogeneous-groups
       set i i + 1 
     ]    
   ]
+  if deceptive-groups != 0 [
+    ifelse group-distribution [
+      let cur-col shuffle colla-networks
+      let deceptive-grp-list reduce sentence sublist cur-col 0 deceptive-groups
+      ask researchers with [member? self deceptive-grp-list] [
+        set social-action "deceptive"  
+      ]
+    ][
+      ask n-of  (col-group-size * deceptive-groups)  researchers 
+        with [social-action = ""] [
+        set social-action "deceptive" 
+      ]
+    ]
+  ]
+  ask researchers with [social-action = ""] [
+    set social-action "reliable"  
+  ]
+  ask starts [
+    while [any? researchers in-radius 0 with 
+      [empty? collaborator-network and social-action = "biased-deceptive"]] [
+      let cur-col no-turtles
+      ; col-group-size researchers are added to the turtle-set cur-col which is
+      ; then set as the collaborator-network of each of these researchers
+      ask n-of col-group-size researchers in-radius 0 with
+        [empty? collaborator-network and social-action = "biased-deceptive"] [
+          set cur-col (turtle-set cur-col self) 
+        ]
+      ; initialize variables for the collection of the networks
+      ; and the networks that will share with each other
+      set colla-networks lput sort cur-col colla-networks
+      set group-color-mem replace-item i group-color-mem color
+      ask cur-col [
+        set collaborator-network sort cur-col
+        set group-id i
+      ]
+      set i i + 1 
+    ]
+  ]
 end
 
 
@@ -487,12 +542,14 @@ end
 ; are created (i.e. heterogeneous-groups), all of size col-group-size
 to create-heterogeneous-groups
   let i 0
-  while [any? researchers with [empty? collaborator-network]][
+  while [any? researchers with 
+    [empty? collaborator-network and social-action = ""]][
     ; variable that collects five researchers for a network
     let cur-col no-turtles
     ; col-group-size researchers are added to the turtle-set cur-col which is
     ; then set as the collaborator-network of each of these researchers
-    ask n-of col-group-size researchers with [empty? collaborator-network][
+    ask n-of col-group-size researchers with 
+      [empty? collaborator-network and social-action = ""][
       set cur-col (turtle-set cur-col self) 
     ]
     ; initialize variables for the collection of the networks
@@ -506,6 +563,44 @@ to create-heterogeneous-groups
       ]
     ]
     set i i + 1
+  ]
+  if deceptive-groups != 0 [
+    if-else group-distribution [
+      let cur-col shuffle colla-networks
+      let deceptive-grp-list reduce sentence sublist cur-col 0 deceptive-groups
+      ask researchers with [member? self deceptive-grp-list] [
+        set social-action "deceptive"  
+      ]
+    ][
+      ask n-of  (col-group-size * deceptive-groups)  researchers 
+        with [social-action = ""] [
+        set social-action "deceptive" 
+      ]
+    ]
+  ]
+  ask researchers with [social-action = ""] [
+    set social-action "reliable"  
+  ]
+  ask starts [
+    while [any? researchers in-radius 0 with 
+      [empty? collaborator-network and social-action = "biased-deceptive"]] [
+      let cur-col no-turtles
+      ; col-group-size researchers are added to the turtle-set cur-col which is
+      ; then set as the collaborator-network of each of these researchers
+      ask n-of col-group-size researchers in-radius 0 with
+        [empty? collaborator-network and social-action = "biased-deceptive"] [
+          set cur-col (turtle-set cur-col self) 
+        ]
+      ; initialize variables for the collection of the networks
+      ; and the networks that will share with each other
+      set colla-networks lput sort cur-col colla-networks
+      set group-color-mem replace-item i group-color-mem color
+      ask cur-col [
+        set collaborator-network sort cur-col
+        set group-id i
+      ]
+      set i i + 1 
+    ]
   ]
 end
 
@@ -533,10 +628,11 @@ to compute-popularity [update-pluralist?]
   ; single best theory
   if ticks = 0 [
     ask starts [
-      set myscientists-pluralist count researchers in-radius 0
+      set myscientists-pluralist count researchers with 
+        [social-action != "biased-deceptive"] in-radius 0
     ]
   ]
-  ask researchers [
+  ask researchers with [social-action != "biased-deceptive"] [
     let curresearcher self
     let myargu mygps
     let mystart [mytheory] of myargu
@@ -586,6 +682,19 @@ to compute-popularity [update-pluralist?]
     set round-converged -1
     set last-converged-th -1
   ]
+  ; for the calculations of the times that no researcher 
+  ; was on the best theory
+  ; the +1 correction is b/c the variable is set before `tick` happens
+  let current-time ticks + 1
+  ifelse [myscientists] of start 0 = 0 [
+    if none-before [
+      set g-none-on-best-start lput current-time g-none-on-best-start
+    ]
+    set none-before false
+  ][
+    set-non-on-best-duration current-time
+    set none-before true 
+  ]
   set g-comp-pop-counter g-comp-pop-counter + 1
 end
 
@@ -609,7 +718,7 @@ to create-networks
 
     ; when there are only two collaborator-networks
     ; they always share with each other
-    ifelse collaborative-groups = 2 [
+    ifelse colla-groups = 2 [
       set share-structure lput colla-networks-temp share-structure
       set share-structure lput reverse colla-networks-temp share-structure
     ][
@@ -650,10 +759,10 @@ to create-networks
 
     ; when there are only two or three collaborator-networks
     ; they always share with each other
-    ifelse collaborative-groups < 4 [
+    ifelse colla-groups < 4 [
       set share-structure lput colla-networks-temp share-structure
       set share-structure lput reverse colla-networks-temp share-structure
-      if collaborative-groups = 3 [
+      if colla-groups = 3 [
         let add-colla-networks []
         set add-colla-networks lput first but-first colla-networks-temp
         add-colla-networks
@@ -764,7 +873,8 @@ end
 ; records the number of scientists on each start at the beginning of the run
 to record-initial-scientists
   ask starts [
-    set initial-scientists count researchers in-radius 0
+    set initial-scientists count researchers with 
+      [social-action != "biased-deceptive"] in-radius 0
     if initial-scientists = scientists [
       set last-converged-th self
       set g-convergence-start lput 0 g-convergence-start
@@ -774,6 +884,12 @@ to record-initial-scientists
     set last-converged-th -1
     set round-converged -1
   ]
+  ifelse [initial-scientists] of (start 0) = 0 [
+    set g-none-on-best-start lput 0 g-none-on-best-start
+    set none-before false
+  ][
+    set none-before true
+  ]
 end
 
 
@@ -781,17 +897,10 @@ end
 
 
 ; creates the list from which items are drawn in case that 
-; `necessary-convergence` is selected in the interface and all researchers are 
-; converged on fully explored theories (g-exit-case = 2). 
+; `necessary-convergence` is selected in the interface
 to set-g-learn-set
-  ; lst = learn-set-theories;
-  ; researchers should always learn about the best theory
-  let proper-lst starts with [who = 0 or not member? self g-red-theories]
-  if g-learn-set-theories != proper-lst [
-    set g-learn-set-theories proper-lst
-    let learn-args sort startsargum with [member? mytheory g-learn-set-theories]
-    let learn-rel sort attacks with [member? mytheory-end1 g-learn-set-theories 
-      or member? mytheory-end2 g-learn-set-theories]
-    set g-learn-set sentence learn-args learn-rel
-  ]
+  ; researchers can learn any argument and/or attack in the landscape by chance
+  let learn-args sort startsargum
+  let learn-rel sort attacks
+  set g-learn-set sentence learn-args learn-rel
 end
